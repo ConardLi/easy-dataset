@@ -21,6 +21,7 @@
     "@mui/icons-material": "^5.15.7",
     "@mui/lab": "^5.0.0-alpha.155",
     "@mui/material": "^5.15.7",
+    "@opendocsg/pdf2md": "^0.2.1",
     "framer-motion": "^12.4.10",
     "i18next": "^24.2.2",
     "i18next-browser-languagedetector": "^8.0.4",
