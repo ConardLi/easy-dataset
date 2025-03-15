@@ -30,8 +30,7 @@
         "questionGenDescription": "设置生成问题的最大长度",
         "huggingfaceSettings": "Hugging Face 设置",
         "huggingfaceToken": "Hugging Face Token",
-        "huggingfaceNotImplemented": "Hugging Face 功能暂未实现",
-        "characters": "字符"
+        "huggingfaceNotImplemented": "Hugging Face 功能暂未实现"
     },
     "questions": {
         "title": "问题管理",
@@ -77,7 +76,6 @@
         "yes": "是",
         "no": "否",
         "confirmDelete": "确认删除吗？",
-        "confirmDeleteProject": "确认删除项目吗？",
         "saving": "保存中...",
         "deleting": "删除中...",
         "actions": "操作",
@@ -90,7 +88,8 @@
         "confirmDeleteDescription": "确认删除吗？此操作不可恢复。",
         "fetchError": "获取数据出错",
         "confirmDeleteQuestion": "确认删除此问题吗？此操作不可恢复。",
-        "deleteSuccess": "删除成功"
+        "deleteSuccess": "删除成功",
+        "visitGitHub": "访问GitHub仓库"
     },
     "home": {
         "title": "Easy Dataset",
@@ -118,7 +117,8 @@
         "deleteConfirm": "确认删除项目吗？此操作不可恢复。",
         "deleteSuccess": "项目删除成功",
         "deleteFailed": "删除项目失败",
-        "backToHome": "返回首页"
+        "backToHome": "返回首页",
+        "deleteConfirmTitle": "确认删除项目"
     },
     "textSplit": {
         "noFilesUploaded": "暂未上传文件",
@@ -174,7 +174,8 @@
         "deleteSuccess": "文件 {{fileName}} 已成功删除",
         "generatedQuestions": "{{count}} 个问题",
         "viewDetails": "查看详情",
-        "generateQuestions": "生成问题"
+        "generateQuestions": "生成问题",
+        "characters": "字符"
     },
     "domain": {
         "title": "领域知识树",
