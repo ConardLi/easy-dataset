@@ -77,8 +77,8 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
     }
 
     // 检查文件类型
-    const validFiles = selectedFiles.filter(file => file.name.endsWith('.md') || file.name.endsWith('.txt')|| file.name.endsWith('.pdf'));
-    const invalidFiles = selectedFiles.filter(file => !file.name.endsWith('.md') && !file.name.endsWith('.txt')&& !file.name.endsWith('.pdf'));
+    const validFiles = selectedFiles.filter(file => file.name.endsWith('.md') || file.name.endsWith('.txt')|| file.name.endsWith('.pdf')|| file.name.endsWith('.docx')|| file.name.endsWith('.docx'));
+    const invalidFiles = selectedFiles.filter(file => !file.name.endsWith('.md') && !file.name.endsWith('.txt')&& !file.name.endsWith('.pdf')&&!file.name.endsWith('.docx')&&!file.name.endsWith('.doc'));
 
     if (invalidFiles.length > 0) {
       setError(t('textSplit.unsupportedFormat', { files: invalidFiles.map(f => f.name).join(', ') }));

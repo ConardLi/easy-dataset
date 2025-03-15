@@ -96,8 +96,8 @@ export async function POST(request, { params }) {
     // 检查文件类型
     const fileName = file.name;
     // 支持多文件
-    if (!fileName.endsWith('.md')&&!fileName.endsWith('.pdf')) {
-      return NextResponse.json({ error: '只支持上传Markdown文件' }, { status: 400 });
+    if (!fileName.endsWith('.md')&&!fileName.endsWith('.pdf')&&!fileName.endsWith('.doc')&&!fileName.endsWith('.docx')) {
+      return NextResponse.json({ error: '只支持上传Markdown、PDF、Word文件' }, { status: 400 });
     }
 
     // 获取文件内容

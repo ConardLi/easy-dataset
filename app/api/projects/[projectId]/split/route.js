@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { splitProjectFile, getProjectChunks } from '@/lib/text-splitter';
-import { convertMd } from'@/lib/pdf2md';
+import { pdfHandle,wordHandle } from'@/lib/mutil-files-2-md';
 import LLMClient from '@/lib/llm/core/index';
 import getLabelPrompt from '@/lib/llm/prompts/label';
 import getLabelEnPrompt from '@/lib/llm/prompts/labelEn';
@@ -34,7 +34,13 @@ export async function POST(request, { params }) {
     //pdf文件支持 
     if (fileName.endsWith('.pdf')) {
       const oldName = fileName;
-      fileName = await convertMd(projectId,fileName);
+      fileName = await pdfHandle(projectId,fileName);
+      await deleteFile(projectId, oldName);
+    }
+
+    if (fileName.endsWith('.docx')||fileName.endsWith('.doc')) {
+      const oldName = fileName;
+      fileName = await wordHandle(projectId,fileName);
       await deleteFile(projectId, oldName);
     }
     

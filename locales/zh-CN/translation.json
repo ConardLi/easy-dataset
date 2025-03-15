@@ -132,7 +132,7 @@
         "title": "文献处理",
         "uploadNewDocument": "上传新文献",
         "selectFile": "选择文件",
-        "markdownOnly": "目前仅支持上传 Markdown (.md) PDF (.pdf) 格式文件",
+        "markdownOnly": "目前仅支持上传 Markdown (.md) PDF (.pdf) Word(.docx) 格式文件",
         "uploadAndProcess": "上传并处理文件",
         "selectedFiles": "已选择文件（{{count}}）",
         "oneFileMessage": "一个项目限制处理一个文件，如需上传新文件请先删除现有文件",
