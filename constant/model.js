@@ -22,7 +22,7 @@ export const MODEL_PROVIDERS = [
         id: 'deepseek',
         name: 'DeepSeek',
         defaultEndpoint: 'https://api.deepseek.com/v1/',
-        defaultModels: ['DeepSeek-R1', 'DeepSeek-V3', 'DeepSeek-Coder']
+        defaultModels: ['deepseek-chat', 'deepseek-reasoner']
     },
     {
         id: '302ai',

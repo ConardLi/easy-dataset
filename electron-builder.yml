@@ -1,0 +1,55 @@
+appId: com.easydataset.app
+productName: Easy Dataset
+copyright: Copyright © 2025 Easy Dataset
+description: A application for creating large model fine-tuning datasets
+
+directories:
+  output: dist
+  buildResources: public
+
+files:
+  - .next/**/*
+  - "!.next/cache/**/*"
+  - public/**/*
+  - locales/**/*
+  - package.json
+  - electron/**/*
+  - node_modules/**/*
+  - "!node_modules/.cache/**/*"
+  - "!node_modules/.bin/**/*"
+  - "!node_modules/.vite/**/*"
+  - "!**/*.{md,d.ts,map}"
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+
+extraResources:
+  - from: locales
+    to: locales
+
+asar: true
+compression: maximum
+
+afterbuild: ["rm -rf node_modules/.cache", "rm -rf node_modules/.vite"]
+
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - target: dmg
+      arch: [arm64]
+  icon: public/favicon.ico
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  darkModeSupport: true
+  electronLanguages: ["zh_CN", "en"]
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+
+publish:
+  provider: github
+  releaseType: release

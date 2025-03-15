@@ -56,6 +56,7 @@ export async function POST(request, { params }) {
 
         const result = await ollama.chat(lastMessage.content);
         response = result.message?.content || result.response || '无响应';
+
       } else {
         // 对于其他提供商，使用通用客户端
         const result = await llmClient.chat(formattedMessages);

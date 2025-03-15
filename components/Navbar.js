@@ -20,6 +20,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import ModelSelect from './ModelSelect';
 import LanguageSwitcher from './LanguageSwitcher';
+import UpdateChecker from './UpdateChecker';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -302,6 +303,9 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
               <GitHubIcon fontSize="small" />
             </IconButton>
           </Tooltip>
+          
+          {/* 更新检查器 */}
+          <UpdateChecker />
 
         </Box>
       </Toolbar>

@@ -12,3 +12,4 @@ mock-login-callback.ts
 /src/test/mock
 /local-db
 /test
+/dist

@@ -271,6 +271,15 @@
         "noTagsAndQuestions": "No tags and questions available",
         "answerCount": "{{count}} Answers"
     },
+    "update": {
+        "newVersion": "New Version",
+        "newVersionAvailable": "New Version Available",
+        "currentVersion": "Current Version",
+        "latestVersion": "Latest Version",
+        "updateNow": "Update Now",
+        "updating": "Updating...",
+        "viewRelease": "View Release Notes"
+    },
     "datasetSquare": {
         "title": "Dataset Square",
         "subtitle": "Discover and explore various public dataset resources to support your model training and research",

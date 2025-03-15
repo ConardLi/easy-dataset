@@ -4,6 +4,7 @@ import { getQuestionsForChunk } from '@/lib/db/questions';
 import { getDatasets, saveDatasets } from '@/lib/db/datasets';
 import getAnswerPrompt from '@/lib/llm/prompts/answer';
 import getAnswerEnPrompt from '@/lib/llm/prompts/answerEn';
+import { extractThinkChain, extractAnswer } from '@/lib/llm/common/util';
 
 
 const LLMClient = require('@/lib/llm/core');
@@ -54,11 +55,18 @@ export async function POST(request, { params }) {
     // console.log(prompt);
     // 调用大模型生成答案
     const llmRes = await llmClient.chat(prompt);
-    const answer = llmRes.choices?.[0]?.message?.content ||
+    let answer = llmRes.choices?.[0]?.message?.content ||
       llmRes.response ||
       '';
 
-    const cot = llmRes.choices?.[0]?.message?.reasoning_content || llmRes.choices?.[0]?.message?.reasoning || '';
+    let cot = '';
+    if (answer.startsWith('<think>') || answer.startsWith('<thinking>')) {
+      cot = extractThinkChain(answer);
+      answer = extractAnswer(answer);
+    } else {
+      cot = llmRes.choices?.[0]?.message?.reasoning_content || llmRes.choices?.[0]?.message?.reasoning || '';
+    }
+
 
     console.log(questionId, 'answer:', answer, cot);
     // 获取现有数据集
