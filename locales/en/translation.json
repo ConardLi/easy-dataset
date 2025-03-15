@@ -59,12 +59,10 @@
         "generating": "Generating Dataset",
         "generatingProgress": "Completed: {{completed}}/{{total}}",
         "generatedCount": "Generated: {{count}}",
-        "completedCount": "Completed: {{count}}",
         "pleaseWait": "Please wait, processing..."
     },
     "common": {
         "unknownError": "Unknown Error",
-        "visitGitHub": "Visit GitHub Repository",
         "create": "Create",
         "edit": "Edit",
         "delete": "Delete",
@@ -72,13 +70,15 @@
         "cancel": "Cancel",
         "confirm": "Confirm",
         "close": "Close",
+        "add": "Add",
+        "remove": "Remove",
+        "loading": "Loading...",
+        "yes": "Yes",
+        "no": "No",
         "confirmDelete": "Confirm Delete",
-        "confirmDeleteMessage": "Are you sure you want to delete this project? This action cannot be undone.",
         "saving": "Saving...",
         "deleting": "Deleting...",
         "actions": "Actions",
-        "yes": "Yes",
-        "no": "No",
         "confirmDeleteDataSet": "Are you sure you want to delete this dataset? This action cannot be undone.",
         "noData": "None",
         "failed": "Failed",
@@ -89,7 +89,7 @@
         "fetchError": "Fetching data failed",
         "confirmDeleteQuestion": "Are you sure you want to delete this question? This action cannot be undone.",
         "deleteSuccess": "Delete successful",
-        "loading": "Loading..."
+        "visitGitHub": "Visit GitHub Repository"
     },
     "home": {
         "title": "Easy Dataset",
@@ -98,8 +98,8 @@
         "searchDataset": "Search Public Datasets"
     },
     "projects": {
+        "selectProject": "Select Project",
         "fetchFailed": "Failed to fetch project list",
-        "chunkDetails": "Chunk Details: {{chunkId}}",
         "fetchError": "Error fetching project list",
         "loading": "Loading your projects...",
         "createFailed": "Failed to create project",
@@ -107,20 +107,20 @@
         "createNew": "Create New Project",
         "name": "Project Name",
         "description": "Project Description",
-        "lastUpdated": "Last Updated",
-        "viewDetails": "View Details",
         "questions": "Questions",
         "datasets": "Datasets",
+        "lastUpdated": "Last Updated",
+        "viewDetails": "View Details",
         "createFirst": "Please create a project first",
+        "noProjects": "No projects found",
+        "createProject": "Create Project",
+        "deleteConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
         "deleteSuccess": "Project deleted successfully",
         "deleteFailed": "Failed to delete project",
-        "deleteConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
-        "deleteConfirmTitle": "Confirm Delete",
-        "noProjects": "No projects found",
-        "backToHome": "Back to Home"
+        "backToHome": "Back to Home",
+        "deleteConfirmTitle": "Confirm Delete"
     },
     "textSplit": {
-        "noChunks": " No text chunks found",
         "noFilesUploaded": "No files uploaded yet",
         "editTag": "Edit Tag",
         "deleteTag": "Delete Tag",
@@ -135,6 +135,8 @@
         "uploadAndProcess": "Upload and Process",
         "selectedFiles": "Selected Files ({{count}})",
         "oneFileMessage": "File upload not allowed, please delete the existing file first",
+        "noChunks": " No text chunks found",
+        "chunkDetails": "Chunk Details: {{chunkId}}",
         "fetchChunksFailed": "Failed to fetch text chunks",
         "fetchChunksError": "Error fetching text chunks",
         "fileResultReceived": "File result received",
@@ -170,11 +172,10 @@
         "uploadSuccess": "Successfully uploaded {{count}} files",
         "deleteFailed": "Failed to delete file",
         "deleteSuccess": "File {{fileName}} has been successfully deleted",
-        "chunkDetails": "Chunk Details: {{chunkId}}",
-        "characters": "Characters",
         "generatedQuestions": "{{count}} Questions",
         "viewDetails": "View Details",
-        "generateQuestions": "Generate Questions"
+        "generateQuestions": "Generate Questions",
+        "characters": "Characters"
     },
     "domain": {
         "title": "Domain Knowledge Tree",
@@ -332,10 +333,10 @@
         "title": "Text Chunk"
     },
     "models": {
-        "title": "Model Settings",
-        "add": "Add Model",
         "configNotFound": "Model config not found",
         "parseError": "Failed to parse model config",
+        "title": "Model Settings",
+        "add": "Add Model",
         "unselectedModel": "Unselected Model",
         "unconfiguredAPIKey": "Unconfigured API Key",
         "saveAllModels": "Save All Models",
