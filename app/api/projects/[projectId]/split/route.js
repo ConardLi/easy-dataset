@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { splitProjectFile, getProjectChunks } from '@/lib/text-splitter';
+import { pdfHandle,wordHandle } from'@/lib/mutil-files-2-md';
 import LLMClient from '@/lib/llm/core/index';
 import getLabelPrompt from '@/lib/llm/prompts/label';
 import getLabelEnPrompt from '@/lib/llm/prompts/labelEn';
@@ -19,7 +20,7 @@ export async function POST(request, { params }) {
     }
 
     // 获取请求体
-    const { fileName, model, language } = await request.json();
+    var { fileName, model, language } = await request.json();
 
     if (!model) {
       return NextResponse.json({ error: '请选择模型' }, { status: 400 });
@@ -30,6 +31,19 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: '文件名不能为空' }, { status: 400 });
     }
 
+    //pdf文件支持 
+    if (fileName.endsWith('.pdf')) {
+      const oldName = fileName;
+      fileName = await pdfHandle(projectId,fileName);
+      await deleteFile(projectId, oldName);
+    }
+
+    if (fileName.endsWith('.docx')||fileName.endsWith('.doc')) {
+      const oldName = fileName;
+      fileName = await wordHandle(projectId,fileName);
+      await deleteFile(projectId, oldName);
+    }
+    
     // 分割文本
     const result = await splitProjectFile(projectId, fileName);
 
@@ -40,6 +54,7 @@ export async function POST(request, { params }) {
       apiKey: model.apiKey,
       model: model.name,
     });
+    
     // 生成领域树
     console.log(projectId, fileName, '分割完成，开始构建领域树');
     const llmRes = await llmClient.chat(language === 'en' ? getLabelEnPrompt(toc) : getLabelPrompt(toc));
