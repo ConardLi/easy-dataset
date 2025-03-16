@@ -10,13 +10,13 @@ export const MODEL_PROVIDERS = [
         id: 'openai',
         name: 'OpenAI',
         defaultEndpoint: 'https://api.openai.com/v1/',
-        defaultModels: ['GPT-4o', 'GPT-4o-mini', 'o1-mini']
+        defaultModels: ['gpt-4o', 'gpt-4o-mini', 'o1-mini']
     },
     {
         id: 'siliconflow',
         name: '硅基流动',
         defaultEndpoint: 'https://api.siliconflow.cn/v1/',
-        defaultModels: ['deepseek-ai/DeepSeek-R1', 'Qwen2.5-7B-Instruct']
+        defaultModels: ['deepseek-ai/DeepSeek-R1', 'deepseek-ai/DeepSeek-V3', 'Qwen2.5-7B-Instruct', 'meta-llama/Llama-3.3-70B-Instruct']
     },
     {
         id: 'deepseek',
@@ -34,7 +34,7 @@ export const MODEL_PROVIDERS = [
         id: 'zhipu',
         name: '智谱AI',
         defaultEndpoint: 'https://open.bigmodel.cn/api/paas/v4/',
-        defaultModels: ['GLM-4-Flash', 'GLM-4']
+        defaultModels: ['glm-4-flash', 'glm-4-flashx', 'glm-4-plus', 'glm-4-long']
     }, {
         id: 'huoshan',
         name: '火山引擎',
@@ -50,5 +50,10 @@ export const MODEL_PROVIDERS = [
         name: 'Grok',
         defaultEndpoint: 'https://api.x.ai',
         defaultModels: ['Grok Beta']
+    }, {
+        id: 'OpenRouter',
+        name: 'OpenRouter',
+        defaultEndpoint: 'https://openrouter.ai/api/v1/',
+        defaultModels: ['google/gemma-2-9b-it:free', 'meta-llama/llama-3-8b-instruct:free', 'microsoft/phi-3-mini-128k-instruct:free']
     }
 ];
