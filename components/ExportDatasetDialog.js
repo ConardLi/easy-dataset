@@ -26,7 +26,7 @@ const ExportDatasetDialog = ({ open, onClose, onExport }) => {
     const { t } = useTranslation();
     const [formatType, setFormatType] = useState('alpaca');
     const [systemPrompt, setSystemPrompt] = useState('');
-    const [confirmedOnly, setConfirmedOnly] = useState(true);
+    const [confirmedOnly, setConfirmedOnly] = useState(false);
     const [fileFormat, setFileFormat] = useState('json');
     // 新增状态
     const [includeCOT, setIncludeCOT] = useState(true);
@@ -283,7 +283,7 @@ const ExportDatasetDialog = ({ open, onClose, onExport }) => {
                     />
                 </Box>
 
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 2, display: 'flex', flexDirection: 'row', gap: 4 }}>
                     <FormControlLabel
                         control={
                             <Checkbox
@@ -293,24 +293,18 @@ const ExportDatasetDialog = ({ open, onClose, onExport }) => {
                         }
                         label={t('export.onlyConfirmed')}
                     />
-                </Box>
 
-                {/* 新增 COT 拼接选项 */}
-                <Box>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={includeCOT}
-                                onChange={handleIncludeCOTChange}
-                            />
-                        }
-                        label={t('export.includeCOT')}
-                    />
-                    {includeCOT && (
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 4 }}>
-                            {t('export.cotDescription')}
-                        </Typography>
-                    )}
+                    <Box>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={includeCOT}
+                                    onChange={handleIncludeCOTChange}
+                                />
+                            }
+                            label={t('export.includeCOT')}
+                        />
+                    </Box>
                 </Box>
             </DialogContent>
             <DialogActions>
