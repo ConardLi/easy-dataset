@@ -29,6 +29,8 @@ import {
   alpha,
   InputBase,
   Tooltip,
+  Checkbox,
+  LinearProgress
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -37,6 +39,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useRouter } from 'next/navigation';
 import ExportDatasetDialog from '@/components/ExportDatasetDialog';
 import { useTranslation } from 'react-i18next';
+import { processInParallel } from '@/lib/utils/async';
 
 // 数据集列表组件
 const DatasetList = ({
@@ -47,7 +50,10 @@ const DatasetList = ({
   rowsPerPage,
   onPageChange,
   onRowsPerPageChange,
-  total
+  total,
+  selectedIds,
+  onSelectAll,
+  onSelectItem
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -66,6 +72,20 @@ const DatasetList = ({
         <Table sx={{ minWidth: 750 }}>
           <TableHead>
             <TableRow>
+              <TableCell padding="checkbox" 
+                sx={{
+                  backgroundColor: bgColor,
+                  color: color,
+                  borderBottom: `2px solid ${theme.palette.divider}`,
+                }}
+              >
+                  <Checkbox
+                    color="primary"
+                    indeterminate={selectedIds.length > 0 && selectedIds.length < datasets.length}
+                    checked={datasets.length > 0 && selectedIds.length === datasets.length}
+                    onChange={onSelectAll}
+                  />
+              </TableCell>
               <TableCell
                 sx={{
                   backgroundColor: bgColor,
@@ -156,12 +176,26 @@ const DatasetList = ({
                 }}
                 onClick={() => onViewDetails(dataset.id)}
               >
+                <TableCell padding="checkbox" 
+                  sx={{
+                    borderLeft: `4px solid ${theme.palette.primary.main}`,
+                  }}
+                >
+                  <Checkbox
+                    color="primary"
+                    checked={selectedIds.includes(dataset.id)}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      onSelectItem(dataset.id);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </TableCell>
                 <TableCell
                   sx={{
                     maxWidth: 300,
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
-                    borderLeft: `4px solid ${theme.palette.primary.main}`,
                     py: 2,
                   }}
                 >
@@ -313,10 +347,10 @@ const DatasetList = ({
 };
 
 // 删除确认对话框
-const DeleteConfirmDialog = ({ open, dataset, onClose, onConfirm }) => {
+const DeleteConfirmDialog = ({ open, datasets, onClose, onConfirm, batch, progress, deleting }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-
+  const dataset = datasets?.[0];
   return (
     <Dialog
       open={open}
@@ -331,9 +365,14 @@ const DeleteConfirmDialog = ({ open, dataset, onClose, onConfirm }) => {
       </DialogTitle>
       <DialogContent sx={{ pb: 2, pt: 1 }}>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          {t('common.confirmDeleteDataSet')}
+          {batch ? t(
+            'datasets.batchconfirmDeleteMessage',
+            {
+              count: datasets.length,
+            }
+          ) : t('common.confirmDeleteDataSet')}
         </Typography>
-        <Paper
+        {batch ? '' : <Paper
           variant="outlined"
           sx={{
             p: 2,
@@ -347,7 +386,39 @@ const DeleteConfirmDialog = ({ open, dataset, onClose, onConfirm }) => {
           <Typography variant="body2">
             {dataset?.question}
           </Typography>
-        </Paper>
+        </Paper>}
+        {
+          deleting && progress ? 
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <Typography variant="body1" sx={{ mr: 1 }}>
+                {progress.percentage}%
+              </Typography>
+              <Box sx={{ width: '100%' }}>
+                <LinearProgress
+                  variant="determinate"
+                  value={progress.percentage}
+                  sx={{ 
+                    height: 8, 
+                    borderRadius: 4,
+                    '& .MuiLinearProgress-bar': {
+                      transitionDuration: '0.1s'
+                    }
+                  }}
+                  color="primary"
+                />
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <Typography variant="body2">
+                {t('datasets.batchDeleteProgress', { completed: progress.completed, total: progress.total })}
+              </Typography>
+              <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
+                {t('datasets.batchDeleteCount', { count: progress.datasetCount })}
+              </Typography>
+            </Box>
+          </Box> : ''
+        }
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button
@@ -370,6 +441,7 @@ const DeleteConfirmDialog = ({ open, dataset, onClose, onConfirm }) => {
   );
 };
 
+
 // 主页面组件
 export default function DatasetsPage({ params }) {
   const { projectId } = params;
@@ -384,13 +456,25 @@ export default function DatasetsPage({ params }) {
   });
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
-    dataset: null
+    datasets: null,
+    // 是否批量删除
+    batch: false,
+    // 是否正在删除
+    deleting: false,
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
   const [exportDialog, setExportDialog] = useState({ open: false });
+  const [selectedIds, setselectedIds] = useState([]);
   const { t } = useTranslation();
+  // 删除进度状态
+  const [deleteProgress, setDeteleProgress] = useState({
+    total: 0,         // 总删除问题数量
+    completed: 0,     // 已删除完成的数量
+    percentage: 0,    // 进度百分比
+  });
+
 
 
   // 3. 添加打开导出对话框的处理函数
@@ -455,7 +539,7 @@ export default function DatasetsPage({ params }) {
   const handleOpenDeleteDialog = (dataset) => {
     setDeleteDialog({
       open: true,
-      dataset
+      datasets: [dataset]
     });
   };
 
@@ -467,11 +551,56 @@ export default function DatasetsPage({ params }) {
     });
   };
 
-  // 删除数据集
-  const handleDelete = async () => {
-    const dataset = deleteDialog.dataset;
-    if (!dataset) return;
+  const handleBatchDeleteDataset = async ()=>{
+    setDeleteDialog({
+      open: true,
+      datasets: datasets.filter(dataset=>selectedIds.includes(dataset.id)),
+      batch: true,
+      count: selectedIds.length,
+    });
+  }
 
+  const resetProgress = () => {
+    setDeteleProgress({
+      total: deleteDialog.count,
+      completed: 0,
+      percentage: 0,
+    });
+  };
+
+  const handleDeleteConfirm = async ()=>{
+    if(deleteDialog.batch){
+      setDeleteDialog({
+        ...deleteDialog,
+        deleting: true,
+      });
+      await handleBatchDelete();
+      resetProgress();
+    }else{
+      const [dataset] = deleteDialog.datasets;
+      if (!dataset) return;
+      await handleDelete(dataset);
+    }
+    // 刷新数据
+    fetchDatasets();
+    // 关闭确认框
+    handleCloseDeleteDialog();
+  }
+
+  // 批量删除数据集
+  const handleBatchDelete = async ()=>{
+    // TODO: 并发删除存在问题，这里只能同时删除1个，待优化
+    await processInParallel(deleteDialog.datasets, handleDelete, 1, (cur, total)=>{
+      setDeteleProgress({
+        total: total,
+        completed: cur,
+        percentage: Math.floor((cur / total) * 100),
+      });
+    });
+  }
+
+  // 删除数据集
+  const handleDelete = async (dataset) => {
     try {
       const response = await fetch(`/api/projects/${projectId}/datasets?id=${dataset.id}`, {
         method: 'DELETE'
@@ -483,11 +612,6 @@ export default function DatasetsPage({ params }) {
         message: t('datasets.deleteSuccess'),
         severity: 'success'
       });
-
-      // 刷新数据
-      fetchDatasets();
-      // 关闭确认框
-      handleCloseDeleteDialog();
     } catch (error) {
       setSnackbar({
         open: true,
@@ -626,6 +750,26 @@ export default function DatasetsPage({ params }) {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
+  // 处理全选/取消全选
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      setselectedIds(getCurrentPageData().map(dataset => dataset.id));
+    } else {
+      setselectedIds([]);
+    }
+  };
+
+  // 处理单个选择
+  const handleSelectItem = (id) => {
+    setselectedIds(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(item => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -710,8 +854,31 @@ export default function DatasetsPage({ params }) {
               {t('export.title')}
             </Button>
           </Box>
-        </Box>
+        </Box >
       </Card>
+        {selectedIds.length ? <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          marginTop: '10px',
+          gap: 2,
+        }}>
+            <Typography variant="body1" color="text.secondary">
+              {t('datasets.selected', {
+                count: selectedIds.length,
+              })}
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ borderRadius: 2 }}
+              onClick={handleBatchDeleteDataset}
+            >
+              {t('datasets.batchDelete')}
+            </Button>
+          </Box> : ''}
 
       <DatasetList
         datasets={getCurrentPageData()}
@@ -722,13 +889,19 @@ export default function DatasetsPage({ params }) {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         total={filteredDatasets.length}
+        selectedIds={selectedIds}
+        onSelectAll={handleSelectAll}
+        onSelectItem={handleSelectItem}
       />
 
       <DeleteConfirmDialog
         open={deleteDialog.open}
-        dataset={deleteDialog.dataset}
+        batch={deleteDialog.batch}
+        datasets={deleteDialog.datasets}
+        progress={deleteProgress}
+        deleting={deleteDialog.deleting}
         onClose={handleCloseDeleteDialog}
-        onConfirm={handleDelete}
+        onConfirm={handleDeleteConfirm}
       />
 
       <Snackbar
