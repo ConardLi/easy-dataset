@@ -60,7 +60,11 @@
         "generating": "正在生成数据集",
         "generatingProgress": "已完成: {{completed}}/{{total}}",
         "generatedCount": "已生成: {{count}}",
-        "pleaseWait": "请耐心等待，正在处理中..."
+        "pleaseWait": "请耐心等待，正在处理中...",
+        "addNewQuestion": "添加新问题",
+        "addSuccess": "问题添加成功",
+        "addFailed": "添加问题失败",
+        "addError": "添加问题出错"
     },
     "common": {
         "unknownError": "未知错误",

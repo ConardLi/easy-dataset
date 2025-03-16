@@ -60,7 +60,11 @@
         "generatingProgress": "Completed: {{completed}}/{{total}}",
         "generatedCount": "Generated: {{count}}",
         "completedCount": "Completed: {{count}}",
-        "pleaseWait": "Please wait, processing..."
+        "pleaseWait": "Please wait, processing...",
+        "addNewQuestion": "Add new question",
+        "addSuccess": "Question added successfully",
+        "addFailed": "Failed to add new question",
+        "addError": "Qestion added with errors"
     },
     "common": {
         "unknownError": "Unknown Error",

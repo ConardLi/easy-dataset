@@ -29,6 +29,7 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import DeleteIcon from '@mui/icons-material/Delete';
 import i18n from '@/lib/i18n';
 import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
 import QuestionListView from '@/components/questions/QuestionListView';
 import QuestionTreeView from '@/components/questions/QuestionTreeView';
 import TabPanel from '@/components/text-split/components/TabPanel';
@@ -65,6 +66,14 @@ export default function QuestionsPage({ params }) {
     title: '',
     content: '',
     confirmAction: null
+  });
+
+  // 添加新问题对话框状态
+  const [addQuestionDialog, setAddQuestionDialog] = useState({
+    open: false,
+    question: '',
+    selectedChunkId: '',
+    error: ''
   });
 
   const fetchData = async (currentPage) => {
@@ -633,6 +642,154 @@ export default function QuestionsPage({ params }) {
     confirmBatchDeleteQuestions();
   };
 
+  const selectedModelId = localStorage.getItem('selectedModelId');
+  let model = null;
+
+  // 尝试从 localStorage 获取完整的模型信息
+  const modelInfoStr = localStorage.getItem('selectedModelInfo');
+
+  if (modelInfoStr) {
+    try {
+      model = JSON.parse(modelInfoStr);
+    } catch (e) {
+      console.error(t('解析模型信息出错:'), e);
+      // 继续执行，将在下面尝试获取模型信息
+    }
+  }
+
+  // 如果仍然没有模型信息，抛出错误
+  if (!selectedModelId) {
+    throw new Error(t('textSplit.selectModelFirst'));
+  }
+
+  if (!model) {
+    throw new Error(t('textSplit.modelNotAvailable'));
+  }
+
+
+    // 处理打开添加问题对话框
+  const handleOpenAddQuestionDialog = () => {
+    // 默认选择第一个文本块，如果有的话
+    const defaultChunkId = chunks.length > 0 ? chunks[0].id : '';
+    setAddQuestionDialog({
+      open: true,
+      question: '',
+      selectedChunkId: defaultChunkId,
+      error: ''
+    });
+  };
+
+  // 处理关闭添加问题对话框
+  const handleCloseAddQuestionDialog = () => {
+    setAddQuestionDialog({
+      ...addQuestionDialog,
+      open: false
+    });
+  };
+
+  // 处理添加问题表单变化
+  const handleAddQuestionChange = (field, value) => {
+    setAddQuestionDialog({
+      ...addQuestionDialog,
+      [field]: value,
+      error: ''
+    });
+  };
+
+  // 处理提交添加问题
+  const handleSubmitAddQuestion = async () => {
+    try {
+      // 验证表单
+      if (!addQuestionDialog.question.trim()) {
+        setAddQuestionDialog({
+          ...addQuestionDialog,
+          error: t('questions.questionRequired')
+        });
+        return;
+      }
+
+      if (!addQuestionDialog.selectedChunkId) {
+        setAddQuestionDialog({
+          ...addQuestionDialog,
+          error: t('questions.chunkRequired')
+        });
+        return;
+      }
+
+      setProcessing(true);
+      setError(null);
+
+      // 重置进度状态
+      setProgress({
+        total: 1,
+        completed: 0,
+        percentage: 0,
+        questionCount: 0
+      });
+
+
+      const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
+      // 调用API添加问题
+      const response = await fetch(`/api/projects/${projectId}/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ model, language: currentLanguage,
+          question: addQuestionDialog.question,
+          chunkId: addQuestionDialog.selectedChunkId
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || t('questions.addFailed'));
+      }
+      //setError({ severity: 'success', message: t('questions.questionAddSuccess') });
+      // 获取新添加的问题数据
+      const newQuestion = await response.json();
+      // 更新问题列表
+          // 将嵌套的问题数据结构拍平
+      const flattenedQuestions = [];
+      
+      newQuestion.labelQuestions.forEach(item => {
+        const { question, label } = item;
+        flattenedQuestions.push({
+          question,
+          label,
+          chunkId: addQuestionDialog.selectedChunkId,
+        });
+      });
+      setQuestions(prev => [...prev, ...flattenedQuestions]);
+      
+      // 关闭对话框
+      handleCloseAddQuestionDialog();
+      setSnackbar({
+        open: true,
+        message: t('question.addSuccess'),
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error("消息新增失败", error);
+      setSnackbar({
+        open: true,
+        message: error.message || t('questions.addFailed'),
+        severity: 'error'
+      });
+    }finally {
+      setProcessing(false);
+      // 重置进度状态
+      setTimeout(() => {
+        setProgress({
+          total: 0,
+          completed: 0,
+          percentage: 0,
+          questionCount: 0
+        });
+      }, 1000); // 延迟重置，让用户看到完成的进度 
+    }
+  };
+
   // 获取文本块内容
   const getChunkContent = (chunkId) => {
     const chunk = chunks.find(c => c.id === chunkId);
@@ -650,6 +807,7 @@ export default function QuestionsPage({ params }) {
   }
 
   if (error) {
+    //console.error('Error fetching project:', error);
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -795,7 +953,18 @@ export default function QuestionsPage({ params }) {
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {/* 添加新问题按钮 */}
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={handleOpenAddQuestionDialog}
+                size="small"
+              >
+                {t('questions.addNewQuestion')}
+              </Button>
+              
               <TextField
                 placeholder={t('questions.searchPlaceholder')}
                 variant="outlined"
@@ -893,6 +1062,73 @@ export default function QuestionsPage({ params }) {
             autoFocus
           >
             {t('common.confirmDelete')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* 添加问题对话框 */}
+      <Dialog
+        open={addQuestionDialog.open}
+        onClose={handleCloseAddQuestionDialog}
+        aria-labelledby="add-question-dialog-title"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="add-question-dialog-title">{t('questions.addNewQuestion')}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              label={t('questions.questionText')}
+              fullWidth
+              multiline
+              rows={3}
+              value={addQuestionDialog.question}
+              onChange={(e) => handleAddQuestionChange('question', e.target.value)}
+              error={!!addQuestionDialog.error && !addQuestionDialog.question.trim()}
+              helperText={!addQuestionDialog.question.trim() && addQuestionDialog.error ? addQuestionDialog.error : ''}
+              sx={{ mb: 3 }}
+            />
+            
+            <TextField
+              select
+              label={t('questions.selectChunk')}
+              fullWidth
+              value={addQuestionDialog.selectedChunkId}
+              onChange={(e) => handleAddQuestionChange('selectedChunkId', e.target.value)}
+              error={!!addQuestionDialog.error && !addQuestionDialog.selectedChunkId}
+              helperText={!addQuestionDialog.selectedChunkId && addQuestionDialog.error ? t('questions.chunkRequired') : ''}
+              SelectProps={{
+                native: true,
+              }}
+            >
+              <option value="">{t('questions.selectChunkPlaceholder')}</option>
+              {chunks.map((chunk) => (
+                <option key={chunk.id} value={chunk.id}>
+                  {chunk.title || chunk.id} ({chunk.content.substring(0, 50)}...)
+                </option>
+              ))}
+            </TextField>
+            
+            {addQuestionDialog.selectedChunkId && (
+              <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t('questions.chunkPreview')}:
+                </Typography>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', maxHeight: '150px', overflow: 'auto' }}>
+                  {getChunkContent(addQuestionDialog.selectedChunkId)}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAddQuestionDialog}>{t('common.cancel')}</Button>
+          <Button 
+            onClick={handleSubmitAddQuestion} 
+            variant="contained" 
+            color="primary"
+            disabled={!addQuestionDialog.question.trim() || !addQuestionDialog.selectedChunkId}
+          >
+            {t('common.add')}
           </Button>
         </DialogActions>
       </Dialog>
