@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Typography, 
-  Box, 
-  Button, 
-  TextField, 
-  Grid, 
+import {
+  Typography,
+  Box,
+  Button,
+  TextField,
+  Grid,
   Card,
   CardContent,
   Slider,
@@ -14,66 +14,26 @@ import {
   Alert,
   Snackbar
 } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
 import { useTranslation } from 'react-i18next';
+
+import SaveIcon from '@mui/icons-material/Save';
+import useTaskSettings from '@/hooks/useTaskSettings';
 
 export default function TaskSettings({ projectId }) {
   const { t } = useTranslation();
-  const [taskSettings, setTaskSettings] = useState({
-    textSplitMinLength: 1500,
-    textSplitMaxLength: 2000,
-    questionGenerationLength: 240,
-    huggingfaceToken: ''
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    async function fetchTaskSettings() {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/projects/${projectId}/tasks`);
-        
-        if (!response.ok) {
-          throw new Error(t('settings.fetchTasksFailed'));
-        }
-        
-        const data = await response.json();
-        
-        // 如果没有配置，使用默认值
-        if (Object.keys(data).length === 0) {
-          setTaskSettings({
-            textSplitMinLength: 1500,
-            textSplitMaxLength: 2000,
-            questionGenerationLength: 240,
-            huggingfaceToken: ''
-          });
-        } else {
-          setTaskSettings(data);
-        }
-      } catch (error) {
-        console.error('获取任务配置出错:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    fetchTaskSettings();
-  }, [projectId, t]);
-
+  const { taskSettings, setTaskSettings, loading, error, success, setSuccess } =
+    useTaskSettings(projectId);
   // 处理设置变更
-  const handleSettingChange = (e) => {
+  const handleSettingChange = e => {
     const { name, value } = e.target;
     setTaskSettings(prev => ({
       ...prev,
       [name]: value
     }));
   };
-  
+
   // 处理滑块变更
-  const handleSliderChange = (name) => (event, newValue) => {
+  const handleSliderChange = name => (event, newValue) => {
     setTaskSettings(prev => ({
       ...prev,
       [name]: newValue
@@ -86,15 +46,15 @@ export default function TaskSettings({ projectId }) {
       const response = await fetch(`/api/projects/${projectId}/tasks`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(taskSettings),
+        body: JSON.stringify(taskSettings)
       });
-      
+
       if (!response.ok) {
         throw new Error(t('settings.saveTasksFailed'));
       }
-      
+
       setSuccess(true);
     } catch (error) {
       console.error('保存任务配置出错:', error);
@@ -117,7 +77,7 @@ export default function TaskSettings({ projectId }) {
         <Typography variant="h6" gutterBottom>
           {t('settings.taskConfig')}
         </Typography>
-        
+
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
@@ -137,7 +97,7 @@ export default function TaskSettings({ projectId }) {
                 min={500}
                 max={3000}
               />
-              
+
               <Typography id="text-split-max-length-slider" gutterBottom sx={{ mt: 3 }}>
                 {t('settings.maxLength')}: {taskSettings.textSplitMaxLength}
               </Typography>
@@ -151,13 +111,13 @@ export default function TaskSettings({ projectId }) {
                 min={1000}
                 max={5000}
               />
-              
+
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
                 {t('settings.textSplitDescription')}
               </Typography>
             </Box>
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               {t('settings.questionGenSettings')}
@@ -176,13 +136,13 @@ export default function TaskSettings({ projectId }) {
                 min={100}
                 max={500}
               />
-              
+
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
                 {t('settings.questionGenDescription')}
               </Typography>
             </Box>
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               {t('settings.huggingfaceSettings')}
@@ -196,28 +156,36 @@ export default function TaskSettings({ projectId }) {
               type="password"
               helperText={t('settings.huggingfaceNotImplemented')}
               InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">hf_</InputAdornment>
-                ),
+                startAdornment: <InputAdornment position="start">hf_</InputAdornment>
               }}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={handleSaveTaskSettings}
-            >
+            <Typography variant="subtitle1" gutterBottom>
+              {t('settings.concurrencyLimit')}
+            </Typography>
+            <TextField
+              fullWidth
+              label={t('settings.concurrencyLimit')}
+              name="concurrencyLimit"
+              value={taskSettings.concurrencyLimit}
+              onChange={handleSettingChange}
+              type="number"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSaveTaskSettings}>
               {t('settings.saveTaskConfig')}
             </Button>
           </Grid>
         </Grid>
       </CardContent>
 
-      <Snackbar 
-        open={success} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={success}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
@@ -226,9 +194,9 @@ export default function TaskSettings({ projectId }) {
         </Alert>
       </Snackbar>
 
-      <Snackbar 
-        open={!!error} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
