@@ -24,10 +24,10 @@ const UpdateChecker = () => {
     try {
       setChecking(true);
       setUpdateError(null);
-      
+
       const result = await window.electron.updater.checkForUpdates();
       console.log('检查更新结果:', result);
-      
+
       // 返回当前版本信息
       if (result) {
         setUpdateInfo(prev => ({
@@ -134,7 +134,7 @@ const UpdateChecker = () => {
     const interval = setInterval(() => {
       checkForUpdates();
     }, 60 * 60 * 1000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -157,23 +157,23 @@ const UpdateChecker = () => {
           {t('update.newVersion')}
         </Button>
       )}
-      
+
       <Snackbar
         open={open}
         autoHideDuration={null}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={handleClose} 
-          severity="info" 
+        <Alert
+          onClose={handleClose}
+          severity="info"
           sx={{ width: '100%', maxWidth: 400 }}
         >
           <Box sx={{ p: 1 }}>
             <Typography variant="h6">
               {t('update.newVersionAvailable')}
             </Typography>
-            
+
             {updateInfo && (
               <>
                 <Typography variant="body2" sx={{ mt: 1 }}>
@@ -184,24 +184,24 @@ const UpdateChecker = () => {
                 </Typography>
               </>
             )}
-            
+
             {checking && (
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
                 <Typography variant="body2">{t('update.checking')}</Typography>
               </Box>
             )}
-            
+
             {updateError && (
-              <Typography 
-                variant="body2" 
+              <Typography
+                variant="body2"
                 color="error.main"
                 sx={{ mt: 1 }}
               >
                 {updateError}
               </Typography>
             )}
-            
+
             {downloading && (
               <Box sx={{ mt: 2, width: '100%' }}>
                 <Typography variant="body2" sx={{ mb: 0.5 }}>
@@ -210,9 +210,9 @@ const UpdateChecker = () => {
                 <LinearProgress variant="determinate" value={downloadProgress} />
               </Box>
             )}
-            
+
             <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-              {!downloading && !updateDownloaded ? (
+              {/* {!downloading && !updateDownloaded ? (
                 <Button
                   variant="contained"
                   color="primary"
@@ -229,12 +229,12 @@ const UpdateChecker = () => {
                 >
                   {t('update.installNow')}
                 </Button>
-              ) : null}
-              
+              ) : null} */}
+
               {updateInfo?.releaseUrl && (
-                <Link 
-                  href={updateInfo.releaseUrl} 
-                  target="_blank" 
+                <Link
+                  href={updateInfo.releaseUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
                 >
                   <Button variant="outlined">
