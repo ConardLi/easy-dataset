@@ -183,12 +183,19 @@ async function startNextServer() {
 
 // 自动更新配置
 function setupAutoUpdater() {
+  // 添加日志记录
+  const log = require('electron-log');
+  autoUpdater.logger = log;
+  autoUpdater.logger.transports.file.level = 'debug';
+  log.info('自动更新配置初始化');
+
   autoUpdater.autoDownload = false;
   autoUpdater.allowDowngrade = false;
 
-
   // 检查更新时出错
   autoUpdater.on('error', (error) => {
+    log.error('更新错误:', error);
+    log.error('错误详情:', error.stack);
     dialog.showErrorBox('更新错误', `检查更新时出错: ${error.message}`);
     if (mainWindow) {
       mainWindow.webContents.send('update-error', error.message);
@@ -197,6 +204,9 @@ function setupAutoUpdater() {
 
   // 检查到更新时
   autoUpdater.on('update-available', (info) => {
+    log.info('检测到更新:', info);
+    log.info('更新文件列表:', info.files);
+    
     if (mainWindow) {
       mainWindow.webContents.send('update-available', {
         version: info.version,
@@ -207,7 +217,8 @@ function setupAutoUpdater() {
   });
 
   // 没有可用更新
-  autoUpdater.on('update-not-available', () => {
+  autoUpdater.on('update-not-available', (info) => {
+    log.info('没有可用更新:', info);
     if (mainWindow) {
       mainWindow.webContents.send('update-not-available');
     }
@@ -215,6 +226,7 @@ function setupAutoUpdater() {
 
   // 下载进度
   autoUpdater.on('download-progress', (progressObj) => {
+    log.info('下载进度:', progressObj);
     if (mainWindow) {
       mainWindow.webContents.send('download-progress', progressObj);
     }
@@ -222,6 +234,7 @@ function setupAutoUpdater() {
 
   // 下载完成
   autoUpdater.on('update-downloaded', (info) => {
+    log.info('更新下载完成:', info);
     if (mainWindow) {
       mainWindow.webContents.send('update-downloaded', {
         version: info.version,
@@ -231,6 +244,36 @@ function setupAutoUpdater() {
     }
   });
 }
+
+// 下载更新
+ipcMain.handle('download-update', async () => {
+  try {
+    const log = require('electron-log');
+    log.info('开始下载更新');
+    
+    // 获取更新信息
+    const updateInfo = await autoUpdater.getUpdateInfo();
+    log.info('获取到更新信息:', updateInfo);
+    
+    if (updateInfo.files) {
+      log.info('更新文件列表:');
+      updateInfo.files.forEach((file, index) => {
+        log.info(`文件 ${index + 1}:`, file);
+      });
+    }
+    
+    // 开始下载
+    log.info('调用 downloadUpdate 方法');
+    autoUpdater.downloadUpdate();
+    return { downloading: true };
+  } catch (error) {
+    const log = require('electron-log');
+    log.error('下载更新失败:', error);
+    log.error('错误详情:', error.stack);
+    console.error('下载更新失败:', error);
+    return { error: error.message };
+  }
+});
 
 // 设置 IPC 处理程序
 ipcMain.on('get-user-data-path', (event) => {

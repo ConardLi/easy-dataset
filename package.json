@@ -17,10 +17,11 @@
     "electron-dev": "concurrently \"pnpm dev\" \"wait-on http://localhost:1717 && electron .\"",
     "electron-pack": "electron-builder --dir",
     "electron-dist": "electron-builder",
-    "electron-build": "next build && electron-builder -mwl",
-    "electron-build-mac": "next build && electron-builder --mac",
-    "electron-build-win": "next build && electron-builder --win",
-    "electron-build-linux": "next build && electron-builder --linux"
+    "clean-dist": "rm -rf dist",
+    "electron-build": "pnpm clean-dist && next build && electron-builder -mwl",
+    "electron-build-mac": "pnpm clean-dist && next build && electron-builder --mac",
+    "electron-build-win": "pnpm clean-dist && next build && electron-builder --win",
+    "electron-build-linux": "pnpm clean-dist && next build && electron-builder --linux"
   },
   "bin": "desktop/server.js",
   "pkg": {
@@ -107,6 +108,13 @@
             "arm64",
             "x64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
         }
       ],
       "electronLanguages": [
@@ -124,7 +132,7 @@
           ]
         },
         {
-          "target": "portable",
+          "target": "zip",
           "arch": [
             "x64"
           ]
@@ -135,7 +143,7 @@
       "icon": "public/imgs/logo.png",
       "target": [
         "AppImage",
-        "deb"
+        "zip"
       ],
       "category": "Development"
     }

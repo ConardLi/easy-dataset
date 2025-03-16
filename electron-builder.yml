@@ -35,6 +35,9 @@ mac:
   target:
     - target: dmg
       arch: [arm64, x64] # 同时支持 M 芯片和 Intel 芯片
+  target:
+    - target: zip
+      arch: [arm64, x64] # 同时支持 M 芯片和 Intel 芯片
   icon: public/imgs/logo.icns
   hardenedRuntime: true
   gatekeeperAssess: false
