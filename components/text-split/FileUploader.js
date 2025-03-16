@@ -140,7 +140,10 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || t('textSplit.uploadFailed'));
+          setTimeout(() => {
+            window.reload();
+          }, 2000);
+          throw new Error(t('textSplit.uploadFailed') + errorData.error);
         }
 
         const data = await response.json();
