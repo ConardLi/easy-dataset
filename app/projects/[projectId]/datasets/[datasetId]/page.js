@@ -43,6 +43,7 @@ const EditableField = ({
   onOptimize
 }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -83,7 +84,9 @@ const EditableField = ({
           variant="body1"
           sx={{
             whiteSpace: 'pre-wrap',
-            bgcolor: 'grey.50',
+            bgcolor: theme.palette.mode === 'dark'
+              ? theme.palette.grey[800]
+              : theme.palette.grey[100],
             p: 2,
             borderRadius: 1
           }}
