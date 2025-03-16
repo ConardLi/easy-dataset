@@ -61,7 +61,7 @@ export default function QuestionListView({
 
   // 检查问题是否被选中
   const isQuestionSelected = (questionId, chunkId) => {
-    const questionKey = `${chunkId}-${questionId}`;
+    const questionKey = JSON.stringify({ question: questionId, chunkId });
     return selectedQuestions.includes(questionKey);
   };
 
@@ -149,9 +149,10 @@ export default function QuestionListView({
 
         {currentQuestions.map((question, index) => {
           const isSelected = isQuestionSelected(question.question, question.chunkId);
+          const questionKey = JSON.stringify({ question: question.question, chunkId: question.chunkId });
 
           return (
-            <Box key={`${question.chunkId}-${question.question}`}>
+            <Box key={questionKey}>
               <Box
                 sx={{
                   px: 2,
@@ -166,7 +167,9 @@ export default function QuestionListView({
               >
                 <Checkbox
                   checked={isSelected}
-                  onChange={() => onSelectQuestion(question.question, question.chunkId)}
+                  onChange={() => {
+                    onSelectQuestion(questionKey)
+                  }}
                   size="small"
                 />
 
@@ -226,9 +229,9 @@ export default function QuestionListView({
                       size="small"
                       color="primary"
                       onClick={() => handleGenerateDataset(question.question, question.chunkId)}
-                      disabled={processingQuestions[`${question.chunkId}-${question.question}`]}
+                      disabled={processingQuestions[questionKey]}
                     >
-                      {processingQuestions[`${question.chunkId}-${question.question}`] ? (
+                      {processingQuestions[questionKey] ? (
                         <CircularProgress size={16} />
                       ) : (
                         <AutoFixHighIcon fontSize="small" />

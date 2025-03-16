@@ -33,6 +33,7 @@ import QuestionListView from '@/components/questions/QuestionListView';
 import QuestionTreeView from '@/components/questions/QuestionTreeView';
 import TabPanel from '@/components/text-split/components/TabPanel';
 import request from '@/lib/util/request'
+import useTaskSettings from '@/hooks/useTaskSettings';
 
 export default function QuestionsPage({ params }) {
   const { t } = useTranslation();
@@ -51,6 +52,7 @@ export default function QuestionsPage({ params }) {
     message: '',
     severity: 'success'
   });
+  const { taskSettings } = useTaskSettings(projectId);
 
   // 进度状态
   const [progress, setProgress] = useState({
@@ -125,13 +127,12 @@ export default function QuestionsPage({ params }) {
   };
 
   // 处理问题选择
-  const handleSelectQuestion = (questionId, chunkId, newSelected) => {
+  const handleSelectQuestion = (questionKey, newSelected) => {
     if (newSelected) {
       // 处理批量选择的情况
       setSelectedQuestions(newSelected);
     } else {
       // 处理单个问题选择的情况
-      const questionKey = `${chunkId}-${questionId}`;
       setSelectedQuestions(prev => {
         if (prev.includes(questionKey)) {
           return prev.filter(id => id !== questionKey);
@@ -149,7 +150,8 @@ export default function QuestionsPage({ params }) {
     } else {
       const allQuestionKeys = [];
       questions.forEach(question => {
-        allQuestionKeys.push(`${question.chunkId}-${question.question}`);
+        // 使用 JSON.stringify 创建 key
+        allQuestionKeys.push(JSON.stringify({ question: question.question, chunkId: question.chunkId }));
       });
       setSelectedQuestions(allQuestionKeys);
     }
@@ -334,8 +336,8 @@ export default function QuestionsPage({ params }) {
             return { success: false, key, error: t('questions.invalidQuestionKey') };
           }
 
-          const chunkId = key.substring(0, lastDashIndex);
-          const questionId = key.substring(lastDashIndex + 1);
+
+          const { question: questionId, chunkId } = JSON.parse(key);
 
           console.log('开始生成数据集:', { chunkId, questionId });
 
@@ -411,7 +413,7 @@ export default function QuestionsPage({ params }) {
       };
 
       // 并行处理所有问题，最多同时处理2个
-      const results = await processInParallel(selectedQuestions, processQuestion, 2);
+      const results = await processInParallel(selectedQuestions, processQuestion, taskSettings.concurrencyLimit);
 
       // 刷新数据
       fetchData(1);
@@ -509,7 +511,7 @@ export default function QuestionsPage({ params }) {
       setQuestions(prev => prev.filter(q => !(q.question === questionId && q.chunkId === chunkId)));
 
       // 从选中列表中移除已删除的问题
-      const questionKey = `${chunkId}-${questionId}`;
+      const questionKey = JSON.stringify({ question: questionId, chunkId });
       setSelectedQuestions(prev => prev.filter(id => id !== questionKey));
 
       // 显示成功提示
