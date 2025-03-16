@@ -515,7 +515,7 @@ export default function DatasetsPage({ params }) {
         formattedData = dataToExport.map(({ question, answer, cot }) => ({
           instruction: question,
           input: "",
-          output: (cot && exportOptions.includeCOT) ? `<Thinking>${cot}</Thinking>\n${answer}` : answer,
+          output: (cot && exportOptions.includeCOT) ? `<think>${cot}</think>\n${answer}` : answer,
           system: exportOptions.systemPrompt || ""
         }));
       } else if (exportOptions.formatType === 'sharegpt') {
@@ -539,20 +539,25 @@ export default function DatasetsPage({ params }) {
           // 添加助手回答
           messages.push({
             role: "assistant",
-            content: (cot && exportOptions.includeCOT) ? `<Thinking>${cot}</Thinking>\n${answer}` : answer
+            content: (cot && exportOptions.includeCOT) ? `<think>${cot}</think>\n${answer}` : answer
           });
 
           return { messages };
         });
       } else if (exportOptions.formatType === 'custom') {
         // 处理自定义格式
-        const { questionField, answerField, includeLabels } = exportOptions.customFields;
+        const { questionField, answerField, cotField, includeLabels } = exportOptions.customFields;
 
         formattedData = dataToExport.map(({ question, answer, cot, questionLabel: labels }) => {
           const item = {
             [questionField]: question,
-            [answerField]: (cot && exportOptions.includeCOT) ? `<Thinking>${cot}</Thinking>\n${answer}` : answer
+            [answerField]: answer
           };
+
+          // 如果有思维链且用户选择包含思维链，则添加思维链字段
+          if (cot && exportOptions.includeCOT && cotField) {
+            item[cotField] = cot;
+          }
 
           // 如果需要包含标签
           if (includeLabels && labels && labels.length > 0) {
