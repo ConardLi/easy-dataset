@@ -309,6 +309,7 @@ export default function ModelSettings({ projectId }) {
 
   // 保存模型
   const handleSaveModel = () => {
+    let updatedModel = null;
     if (editingModel) {
       // 更新现有模型
       setModels(prev => {
@@ -317,12 +318,19 @@ export default function ModelSettings({ projectId }) {
             ? { ...m, ...modelForm }
             : m
         );
+
+        // 保存更新后的模型引用，用于更新 localStorage
+        updatedModel = updatedModels.find(m => m.id === editingModel.id);
+        // 如果更新的是当前选中的模型，同时更新 localStorage
+        localStorage.setItem('selectedModelInfo', JSON.stringify(updatedModel));
+        console.log('已更新 localStorage 中的模型信息:', updatedModel);
         return updatedModels;
       });
     } else {
       // 添加新模型
+      const newModel = { id: `model-${Date.now()}`, ...modelForm };
       setModels(prev => {
-        const updatedModels = [...prev, { id: `model-${Date.now()}`, ...modelForm }];
+        const updatedModels = [...prev, newModel];
         return updatedModels;
       });
     }
