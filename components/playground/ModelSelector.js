@@ -63,7 +63,13 @@ export default function ModelSelector({ models, selectedModels, onChange }) {
         )}
         MenuProps={MenuProps}
       >
-        {models.map((model) => (
+        {models.filter(m => {
+          if (m.provider === 'Ollama') {
+            return m.name && m.endpoint
+          } else {
+            return m.name && m.endpoint && m.apiKey
+          }
+        }).map((model) => (
           <MenuItem
             key={model.id}
             value={model.id}
