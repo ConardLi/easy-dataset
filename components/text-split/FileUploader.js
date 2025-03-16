@@ -130,19 +130,26 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
       const uploadedFileNames = [];
 
       for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-
+        // 使用 FileReader 读取文件内容
+        const reader = new FileReader();
+        const fileContent = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(file);
+        });
+        
+        // 使用自定义请求头发送文件
         const response = await fetch(`/api/projects/${projectId}/files`, {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/octet-stream',
+            'x-file-name': file.name
+          },
+          body: fileContent
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          setTimeout(() => {
-            window.reload();
-          }, 2000);
           throw new Error(t('textSplit.uploadFailed') + errorData.error);
         }
 
