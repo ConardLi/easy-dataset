@@ -102,6 +102,12 @@ export default function ProjectLayout({ children, params }) {
 
   // 初始加载数据
   useEffect(() => {
+    // 如果 projectId 是 undefined 或 "undefined"，直接重定向到首页
+    if (!projectId || projectId === "undefined") {
+      router.push('/');
+      return;
+    }
+    
     fetchData();
   }, [projectId, router]);
 
