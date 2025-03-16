@@ -32,6 +32,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import QuestionListView from '@/components/questions/QuestionListView';
 import QuestionTreeView from '@/components/questions/QuestionTreeView';
 import TabPanel from '@/components/text-split/components/TabPanel';
+import request from '@/lib/util/request'
 
 export default function QuestionsPage({ params }) {
   const { t } = useTranslation();
@@ -210,7 +211,7 @@ export default function QuestionsPage({ params }) {
 
       // 调用API生成数据集
       const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
-      const response = await fetch(`/api/projects/${projectId}/datasets`, {
+      const response = await request(`/api/projects/${projectId}/datasets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -340,7 +341,7 @@ export default function QuestionsPage({ params }) {
 
           const language = i18n.language === 'zh-CN' ? '中文' : 'en';
           // 调用API生成数据集
-          const response = await fetch(`/api/projects/${projectId}/datasets`, {
+          const response = await request(`/api/projects/${projectId}/datasets`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

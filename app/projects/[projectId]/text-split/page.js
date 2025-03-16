@@ -19,6 +19,7 @@ import {
 import FileUploader from '@/components/text-split/FileUploader';
 import ChunkList from '@/components/text-split/ChunkList';
 import DomainAnalysis from '@/components/text-split/DomainAnalysis';
+import request from '@/lib/util/request';
 
 export default function TextSplitPage({ params }) {
   const { t } = useTranslation();
@@ -230,7 +231,7 @@ export default function TextSplitPage({ params }) {
         // 获取当前语言环境
         const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
 
-        const response = await fetch(`/api/projects/${projectId}/chunks/${chunkId}/questions`, {
+        const response = await request(`/api/projects/${projectId}/chunks/${chunkId}/questions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -258,7 +259,7 @@ export default function TextSplitPage({ params }) {
             // 获取当前语言环境
             const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
 
-            const response = await fetch(`/api/projects/${projectId}/chunks/${chunkId}/questions`, {
+            const response = await request(`/api/projects/${projectId}/chunks/${chunkId}/questions`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'

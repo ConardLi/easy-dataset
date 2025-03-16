@@ -59,7 +59,7 @@
         "batchGenerate": "批量构造数据集",
         "generating": "正在生成数据集",
         "generatingProgress": "已完成: {{completed}}/{{total}}",
-        "generatedCount": "已生成: {{count}}",
+        "generatedCount": "已成功生成: {{count}} 个",
         "pleaseWait": "请耐心等待，正在处理中..."
     },
     "common": {
