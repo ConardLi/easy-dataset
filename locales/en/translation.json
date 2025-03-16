@@ -277,7 +277,7 @@
         "currentVersion": "Current Version",
         "latestVersion": "Latest Version",
         "downloadNow": "Download Now",
-        "downloading": "Downloading: {{percent}}%",
+        "downloading": "Downloading:",
         "installNow": "Install Now",
         "updating": "Updating...",
         "updateNow": "Update Now",
