@@ -38,7 +38,6 @@
         "confirmDeleteContent": "Are you sure you want to delete the question \"{{question}}\"? This action cannot be undone.",
         "deleting": "Deleting question...",
         "batchDeleteTitle": "Confirm Batch Delete",
-        "batchDeleteContent": "Are you sure you want to delete {{count}} selected questions? This action cannot be undone.",
         "batchDeleting": "Deleting {{count}} questions...",
         "deleteSuccess": "Question deleted successfully",
         "deleteFailed": "Failed to delete question",
@@ -105,6 +104,8 @@
         "createFailed": "Failed to create project",
         "createError": "Error creating project",
         "createNew": "Create New Project",
+        "saveFailed": "Failed to save project",
+        "id": "Project ID",
         "name": "Project Name",
         "description": "Project Description",
         "questions": "Questions",
@@ -113,6 +114,7 @@
         "viewDetails": "View Details",
         "createFirst": "Please create a project first",
         "noProjects": "No projects found",
+        "notExist": "The project does not exist.",
         "createProject": "Create Project",
         "deleteConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
         "deleteSuccess": "Project deleted successfully",
@@ -122,6 +124,8 @@
     },
     "textSplit": {
         "noFilesUploaded": "No files uploaded yet",
+        "unknownFile": "Unknown File",
+        "fetchFilesFailed": "Failed to fetch files",
         "editTag": "Edit Tag",
         "deleteTag": "Delete Tag",
         "addTag": "Add Tag",
@@ -227,6 +231,7 @@
         "customFormatSettings": "Custom Format Settings",
         "questionFieldName": "Question Field Name",
         "answerFieldName": "Answer Field Name",
+        "cotFieldName": "Cot Field Name",
         "includeLabels": "Include Labels"
     },
     "datasets": {
@@ -257,9 +262,9 @@
         "exportFailed": "Export failed",
         "loading": "Loading datasets...",
         "stats": "Total {{total}} datasets, {{confirmed}} confirmed ({{percentage}}%)",
-        "actions": "Total selected: {{count}}",
+        "selected": "Total selected: {{count}}",
+        "batchconfirmDeleteMessage": "Are you sure you want to delete {{count}} selected questions? This action cannot be undone.",
         "batchDelete": "Batch Delete",
-        "batchDeleteContent": "Are you sure you want to delete {{count}} selected questions? This action cannot be undone.",
         "batchDeleteProgress": "Completed: {{completed}}/{{total}}",
         "batchDeleteCount": "Delete count: {{count}}",
         "searchPlaceholder": "Search datasets...",
@@ -335,6 +340,8 @@
     "models": {
         "configNotFound": "Model config not found",
         "parseError": "Failed to parse model config",
+        "fetchFailed": "Failed to fetch model",
+        "saveFailed": "Failed to save model config",
         "title": "Model Settings",
         "add": "Add Model",
         "unselectedModel": "Unselected Model",
@@ -345,6 +352,15 @@
         "modelName": "Model Name",
         "endpoint": "Endpoint",
         "apiKey": "API Key",
-        "provider": "Provider"
+        "provider": "Provider",
+        "localModel": "Local Model",
+        "apiKeyConfigured": "API Key Configured",
+        "apiKeyNotConfigured": "API Key Not Configured"
+    },
+    "stats": {
+        "ongoingProjects": "Ongoing Projects",
+        "questionCount": "Question Count",
+        "generatedDatasets": "Generated Datasets",
+        "supportedModels": "Supported Models"
     }
 }

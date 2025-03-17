@@ -209,7 +209,7 @@ export default function TextSplitPage({ params }) {
         try {
           model = JSON.parse(modelInfoStr);
         } catch (e) {
-          console.error(t('解析模型信息出错:'), e);
+          console.error('解析模型信息出错:', e);
           // 继续执行，将在下面尝试获取模型信息
         }
       }
