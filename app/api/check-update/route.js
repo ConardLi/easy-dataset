@@ -20,11 +20,11 @@ async function getLatestVersion() {
     const owner = 'ConardLi';
     const repo = 'easy-dataset';
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`);
-    
+
     if (!response.ok) {
       throw new Error(`GitHub API 请求失败: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data.tag_name.replace('v', '');
   } catch (error) {
@@ -38,19 +38,19 @@ export async function GET() {
   try {
     const currentVersion = getCurrentVersion();
     const latestVersion = await getLatestVersion();
-    
+
     if (!latestVersion) {
-      return NextResponse.json({ 
-        hasUpdate: false, 
-        currentVersion, 
-        latestVersion: null, 
-        error: '获取最新版本失败' 
+      return NextResponse.json({
+        hasUpdate: false,
+        currentVersion,
+        latestVersion: null,
+        error: '获取最新版本失败'
       });
     }
-    
+
     // 简单的版本比较
     const hasUpdate = compareVersions(latestVersion, currentVersion) > 0;
-    
+
     return NextResponse.json({
       hasUpdate,
       currentVersion,
@@ -59,10 +59,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('检查更新失败:', error);
-    return NextResponse.json({ 
-      hasUpdate: false, 
-      error: `检查更新失败: ${error.message}` 
-    }, { status: 500 });
   }
 }
 
@@ -70,14 +66,14 @@ export async function GET() {
 function compareVersions(a, b) {
   const partsA = a.split('.').map(Number);
   const partsB = b.split('.').map(Number);
-  
+
   for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
     const numA = i < partsA.length ? partsA[i] : 0;
     const numB = i < partsB.length ? partsB[i] : 0;
-    
+
     if (numA > numB) return 1;
     if (numA < numB) return -1;
   }
-  
+
   return 0;
 }
