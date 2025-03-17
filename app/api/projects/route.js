@@ -20,26 +20,9 @@ export async function POST(request) {
 
 export async function GET(request) {
   try {
-    // 从 URL 查询参数中获取项目 ID 数组
-    const { searchParams } = new URL(request.url);
-    const projectIdsParam = searchParams.get('projectIds');
-    
-    if (!projectIdsParam) {
-      return Response.json({ error: '项目ID参数不能为空' }, { status: 400 });
-    }
-    
-    // 将项目 ID 字符串转换为数组
-    const projectIds = projectIdsParam.split(',');
-    
-    if (projectIds.length === 0) {
-      return Response.json({ error: '项目ID数组不能为空' }, { status: 400 });
-    }
 
     // 获取所有项目
-    const allProjects = await getProjects();
-
-    // 过滤出用户请求的项目
-    const userProjects = allProjects.filter(project => projectIds.includes(project.id));
+    const userProjects = await getProjects();
 
     // 为每个项目添加问题数量和数据集数量
     const projectsWithStats = await Promise.all(userProjects.map(async (project) => {
