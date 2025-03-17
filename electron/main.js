@@ -4,6 +4,7 @@ const path = require('path');
 const { fork } = require('child_process');
 const http = require('http');
 const fs = require('fs');
+const url = require('url');
 
 // 获取应用版本
 const getAppVersion = () => {
@@ -46,7 +47,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    fullscreen: true,  // 隐藏窗口
+    fullscreen: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -57,6 +58,17 @@ function createWindow() {
 
   // 设置窗口标题
   mainWindow.setTitle(`Easy Dataset v${getAppVersion()}`);
+  const loadingPath = url.format({
+    pathname: path.join(__dirname, 'loading.html'),
+    protocol: 'file:',
+    slashes: true
+  });
+  // 加载 loading 页面时使用专门的 preload 脚本
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.show();
+  });
+
+  mainWindow.loadURL(loadingPath);
 
   // 在开发环境中加载 localhost URL
   if (isDev) {
