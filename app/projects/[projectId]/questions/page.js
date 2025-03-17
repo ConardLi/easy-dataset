@@ -571,17 +571,8 @@ export default function QuestionsPage({ params }) {
       // 逐个删除问题，完全模仿单个删除的逻辑
       for (const key of selectedQuestions) {
         try {
-          // 从问题键中提取 chunkId 和 questionId
-          // 问题键的格式是: "chunkId-question"
-          // 注意：chunkId 可能包含短横线，所以我们需要找到最后一个短横线
-          const lastDashIndex = key.lastIndexOf('-');
-          if (lastDashIndex === -1) {
-            console.error('无法解析问题键:', key);
-            continue;
-          }
 
-          const chunkId = key.substring(0, lastDashIndex);
-          const questionId = key.substring(lastDashIndex + 1);
+          const { question: questionId, chunkId } = JSON.parse(key);
 
           console.log('开始删除问题:', { chunkId, questionId });
 
