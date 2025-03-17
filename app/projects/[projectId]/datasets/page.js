@@ -39,7 +39,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useRouter } from 'next/navigation';
 import ExportDatasetDialog from '@/components/ExportDatasetDialog';
 import { useTranslation } from 'react-i18next';
-import { processInParallel } from '@/lib/utils/async';
+import { processInParallel } from '@/lib/util/async';
 
 // 数据集列表组件
 const DatasetList = ({
@@ -72,19 +72,19 @@ const DatasetList = ({
         <Table sx={{ minWidth: 750 }}>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox" 
+              <TableCell padding="checkbox"
                 sx={{
                   backgroundColor: bgColor,
                   color: color,
                   borderBottom: `2px solid ${theme.palette.divider}`,
                 }}
               >
-                  <Checkbox
-                    color="primary"
-                    indeterminate={selectedIds.length > 0 && selectedIds.length < datasets.length}
-                    checked={datasets.length > 0 && selectedIds.length === datasets.length}
-                    onChange={onSelectAll}
-                  />
+                <Checkbox
+                  color="primary"
+                  indeterminate={selectedIds.length > 0 && selectedIds.length < datasets.length}
+                  checked={datasets.length > 0 && selectedIds.length === datasets.length}
+                  onChange={onSelectAll}
+                />
               </TableCell>
               <TableCell
                 sx={{
@@ -176,7 +176,7 @@ const DatasetList = ({
                 }}
                 onClick={() => onViewDetails(dataset.id)}
               >
-                <TableCell padding="checkbox" 
+                <TableCell padding="checkbox"
                   sx={{
                     borderLeft: `4px solid ${theme.palette.primary.main}`,
                   }}
@@ -388,36 +388,36 @@ const DeleteConfirmDialog = ({ open, datasets, onClose, onConfirm, batch, progre
           </Typography>
         </Paper>}
         {
-          deleting && progress ? 
-          <Box sx={{ mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Typography variant="body1" sx={{ mr: 1 }}>
-                {progress.percentage}%
-              </Typography>
-              <Box sx={{ width: '100%' }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={progress.percentage}
-                  sx={{ 
-                    height: 8, 
-                    borderRadius: 4,
-                    '& .MuiLinearProgress-bar': {
-                      transitionDuration: '0.1s'
-                    }
-                  }}
-                  color="primary"
-                />
+          deleting && progress ?
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Typography variant="body1" sx={{ mr: 1 }}>
+                  {progress.percentage}%
+                </Typography>
+                <Box sx={{ width: '100%' }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progress.percentage}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      '& .MuiLinearProgress-bar': {
+                        transitionDuration: '0.1s'
+                      }
+                    }}
+                    color="primary"
+                  />
+                </Box>
               </Box>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Typography variant="body2">
-                {t('datasets.batchDeleteProgress', { completed: progress.completed, total: progress.total })}
-              </Typography>
-              <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
-                {t('datasets.batchDeleteCount', { count: progress.datasetCount })}
-              </Typography>
-            </Box>
-          </Box> : ''
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                <Typography variant="body2">
+                  {t('datasets.batchDeleteProgress', { completed: progress.completed, total: progress.total })}
+                </Typography>
+                <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
+                  {t('datasets.batchDeleteCount', { count: progress.datasetCount })}
+                </Typography>
+              </Box>
+            </Box> : ''
         }
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -551,10 +551,10 @@ export default function DatasetsPage({ params }) {
     });
   };
 
-  const handleBatchDeleteDataset = async ()=>{
+  const handleBatchDeleteDataset = async () => {
     setDeleteDialog({
       open: true,
-      datasets: datasets.filter(dataset=>selectedIds.includes(dataset.id)),
+      datasets: datasets.filter(dataset => selectedIds.includes(dataset.id)),
       batch: true,
       count: selectedIds.length,
     });
@@ -568,15 +568,15 @@ export default function DatasetsPage({ params }) {
     });
   };
 
-  const handleDeleteConfirm = async ()=>{
-    if(deleteDialog.batch){
+  const handleDeleteConfirm = async () => {
+    if (deleteDialog.batch) {
       setDeleteDialog({
         ...deleteDialog,
         deleting: true,
       });
       await handleBatchDelete();
       resetProgress();
-    }else{
+    } else {
       const [dataset] = deleteDialog.datasets;
       if (!dataset) return;
       await handleDelete(dataset);
@@ -588,9 +588,9 @@ export default function DatasetsPage({ params }) {
   }
 
   // 批量删除数据集
-  const handleBatchDelete = async ()=>{
+  const handleBatchDelete = async () => {
     // TODO: 并发删除存在问题，这里只能同时删除1个，待优化
-    await processInParallel(deleteDialog.datasets, handleDelete, 1, (cur, total)=>{
+    await processInParallel(deleteDialog.datasets, handleDelete, 1, (cur, total) => {
       setDeteleProgress({
         total: total,
         completed: cur,
@@ -856,29 +856,29 @@ export default function DatasetsPage({ params }) {
           </Box>
         </Box >
       </Card>
-        {selectedIds.length ? <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          marginTop: '10px',
-          gap: 2,
-        }}>
-            <Typography variant="body1" color="text.secondary">
-              {t('datasets.selected', {
-                count: selectedIds.length,
-              })}
-            </Typography>
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<DeleteIcon />}
-              sx={{ borderRadius: 2 }}
-              onClick={handleBatchDeleteDataset}
-            >
-              {t('datasets.batchDelete')}
-            </Button>
-          </Box> : ''}
+      {selectedIds.length ? <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        marginTop: '10px',
+        gap: 2,
+      }}>
+        <Typography variant="body1" color="text.secondary">
+          {t('datasets.selected', {
+            count: selectedIds.length,
+          })}
+        </Typography>
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<DeleteIcon />}
+          sx={{ borderRadius: 2 }}
+          onClick={handleBatchDeleteDataset}
+        >
+          {t('datasets.batchDelete')}
+        </Button>
+      </Box> : ''}
 
       <DatasetList
         datasets={getCurrentPageData()}
