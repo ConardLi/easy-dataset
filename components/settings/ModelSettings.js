@@ -359,15 +359,10 @@ export default function ModelSettings({ projectId }) {
         window.dispatchEvent(event);
 
         // 如果有选中的模型，需要检查它是否还存在
-        const selectedModelId = localStorage.getItem('selectedModelId');
-        if (selectedModelId) {
-          const modelExists = models.some(m => m.id === selectedModelId);
-          if (!modelExists && models.length > 0) {
-            // 如果选中的模型不存在了，选择第一个模型
-            // const defaultModel = models[0];
-            // localStorage.setItem('selectedModelId', defaultModel.id);
-            // localStorage.setItem('selectedModelInfo', JSON.stringify(defaultModel));
-          }
+        const selectedModelInfo = localStorage.getItem('selectedModelInfo');
+        if (selectedModelInfo) {
+          const sId = JSON.parse(selectedModelInfo).id;
+          const modelExists = models.some(m => m.id === sId);
         }
       });
     }

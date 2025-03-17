@@ -169,8 +169,6 @@ export default function DatasetDetailsPage({ params }) {
     if (typeof window === 'undefined') return null;
 
     try {
-      // 从 localStorage 获取当前选择的模型信息
-      const selectedModelId = localStorage.getItem('selectedModelId');
       let model = null;
 
       // 尝试从 localStorage 获取完整的模型信息
@@ -183,11 +181,6 @@ export default function DatasetDetailsPage({ params }) {
           console.error('解析模型信息失败', e);
           return null;
         }
-      }
-
-      // 如果没有模型 ID 或模型信息，返回 null
-      if (!selectedModelId || !model) {
-        return null;
       }
 
       return model;

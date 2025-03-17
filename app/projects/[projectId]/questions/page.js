@@ -163,7 +163,6 @@ export default function QuestionsPage({ params }) {
 
     try {
       // 从 localStorage 获取当前选择的模型信息
-      const selectedModelId = localStorage.getItem('selectedModelId');
       let model = null;
 
       // 尝试从 localStorage 获取完整的模型信息
@@ -179,7 +178,7 @@ export default function QuestionsPage({ params }) {
       }
 
       // 如果没有模型 ID 或模型信息，返回 null
-      if (!selectedModelId || !model) {
+      if (!model) {
         return null;
       }
 

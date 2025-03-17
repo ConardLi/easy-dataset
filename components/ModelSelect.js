@@ -22,11 +22,9 @@ export default function ModelSelect({ models = [], selectedModel, onChange, size
 
     if (selectedModelObj) {
       // 将完整的模型信息存储到 localStorage
-      localStorage.setItem('selectedModelId', newModelId);
       localStorage.setItem('selectedModelInfo', JSON.stringify(selectedModelObj));
     } else {
       // 如果没有找到对应模型，则只存储ID
-      localStorage.setItem('selectedModelId', newModelId);
       localStorage.removeItem('selectedModelInfo');
     }
 

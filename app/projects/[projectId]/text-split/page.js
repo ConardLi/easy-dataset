@@ -200,8 +200,6 @@ export default function TextSplitPage({ params }) {
         questionCount: 0
       });
 
-      // 从 localStorage 获取当前选择的模型信息
-      const selectedModelId = localStorage.getItem('selectedModelId');
       let model = null;
 
       // 尝试从 localStorage 获取完整的模型信息
@@ -217,7 +215,7 @@ export default function TextSplitPage({ params }) {
       }
 
       // 如果仍然没有模型信息，抛出错误
-      if (!selectedModelId) {
+      if (!model) {
         throw new Error(t('textSplit.selectModelFirst'));
       }
 
