@@ -66,7 +66,7 @@ export async function POST(request, { params }) {
     }
 
 
-    console.log(questionId, 'answer:', answer, cot);
+    // console.log(questionId, 'answer:', answer, cot);
     // 获取现有数据集
     const datasets = await getDatasets(projectId);
 
@@ -85,6 +85,7 @@ export async function POST(request, { params }) {
     // 添加到数据集
     datasets.push(datasetItem);
     await saveDatasets(projectId, datasets);
+    console.log(datasets.length, '已成功保存结果', question.question);
 
     return NextResponse.json({
       success: true,

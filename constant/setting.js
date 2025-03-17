@@ -4,5 +4,5 @@ export const DEFAULT_SETTINGS = {
   textSplitMaxLength: 2000,
   questionGenerationLength: 240,
   huggingfaceToken: '',
-  concurrencyLimit: 2
+  concurrencyLimit: 5
 };

@@ -104,8 +104,8 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
               src="/imgs/logo.svg"
               alt="Easy Dataset Logo"
               sx={{
-                width: 36,
-                height: 36,
+                width: 28,
+                height: 28,
                 mr: 1.5
               }}
             />
@@ -115,8 +115,8 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
               sx={{
                 fontWeight: 600,
                 letterSpacing: '-0.5px',
-                fontSize: '1.2rem'
               }}
+              style={{ fontSize: '1.1rem' }}
               className={theme.palette.mode === 'dark' ? 'gradient-text' : ''}
               color={theme.palette.mode === 'dark' ? 'inherit' : 'white'}
             >
