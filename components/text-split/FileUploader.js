@@ -143,7 +143,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
           method: 'POST',
           headers: {
             'Content-Type': 'application/octet-stream',
-            'x-file-name': file.name
+            'x-file-name': encodeURIComponent(file.name)
           },
           body: fileContent
         });

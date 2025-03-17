@@ -98,7 +98,8 @@ export async function POST(request, { params }) {
     console.log('尝试使用备用方法处理文件上传...');
 
     // 检查请求头中是否包含文件名
-    const fileName = request.headers.get('x-file-name');
+    const encodedFileName = request.headers.get('x-file-name');
+    const fileName = encodedFileName ? decodeURIComponent(encodedFileName) : null;
     console.log('从请求头获取文件名:', fileName);
 
     if (!fileName) {
