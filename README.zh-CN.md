@@ -12,7 +12,7 @@
 
 [简体中文](./README.zh-CN.md) | [English](./README.md)
 
-[功能特点](#功能特点) • [快速开始](#快速开始) • [使用方法](#使用方法) • [文档](#文档) • [贡献](#贡献) • [许可证](#许可证)
+[功能特点](#功能特点) • [快速开始](#本地运行) • [使用文档](https://rncg5jvpme.feishu.cn/wiki/NT7aw7rBfi8HwukHaUTcvrQIn6f) • [贡献](#贡献) • [许可证](#许可证)
 
 </div>
 
@@ -261,7 +261,7 @@ easy-dataset/
 ## 文档
 
 - 查看本项目的演示视频：[Easy Dataset 演示视频](https://www.bilibili.com/video/BV1y8QpYGE57/)
-- 有关所有功能和 API 的详细文档，请访问我们的[文档站点](https://github.com/ConardLi/easy-dataset/wiki)。
+- 有关所有功能和 API 的详细文档，请访问我们的[文档站点](https://rncg5jvpme.feishu.cn/wiki/NT7aw7rBfi8HwukHaUTcvrQIn6f)。
 
 ## 贡献
 
