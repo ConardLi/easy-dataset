@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -48,18 +48,30 @@ export default function QuestionTreeView({
   const [expandedTags, setExpandedTags] = useState({});
   const [questionsByTag, setQuestionsByTag] = useState({});
   const [processingQuestions, setProcessingQuestions] = useState({});
+  
+  // 使用 useMemo 缓存 chunks 的映射，避免在渲染时重复查找
+  const chunksMap = useMemo(() => {
+    const map = {};
+    chunks.forEach(chunk => {
+      map[chunk.id] = chunk.title || chunk.id;
+    });
+    return map;
+  }, [chunks]);
 
-  // 初始化时，将所有标签设置为展开状态
+  // 初始化时，将所有标签设置为收起状态（而不是展开状态）
   useEffect(() => {
     const initialExpandedState = {};
     const processTag = (tag) => {
-      initialExpandedState[tag.label] = true;
+      // 将默认状态改为 false（收起）而不是 true（展开）
+      initialExpandedState[tag.label] = false;
       if (tag.child && tag.child.length > 0) {
         tag.child.forEach(processTag);
       }
     };
 
     tags.forEach(processTag);
+    // 未分类问题也默认收起
+    initialExpandedState['uncategorized'] = false;
     setExpandedTags(initialExpandedState);
   }, [tags]);
 
@@ -148,220 +160,122 @@ export default function QuestionTreeView({
     setQuestionsByTag(taggedQuestions);
   }, [questions, tags]);
 
-  // 处理展开/折叠标签
-  const handleToggleExpand = (tagLabel) => {
+  // 处理展开/折叠标签 - 使用 useCallback 优化
+  const handleToggleExpand = useCallback((tagLabel) => {
     setExpandedTags(prev => ({
       ...prev,
       [tagLabel]: !prev[tagLabel]
     }));
-  };
+  }, []);
 
-  // 检查问题是否被选中
-  const isQuestionSelected = (questionId, chunkId) => {
+  // 检查问题是否被选中 - 使用 useCallback 优化
+  const isQuestionSelected = useCallback((questionId, chunkId) => {
     return selectedQuestions.includes(`${chunkId}-${questionId}`);
-  };
+  }, [selectedQuestions]);
 
-  // 处理生成数据集
-  const handleGenerateDataset = async (questionId, chunkId) => {
-    // 如果没有提供回调函数，则直接返回
+  // 处理生成数据集 - 使用 useCallback 优化
+  const handleGenerateDataset = useCallback(async (questionId, chunkId) => {
     if (!onGenerateDataset) return;
 
-    // 设置处理状态
     setProcessingQuestions(prev => ({
       ...prev,
       [`${chunkId}-${questionId}`]: true
     }));
 
     try {
-      // 调用回调函数生成数据集
       await onGenerateDataset(questionId, chunkId);
     } catch (error) {
       console.error('生成数据集失败:', error);
     } finally {
-      // 清除处理状态
       setProcessingQuestions(prev => {
         const newState = { ...prev };
         delete newState[`${chunkId}-${questionId}`];
         return newState;
       });
     }
-  };
+  }, [onGenerateDataset]);
 
-  // 渲染单个问题项
-  const renderQuestionItem = (question, index, total) => {
+  // 渲染单个问题项 - 使用 useCallback 优化
+  const renderQuestionItem = useCallback((question, index, total) => {
     return (
-      <Box key={`${question.chunkId}-${question.question}`}>
-        <ListItem
-          sx={{
-            pl: 4,
-            py: 1,
-            borderRadius: '4px',
-            ml: 2,
-            mr: 1,
-            mb: 0.5,
-            bgcolor: isQuestionSelected(question.question, question.chunkId) ? 'action.selected' : 'transparent',
-            '&:hover': {
-              bgcolor: 'action.hover',
-            }
-          }}
-        >
-          <Checkbox
-            checked={isQuestionSelected(question.question, question.chunkId)}
-            onChange={() => onSelectQuestion(question.question, question.chunkId)}
-            sx={{ mr: 1 }}
-          />
-          <QuestionMarkIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
-          <ListItemText
-            primary={
-              <Typography variant="body2" sx={{ fontWeight: 400 }}>
-                {question.question}
-                {question.dataSites && question.dataSites.length > 0 && (
-                  <Chip
-                    label={t('datasets.answerCount', { count: question.dataSites.length })}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                    sx={{ ml: 1, fontSize: '0.75rem', maxWidth: 150 }}
-                  />
-                )}
-              </Typography>
-            }
-            secondary={
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                {t('datasets.source')}: {chunks.find(c => c.id === question.chunkId)?.title || question.chunkId}
-              </Typography>
-            }
-          />
-          <Box>
-            <Tooltip title={t('datasets.generateDataset')}>
-              <IconButton
-                size="small"
-                sx={{ mr: 1 }}
-                onClick={() => handleGenerateDataset(question.question, question.chunkId)}
-                disabled={processingQuestions[`${question.chunkId}-${question.question}`]}
-              >
-                {processingQuestions[`${question.chunkId}-${question.question}`] ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <AutoFixHighIcon fontSize="small" />
-                )}
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={t('common.delete')}>
-              <IconButton
-                size="small"
-                onClick={() => onDeleteQuestion(question.question, question.chunkId)}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </ListItem>
-        {index < total - 1 && <Divider component="li" variant="inset" sx={{ ml: 6 }} />}
-      </Box>
+      <QuestionItem
+        key={`${question.chunkId}-${question.question}`}
+        question={question}
+        index={index}
+        total={total}
+        isSelected={isQuestionSelected(question.question, question.chunkId)}
+        onSelect={onSelectQuestion}
+        onDelete={onDeleteQuestion}
+        onGenerate={handleGenerateDataset}
+        isProcessing={processingQuestions[`${question.chunkId}-${question.question}`]}
+        chunkTitle={chunksMap[question.chunkId]}
+        t={t}
+      />
     );
-  };
+  }, [isQuestionSelected, onSelectQuestion, onDeleteQuestion, handleGenerateDataset, processingQuestions, chunksMap, t]);
 
-  // 计算标签及其子标签下的所有问题数量
-  const countTotalQuestions = (tag) => {
-    // 当前标签下的问题数量
-    const directQuestions = questionsByTag[tag.label] || [];
-    let total = directQuestions.length;
-
-    // 如果有子标签，递归计算子标签下的问题数量
-    if (tag.child && tag.child.length > 0) {
-      for (const childTag of tag.child) {
-        total += countTotalQuestions(childTag);
+  // 计算标签及其子标签下的所有问题数量 - 使用 useMemo 缓存计算结果
+  const tagQuestionCounts = useMemo(() => {
+    const counts = {};
+    
+    const countQuestions = (tag) => {
+      const directQuestions = questionsByTag[tag.label] || [];
+      let total = directQuestions.length;
+      
+      if (tag.child && tag.child.length > 0) {
+        for (const childTag of tag.child) {
+          total += countQuestions(childTag);
+        }
       }
-    }
+      
+      counts[tag.label] = total;
+      return total;
+    };
+    
+    tags.forEach(countQuestions);
+    return counts;
+  }, [questionsByTag, tags]);
 
-    return total;
-  };
-
-  // 递归渲染标签树
-  const renderTagTree = (tag, level = 0) => {
+  // 递归渲染标签树 - 使用 useCallback 优化
+  const renderTagTree = useCallback((tag, level = 0) => {
     const questions = questionsByTag[tag.label] || [];
     const hasQuestions = questions.length > 0;
     const hasChildren = tag.child && tag.child.length > 0;
     const isExpanded = expandedTags[tag.label];
-
-    // 计算标签及其子标签下的所有问题数量
-    const totalQuestions = countTotalQuestions(tag);
+    const totalQuestions = tagQuestionCounts[tag.label] || 0;
 
     return (
       <Box key={tag.label}>
-        <ListItem
-          button
-          onClick={() => handleToggleExpand(tag.label)}
-          sx={{
-            pl: level * 2 + 1,
-            py: 1,
-            bgcolor: level === 0 ? 'primary.light' : 'background.paper',
-            color: level === 0 ? 'primary.contrastText' : 'inherit',
-            '&:hover': {
-              bgcolor: level === 0 ? 'primary.main' : 'action.hover',
-            },
-            borderRadius: '4px',
-            mb: 0.5,
-            pr: 1
-          }}
-        >
-          <FolderIcon fontSize="small" sx={{ mr: 1, color: level === 0 ? 'inherit' : 'primary.main' }} />
-          <ListItemText
-            primary={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontWeight: level === 0 ? 600 : 400,
-                    fontSize: level === 0 ? '1rem' : '0.9rem'
-                  }}
-                >
-                  {tag.label}
-                </Typography>
-                {totalQuestions > 0 && (
-                  <Chip
-                    label={t('datasets.questionCount', { count: totalQuestions })}
-                    size="small"
-                    color={level === 0 ? 'default' : 'primary'}
-                    variant={level === 0 ? 'default' : 'outlined'}
-                    sx={{ ml: 1, height: 20, fontSize: '0.7rem', color: '#fff', backgroundColor: '#333' }}
-                  />
+        <TagItem
+          tag={tag}
+          level={level}
+          isExpanded={isExpanded}
+          totalQuestions={totalQuestions}
+          onToggle={handleToggleExpand}
+          t={t}
+        />
+
+        {/* 只有当标签展开时才渲染子内容，减少不必要的渲染 */}
+        {isExpanded && (
+          <Collapse in={true}>
+            {hasChildren && (
+              <List disablePadding>
+                {tag.child.map(childTag => renderTagTree(childTag, level + 1))}
+              </List>
+            )}
+
+            {hasQuestions && (
+              <List disablePadding sx={{ mt: hasChildren ? 1 : 0 }}>
+                {questions.map((question, index) =>
+                  renderQuestionItem(question, index, questions.length)
                 )}
-              </Box>
-            }
-          />
-          {(hasQuestions || hasChildren) && (
-            <IconButton
-              size="small"
-              edge="end"
-              sx={{ color: level === 0 ? 'inherit' : 'action.active' }}
-            >
-              {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            </IconButton>
-          )}
-        </ListItem>
-
-        <Collapse in={isExpanded}>
-          {/* 先渲染子标签，让二级标签排在问题前面 */}
-          {hasChildren && (
-            <List disablePadding>
-              {tag.child.map(childTag => renderTagTree(childTag, level + 1))}
-            </List>
-          )}
-
-          {/* 再渲染当前标签下的问题 */}
-          {hasQuestions && (
-            <List disablePadding sx={{ mt: hasChildren ? 1 : 0 }}>
-              {questions.map((question, index) =>
-                renderQuestionItem(question, index, questions.length)
-              )}
-            </List>
-          )}
-        </Collapse>
+              </List>
+            )}
+          </Collapse>
+        )}
       </Box>
     );
-  };
+  }, [questionsByTag, expandedTags, tagQuestionCounts, handleToggleExpand, renderQuestionItem, t]);
 
   // 渲染未分类问题
   const renderUncategorizedQuestions = () => {
@@ -449,3 +363,153 @@ export default function QuestionTreeView({
     </Paper>
   );
 }
+
+// 使用 memo 优化问题项渲染
+const QuestionItem = memo(({ 
+  question, 
+  index, 
+  total, 
+  isSelected, 
+  onSelect, 
+  onDelete, 
+  onGenerate, 
+  isProcessing, 
+  chunkTitle, 
+  t 
+}) => {
+  return (
+    <Box key={`${question.chunkId}-${question.question}`}>
+      <ListItem
+        sx={{
+          pl: 4,
+          py: 1,
+          borderRadius: '4px',
+          ml: 2,
+          mr: 1,
+          mb: 0.5,
+          bgcolor: isSelected ? 'action.selected' : 'transparent',
+          '&:hover': {
+            bgcolor: 'action.hover',
+          }
+        }}
+      >
+        {/* 内部内容保持不变 */}
+        <Checkbox
+          checked={isSelected}
+          onChange={() => onSelect(question.question, question.chunkId)}
+          sx={{ mr: 1 }}
+        />
+        <QuestionMarkIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+        <ListItemText
+          primary={
+            <Typography variant="body2" sx={{ fontWeight: 400 }}>
+              {question.question}
+              {question.dataSites && question.dataSites.length > 0 && (
+                <Chip
+                  label={t('datasets.answerCount', { count: question.dataSites.length })}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ ml: 1, fontSize: '0.75rem', maxWidth: 150 }}
+                />
+              )}
+            </Typography>
+          }
+          secondary={
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+              {t('datasets.source')}: {chunkTitle || question.chunkId}
+            </Typography>
+          }
+        />
+        <Box>
+          <Tooltip title={t('datasets.generateDataset')}>
+            <IconButton
+              size="small"
+              sx={{ mr: 1 }}
+              onClick={() => onGenerate(question.question, question.chunkId)}
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <CircularProgress size={16} />
+              ) : (
+                <AutoFixHighIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('common.delete')}>
+            <IconButton
+              size="small"
+              onClick={() => onDelete(question.question, question.chunkId)}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </ListItem>
+      {index < total - 1 && <Divider component="li" variant="inset" sx={{ ml: 6 }} />}
+    </Box>
+  );
+});
+
+// 使用 memo 优化标签项渲染
+const TagItem = memo(({ 
+  tag, 
+  level, 
+  isExpanded, 
+  totalQuestions, 
+  onToggle, 
+  t 
+}) => {
+  return (
+    <ListItem
+      button
+      onClick={() => onToggle(tag.label)}
+      sx={{
+        pl: level * 2 + 1,
+        py: 1,
+        bgcolor: level === 0 ? 'primary.light' : 'background.paper',
+        color: level === 0 ? 'primary.contrastText' : 'inherit',
+        '&:hover': {
+          bgcolor: level === 0 ? 'primary.main' : 'action.hover',
+        },
+        borderRadius: '4px',
+        mb: 0.5,
+        pr: 1
+      }}
+    >
+      {/* 内部内容保持不变 */}
+      <FolderIcon fontSize="small" sx={{ mr: 1, color: level === 0 ? 'inherit' : 'primary.main' }} />
+      <ListItemText
+        primary={
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: level === 0 ? 600 : 400,
+                fontSize: level === 0 ? '1rem' : '0.9rem'
+              }}
+            >
+              {tag.label}
+            </Typography>
+            {totalQuestions > 0 && (
+              <Chip
+                label={t('datasets.questionCount', { count: totalQuestions })}
+                size="small"
+                color={level === 0 ? 'default' : 'primary'}
+                variant={level === 0 ? 'default' : 'outlined'}
+                sx={{ ml: 1, height: 20, fontSize: '0.7rem', color: '#fff', backgroundColor: '#333' }}
+              />
+            )}
+          </Box>
+        }
+      />
+      <IconButton
+        size="small"
+        edge="end"
+        sx={{ color: level === 0 ? 'inherit' : 'action.active' }}
+      >
+        {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+      </IconButton>
+    </ListItem>
+  );
+});
