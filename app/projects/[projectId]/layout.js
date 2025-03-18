@@ -21,19 +21,8 @@ export default function ProjectLayout({ children, params }) {
     try {
       setLoading(true);
 
-      // 获取所有项目
-      // 从 localStorage 获取项目 ID 数组
-      const userProjectIds = JSON.parse(localStorage.getItem('userProjects') || '[]');
-
-      if (userProjectIds.length === 0) {
-        // 如果没有保存的项目，直接设置为空数组
-        setProjects([]);
-        setLoading(false);
-        return;
-      }
-
       // 获取用户创建的项目详情
-      const projectsResponse = await fetch(`/api/projects?projectIds=${userProjectIds.join(',')}`);
+      const projectsResponse = await fetch(`/api/projects`);
       if (!projectsResponse.ok) {
         throw new Error(t('projects.fetchFailed'));
       }

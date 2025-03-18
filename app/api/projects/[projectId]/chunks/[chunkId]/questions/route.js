@@ -13,12 +13,14 @@ import { getTags } from '@/lib/db/tags';
 // 为指定文本块生成问题
 export async function POST(request, { params }) {
   try {
-    const { projectId, chunkId } = params;
+    const { projectId, chunkId: c } = params;
 
     // 验证项目ID和文本块ID
-    if (!projectId || !chunkId) {
+    if (!projectId || !c) {
       return NextResponse.json({ error: '项目ID或文本块ID不能为空' }, { status: 400 });
     }
+
+    const chunkId = decodeURIComponent(c);
 
     // 获取请求体
     const { model, language = '中文', number } = await request.json();
