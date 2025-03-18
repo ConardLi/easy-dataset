@@ -241,6 +241,7 @@
         "aiOptimizeAdvicePlaceholder": "Please enter your suggestions for improving the answer, and AI will optimize the answer and reasoning chain based on your suggestions",
         "aiOptimizeAdvice": "Please enter your suggestions for improving the answer, and AI will optimize the answer and reasoning chain based on your suggestions",
         "aiOptimize": "AI Optimize",
+        "partialSuccess": "Partially successful dataset generation ({{successCount}}/{{total}}), {{failCount}} questions failed",
         "generating": "Generating Dataset",
         "generateError": "Failed to generate dataset",
         "management": "Datasets",
@@ -337,7 +338,8 @@
         "selectModelMax3": "Please select up to 3 models to test"
     },
     "chunks": {
-        "title": "Text Chunk"
+        "title": "Text Chunk",
+        "defaultTitle": "Default Title"
     },
     "models": {
         "configNotFound": "Model config not found",
