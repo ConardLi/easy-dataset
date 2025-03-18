@@ -81,6 +81,37 @@ function createWindow() {
     });
   }
 
+  // 处理窗口导航事件，将外部链接在浏览器中打开
+  mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
+    // 解析当前 URL 和导航 URL
+    const parsedUrl = new URL(navigationUrl);
+    const currentHostname = isDev ? 'localhost' : 'localhost';
+    const currentPort = port.toString();
+
+    // 检查是否是外部链接
+    if (parsedUrl.hostname !== currentHostname || 
+        (parsedUrl.port !== currentPort && parsedUrl.port !== '')) {
+      event.preventDefault();
+      shell.openExternal(navigationUrl);
+    }
+  });
+
+  // 处理新窗口打开请求，将外部链接在浏览器中打开
+  mainWindow.webContents.setWindowOpenHandler(({ url: navigationUrl }) => {
+    // 解析导航 URL
+    const parsedUrl = new URL(navigationUrl);
+    const currentHostname = isDev ? 'localhost' : 'localhost';
+    const currentPort = port.toString();
+
+    // 检查是否是外部链接
+    if (parsedUrl.hostname !== currentHostname || 
+        (parsedUrl.port !== currentPort && parsedUrl.port !== '')) {
+      shell.openExternal(navigationUrl);
+      return { action: 'deny' };
+    }
+    return { action: 'allow' };
+  });
+
   // 创建菜单
   createMenu();
 
