@@ -220,12 +220,12 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
 
       // 通知父组件文件已删除，需要刷新文本块列表
       if (onFileDeleted) {
-        onFileDeleted(fileToDelete);
+        const filesLength = uploadedFiles.length;
+        onFileDeleted(fileToDelete,filesLength);
       }
 
       setSuccessMessage(t('textSplit.deleteSuccess', { fileName: fileToDelete }));
       setSuccess(true);
-      location.reload();
     } catch (error) {
       console.error('删除文件出错:', error);
       setError(error.message);
