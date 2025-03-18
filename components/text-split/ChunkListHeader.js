@@ -25,7 +25,7 @@ export default function ChunkListHeader({
           onChange={onSelectAll}
         />
         <Typography variant="body1">
-          {t('textSplit.selectedCount', { count: selectedChunks.length })}
+          {t('textSplit.selectedCount', { count: selectedChunks.length })} ,{t('textSplit.totalCount',{ count: totalChunks})}
         </Typography>
       </Box>
 

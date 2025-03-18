@@ -15,6 +15,7 @@ export default function UploadArea({
   onRemoveFile,
   onUpload
 }) {
+
   const { t } = useTranslation();
 
   return (
@@ -23,6 +24,7 @@ export default function UploadArea({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        justifyContent: 'center', 
         p: 3,
         height: '100%',
         border: `2px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
@@ -44,7 +46,7 @@ export default function UploadArea({
         variant="contained"
         startIcon={<UploadFileIcon />}
         sx={{ mb: 2, mt: 2 }}
-        disabled={uploading || uploadedFiles.length > 0}
+        //disabled={uploading || uploadedFiles.length > 0}
       >
         {t('textSplit.selectFile')}
         <input
@@ -53,13 +55,13 @@ export default function UploadArea({
           accept=".md"
           multiple
           onChange={onFileSelect}
-          disabled={uploadedFiles.length > 0}
+          // disabled={uploadedFiles.length > 0}
         />
       </Button>
 
       <Typography variant="body2" color="textSecondary">
         {uploadedFiles.length > 0 ? (
-          t('textSplit.oneFileMessage')
+          t('textSplit.mutilFileMessage')
         ) : (
           t('textSplit.markdownOnly')
         )}

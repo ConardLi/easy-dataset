@@ -20,7 +20,7 @@ import DeleteConfirmDialog from './components/DeleteConfirmDialog';
  * @param {Function} props.onUploadSuccess - Upload success callback
  * @param {Function} props.onProcessStart - Process start callback
  */
-export default function FileUploader({ projectId, onUploadSuccess, onProcessStart, onFileDeleted }) {
+export default function FileUploader({ projectId, onUploadSuccess, onProcessStart, onFileDeleted,sendToPages }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const [files, setFiles] = useState([]);
@@ -32,7 +32,6 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
   const [successMessage, setSuccessMessage] = useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState(null);
-
   // Load uploaded files list
   useEffect(() => {
     fetchUploadedFiles();
@@ -61,11 +60,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
 
   // 处理文件选择
   const handleFileSelect = (event) => {
-    // 如果已有上传文件，不允许选择新文件
-    if (uploadedFiles.length > 0) {
-      setError(t('textSplit.oneFileLimit'));
-      return;
-    }
+
     const selectedFiles = Array.from(event.target.files);
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
@@ -230,6 +225,9 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
     setSuccess(false);
   };
 
+  const handleSelected = (array)  =>{
+    sendToPages(array);
+  }
   return (
     <Paper
       elevation={0}
@@ -240,9 +238,9 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
         borderRadius: 2
       }}
     >
-      <Grid container spacing={3}>
+      <Grid container spacing={3} >
         {/* 左侧：上传文件区域 */}
-        <Grid item xs={12} md={6} sx={{ maxWidth: '100%', width: '100%' }}>
+        <Grid item xs={12} md={6} sx={{ maxWidth: '100%', width: '100%'  }}>
           <UploadArea
             theme={theme}
             files={files}
@@ -260,6 +258,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
             theme={theme}
             files={uploadedFiles}
             loading={loading}
+            sendToFileUploader={handleSelected}
             onDeleteFile={openDeleteConfirm}
           />
         </Grid>

@@ -1,17 +1,33 @@
 'use client';
 
-import { Box, Typography, List, ListItem, ListItemText, Divider, IconButton, Tooltip, CircularProgress } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, IconButton, Tooltip, CircularProgress,Checkbox } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileIcon from '@mui/icons-material/InsertDriveFile';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 
 export default function FileList({
   theme,
   files = [],
   loading = false,
-  onDeleteFile
+  onDeleteFile,
+  sendToFileUploader
 }) {
+
   const { t } = useTranslation();
+  const [array, setArray] = useState([]);
+
+  const handleCheckboxChange = (fileName, isChecked) => {
+    if(isChecked){
+      array.push(fileName);
+      setArray(array);
+      sendToFileUploader(array);
+    }else{
+      const newArray  = array.filter(item => item !== fileName);
+      setArray(newArray);
+      sendToFileUploader(newArray);
+    }
+  }
 
   return (
     <Box
@@ -27,7 +43,7 @@ export default function FileList({
       }}
     >
       <Typography variant="subtitle1" gutterBottom>
-        {t('textSplit.uploadedDocuments')}
+        {t('textSplit.uploadedDocuments',{ count: files.length })}
       </Typography>
 
       {loading ? (
@@ -41,12 +57,17 @@ export default function FileList({
           </Typography>
         </Box>
       ) : (
-        <List sx={{ maxHeight: '300px', overflow: 'auto', width: '100%' }}>
+        <List sx={{ maxHeight: '220px', overflow: 'auto', width: '100%' }}>
           {files.map((file, index) => (
             <Box key={index}>
               <ListItem
                 secondaryAction={
                   <Box sx={{ display: 'flex' }}>
+                    <Checkbox
+                      sx={{ mr: 1 }} // 添加一些右边距，使复选框和按钮之间有间隔
+                      checked={file.checked} // 假设 `file.checked` 是复选框的状态
+                      onChange={(e) => handleCheckboxChange(file.name, e.target.checked)}
+                    />
                     <Tooltip title="删除文献">
                       <IconButton
                         color="error"
