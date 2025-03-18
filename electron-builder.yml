@@ -4,76 +4,73 @@ copyright: Copyright 2025 Easy Dataset
 description: A application for creating large model fine-tuning datasets
 
 directories:
-  output: dist
-  buildResources: public
+    output: dist
+    buildResources: public
 
 files:
-  - .next/**/*
-  - "!.next/cache/**/*"
-  - public/**/*
-  - locales/**/*
-  - package.json
-  - electron/**/*
-  - node_modules/**/*
-  - "!node_modules/.cache/**/*"
-  - "!node_modules/.bin/**/*"
-  - "!node_modules/.vite/**/*"
-  - "!**/*.{md,d.ts,map}"
-  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+    - .next/**/*
+    - '!.next/cache/**/*'
+    - public/**/*
+    - locales/**/*
+    - package.json
+    - electron/**/*
+    - node_modules/**/*
+    - '!node_modules/.cache/**/*'
+    - '!node_modules/.bin/**/*'
+    - '!node_modules/.vite/**/*'
+    - '!**/*.{md,d.ts,map}'
+    - '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}'
 
 extraResources:
-  - from: locales
-    to: locales
+    - from: locales
+      to: locales
 
 asar: false
 compression: maximum
 
-afterbuild: ["rm -rf node_modules/.cache", "rm -rf node_modules/.vite"]
+afterbuild: ['rm -rf node_modules/.cache', 'rm -rf node_modules/.vite']
 
 mac:
-  category: public.app-category.developer-tools
-  target:
-    - target: dmg
-      arch: [arm64, x64] # 同时支持 M 芯片和 Intel 芯片
-  target:
-    - target: zip
-      arch: [arm64, x64] # 同时支持 M 芯片和 Intel 芯片
-  icon: public/imgs/logo.icns
-  hardenedRuntime: true
-  gatekeeperAssess: false
-  darkModeSupport: true
-  electronLanguages: ["zh_CN", "en"]
-  identity: "Developer ID Application: Conard LI (JRL9ZUXR95)"
-  entitlements: "electron/entitlements.mac.plist"
-  entitlementsInherit: "electron/entitlements.mac.plist"
+    category: public.app-category.developer-tools
+    target:
+        - target: dmg
+          arch: [arm64, x64] # 同时支持 M 芯片和 Intel 芯片
+    icon: public/imgs/logo.icns
+    hardenedRuntime: true
+    gatekeeperAssess: false
+    darkModeSupport: true
+    electronLanguages: ['zh_CN', 'en']
+    identity: 'Developer ID Application: Conard LI (JRL9ZUXR95)'
+    entitlements: 'electron/entitlements.mac.plist'
+    entitlementsInherit: 'electron/entitlements.mac.plist'
 
 # 添加 Windows 配置
 win:
-  icon: public/imgs/logo.ico
-  target:
-    - target: nsis
-      arch: [x64]
+    icon: public/imgs/logo.ico
+    target:
+        - target: nsis
+          arch: [x64]
 
 # 添加 Linux 配置
 linux:
-  icon: public/imgs/logo.png
-  target: [AppImage, deb]
-  category: Development
-  maintainer: "1009903985@qq.com"
+    icon: public/imgs/logo.png
+    target: [AppImage, deb]
+    category: Development
+    maintainer: '1009903985@qq.com'
 
 dmg:
-  contents:
-    - x: 130
-      y: 220
-    - x: 410
-      y: 220
-      type: link
-      path: /Applications
+    contents:
+        - x: 130
+          y: 220
+        - x: 410
+          y: 220
+          type: link
+          path: /Applications
 
 publish:
-  provider: github
-  owner: ConardLi
-  repo: easy-dataset
-  releaseType: release
-  private: false
-  publishAutoUpdate: true
+    provider: github
+    owner: ConardLi
+    repo: easy-dataset
+    releaseType: release
+    private: false
+    publishAutoUpdate: true
