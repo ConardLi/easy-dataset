@@ -79,11 +79,12 @@ export default function QuestionListView({
       setSnackbarOpen(true);
       return;
     }
+    const questionKey = JSON.stringify({ question: questionId, chunkId });
 
     // 设置处理状态
     setProcessingQuestions(prev => ({
       ...prev,
-      [`${chunkId}-${questionId}`]: true
+      [questionKey]: true
     }));
 
     try {
@@ -102,7 +103,7 @@ export default function QuestionListView({
       // 清除处理状态
       setProcessingQuestions(prev => {
         const newState = { ...prev };
-        delete newState[`${chunkId}-${questionId}`];
+        delete newState[questionKey];
         return newState;
       });
     }
@@ -243,7 +244,7 @@ export default function QuestionListView({
                       size="small"
                       color="error"
                       onClick={() => onDeleteQuestion(question.question, question.chunkId)}
-                      disabled={processingQuestions[`${question.chunkId}-${question.question}`]}
+                      disabled={processingQuestions[questionKey]}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
