@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import mammoth from 'mammoth';
 import {
   Paper,
   Alert,
@@ -72,8 +73,16 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
     }
 
     // 检查文件类型
-    const validFiles = selectedFiles.filter(file => file.name.endsWith('.md') || file.name.endsWith('.txt'));
-    const invalidFiles = selectedFiles.filter(file => !file.name.endsWith('.md') && !file.name.endsWith('.txt'));
+    const validFiles = selectedFiles.filter(file => 
+      file.name.endsWith('.md') || 
+      file.name.endsWith('.txt') || 
+      file.name.endsWith('.docx')
+    );
+    const invalidFiles = selectedFiles.filter(file => 
+      !file.name.endsWith('.md') && 
+      !file.name.endsWith('.txt') && 
+      !file.name.endsWith('.docx')
+    );
 
     if (invalidFiles.length > 0) {
       setError(t('textSplit.unsupportedFormat', { files: invalidFiles.map(f => f.name).join(', ') }));
@@ -122,22 +131,33 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
       const uploadedFileNames = [];
 
       for (const file of files) {
-        // 使用 FileReader 读取文件内容
-        const reader = new FileReader();
-        const fileContent = await new Promise((resolve, reject) => {
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsArrayBuffer(file);
-        });
+        let fileContent;
+        let fileName = file.name;
+
+        // 如果是 docx 文件，先转换为 markdown
+        if (file.name.endsWith('.docx')) {
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammoth.convertToMarkdown({ arrayBuffer });
+          fileContent = result.value;
+          fileName = file.name.replace('.docx', '.md');
+        } else {
+          // 对于 md 和 txt 文件，直接读取内容
+          const reader = new FileReader();
+          fileContent = await new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+          });
+        }
 
         // 使用自定义请求头发送文件
         const response = await fetch(`/api/projects/${projectId}/files`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/octet-stream',
-            'x-file-name': encodeURIComponent(file.name)
+            'x-file-name': encodeURIComponent(fileName)
           },
-          body: fileContent
+          body: file.name.endsWith('.docx') ? new TextEncoder().encode(fileContent) : fileContent
         });
 
         if (!response.ok) {

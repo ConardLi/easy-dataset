@@ -52,7 +52,7 @@ export default function UploadArea({
         <input
           type="file"
           hidden
-          accept=".md"
+          accept=".md,.txt,.docx"
           multiple
           onChange={onFileSelect}
           // disabled={uploadedFiles.length > 0}
@@ -63,7 +63,7 @@ export default function UploadArea({
         {uploadedFiles.length > 0 ? (
           t('textSplit.mutilFileMessage')
         ) : (
-          t('textSplit.markdownOnly')
+          t('textSplit.supportedFormats')
         )}
       </Typography>
 

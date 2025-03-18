@@ -142,6 +142,7 @@
         "uploadNewDocument": "Upload New Document",
         "selectFile": "Select File",
         "markdownOnly": "Currently only supports Markdown (.md) format files",
+        "supportedFormats": "Supported formats: .md, .txt, .docx",
         "uploadAndProcess": "Upload and Process",
         "selectedFiles": "Selected Files ({{count}})",
         "oneFileMessage": "File upload not allowed, please delete the existing file first",

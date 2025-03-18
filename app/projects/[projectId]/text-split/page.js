@@ -232,10 +232,6 @@ export default function TextSplitPage({ params }) {
         throw new Error(t('textSplit.selectModelFirst'));
       }
 
-      if (!model) {
-        throw new Error(t('textSplit.modelNotAvailable'));
-      }
-
       // 如果是单个文本块，直接调用单个生成接口
       if (chunkIds.length === 1) {
         const chunkId = chunkIds[0];
@@ -394,20 +390,20 @@ export default function TextSplitPage({ params }) {
     );
   };
 
-  const handleSelected = (array)  =>{
-    if(array.length > 0){
+  const handleSelected = (array) => {
+    if (array.length > 0) {
       let selectedChunks = [];
-      for(let i = 0;i<array.length;i++){
+      for (let i = 0; i < array.length; i++) {
         const name = array[i].replace(/\.md$/, "");
         console.log(name);
         const tempChunks = chunks.filter(item => item.id.includes(name))
-        tempChunks.forEach(item=>{
+        tempChunks.forEach(item => {
           selectedChunks.push(item);
         })
       }
       setShowChunks(selectedChunks);
       console.log(selectedChunks);
-    }else{
+    } else {
       const allChunks = chunks;
       setShowChunks(allChunks);
     }
