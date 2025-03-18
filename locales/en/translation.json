@@ -33,6 +33,9 @@
         "huggingfaceNotImplemented": "Hugging Face functionality is not yet implemented"
     },
     "questions": {
+        "filterAll": "All Questions",
+        "filterAnswered": "With Answers",
+        "filterUnanswered": "Without Answers",
         "title": "Questions",
         "confirmDeleteTitle": "Confirm Delete Question",
         "confirmDeleteContent": "Are you sure you want to delete the question \"{{question}}\"? This action cannot be undone.",

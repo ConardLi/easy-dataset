@@ -23,7 +23,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  LinearProgress
+  LinearProgress,
+  Select,
+  MenuItem,
+  useTheme
 } from '@mui/material';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -37,6 +40,7 @@ import useTaskSettings from '@/hooks/useTaskSettings';
 
 export default function QuestionsPage({ params }) {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { projectId } = params;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,6 +51,7 @@ export default function QuestionsPage({ params }) {
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [answerFilter, setAnswerFilter] = useState('all'); // 'all', 'answered', 'unanswered'
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -726,7 +731,20 @@ export default function QuestionsPage({ params }) {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">
-          {t('questions.title')} ({totalQuestions})
+          {t('questions.title')} ({questions.filter(question => {
+            const matchesSearch = searchTerm === '' ||
+              question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            let matchesAnswerFilter = true;
+            if (answerFilter === 'answered') {
+              matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
+            } else if (answerFilter === 'unanswered') {
+              matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
+            }
+
+            return matchesSearch && matchesAnswerFilter;
+          }).length})
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
@@ -780,15 +798,25 @@ export default function QuestionsPage({ params }) {
               <Typography variant="body2" sx={{ ml: 1 }}>
                 {selectedQuestions.length > 0 ? t('questions.selectedCount', { count: selectedQuestions.length }) : t('questions.selectAll')}
                 ({t('questions.totalCount', {
-                  count: questions.filter(question =>
-                    question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()))
-                  ).length
+                  count: questions.filter(question => {
+                    const matchesSearch = searchTerm === '' ||
+                      question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+
+                    let matchesAnswerFilter = true;
+                    if (answerFilter === 'answered') {
+                      matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
+                    } else if (answerFilter === 'unanswered') {
+                      matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
+                    }
+
+                    return matchesSearch && matchesAnswerFilter;
+                  }).length
                 })})
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <TextField
                 placeholder={t('questions.searchPlaceholder')}
                 variant="outlined"
@@ -805,6 +833,35 @@ export default function QuestionsPage({ params }) {
                   ),
                 }}
               />
+              <Select
+                value={answerFilter}
+                onChange={(e) => setAnswerFilter(e.target.value)}
+                size="small"
+                sx={{
+                  width: { xs: '100%', sm: 200 },
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white',
+                  borderRadius: '8px',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.23)'
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.87)'
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main'
+                  }
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    elevation: 2,
+                    sx: { mt: 1, borderRadius: 2 }
+                  }
+                }}
+              >
+                <MenuItem value="all">{t('questions.filterAll')}</MenuItem>
+                <MenuItem value="answered">{t('questions.filterAnswered')}</MenuItem>
+                <MenuItem value="unanswered">{t('questions.filterUnanswered')}</MenuItem>
+              </Select>
             </Box>
           </Stack>
         </Box>
@@ -813,10 +870,22 @@ export default function QuestionsPage({ params }) {
 
         <TabPanel value={activeTab} index={0}>
           <QuestionListView
-            questions={questions.filter(question =>
-              question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()))
-            )}
+            questions={questions.filter(question => {
+              // 搜索词筛选
+              const matchesSearch = searchTerm === '' ||
+                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+
+              // 答案状态筛选
+              let matchesAnswerFilter = true;
+              if (answerFilter === 'answered') {
+                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
+              } else if (answerFilter === 'unanswered') {
+                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
+              }
+
+              return matchesSearch && matchesAnswerFilter;
+            })}
             chunks={chunks}
             selectedQuestions={selectedQuestions}
             onSelectQuestion={handleSelectQuestion}
@@ -828,10 +897,22 @@ export default function QuestionsPage({ params }) {
 
         <TabPanel value={activeTab} index={1}>
           <QuestionTreeView
-            questions={questions.filter(question =>
-              question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()))
-            )}
+            questions={questions.filter(question => {
+              // 搜索词筛选
+              const matchesSearch = searchTerm === '' ||
+                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+
+              // 答案状态筛选
+              let matchesAnswerFilter = true;
+              if (answerFilter === 'answered') {
+                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
+              } else if (answerFilter === 'unanswered') {
+                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
+              }
+
+              return matchesSearch && matchesAnswerFilter;
+            })}
             chunks={chunks}
             tags={tags}
             selectedQuestions={selectedQuestions}
