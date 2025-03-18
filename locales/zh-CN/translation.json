@@ -98,6 +98,8 @@
         "searchDataset": "搜索公开数据集"
     },
     "projects": {
+        "reuseConfig": "复用模型配置",
+        "noReuse": "不复用配置",
         "selectProject": "选择项目",
         "fetchFailed": "获取项目列表失败",
         "fetchError": "获取项目列表出错",

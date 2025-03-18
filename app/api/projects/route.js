@@ -1,4 +1,4 @@
-import { createProject, getProjects, deleteProject } from '@/lib/db/index';
+import { createProject, getProjects, getProjectModelConfig } from '@/lib/db/index';
 
 export async function POST(request) {
   try {
@@ -7,6 +7,11 @@ export async function POST(request) {
     // 验证必要的字段
     if (!projectData.name) {
       return Response.json({ error: '项目名称不能为空' }, { status: 400 });
+    }
+
+    // 如果指定了要复用的项目配置
+    if (projectData.reuseConfigFrom) {
+      projectData.modelConfig = await getProjectModelConfig(projectData.reuseConfigFrom);
     }
 
     // 创建项目

@@ -97,6 +97,8 @@
         "searchDataset": "Search Public Datasets"
     },
     "projects": {
+        "reuseConfig": "Reuse Model Config",
+        "noReuse": "No Configuration Reuse",
         "selectProject": "Select Project",
         "fetchFailed": "Failed to fetch project list",
         "fetchError": "Error fetching project list",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -11,7 +11,11 @@ import {
   Box,
   Typography,
   useTheme,
-  CircularProgress
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -21,11 +25,30 @@ export default function CreateProjectDialog({ open, onClose }) {
   const theme = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    reuseConfigFrom: ''
   });
   const [error, setError] = useState(null);
+
+  // 获取项目列表
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/api/projects');
+        if (response.ok) {
+          const data = await response.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error('获取项目列表失败:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -104,6 +127,23 @@ export default function CreateProjectDialog({ open, onClose }) {
               value={formData.description}
               onChange={handleChange}
             />
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="reuse-config-label">{t('projects.reuseConfig')}</InputLabel>
+              <Select
+                labelId="reuse-config-label"
+                name="reuseConfigFrom"
+                value={formData.reuseConfigFrom}
+                onChange={handleChange}
+                label={t('projects.reuseConfig')}
+              >
+                <MenuItem value="">{t('projects.noReuse')}</MenuItem>
+                {projects.map(project => (
+                  <MenuItem key={project.id} value={project.id}>
+                    {project.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
           {error && (
             <Typography color="error" variant="body2" sx={{ mb: 2 }}>
