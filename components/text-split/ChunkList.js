@@ -46,7 +46,7 @@ export default function ChunkList({ projectId, chunks = [], onDelete, onGenerate
 
   const handleViewChunk = async (chunkId) => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/chunks/${chunkId}`);
+      const response = await fetch(`/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}`);
       if (!response.ok) {
         throw new Error(t('textSplit.fetchChunksFailed'));
       }

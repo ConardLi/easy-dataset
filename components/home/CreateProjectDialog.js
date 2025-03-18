@@ -55,13 +55,6 @@ export default function CreateProjectDialog({ open, onClose }) {
 
       const data = await response.json();
 
-      // 将项目 ID 保存到 localStorage
-      const userProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
-      if (!userProjects.includes(data.id)) {
-        userProjects.push(data.id);
-        localStorage.setItem('userProjects', JSON.stringify(userProjects));
-      }
-
       router.push(`/projects/${data.id}/settings?tab=model`);
     } catch (err) {
       console.error(t('projects.createError'), err);

@@ -45,11 +45,6 @@ export default function ProjectList({ projects, onCreateProject }) {
                 throw new Error(errorData.error || t('projects.deleteFailed'));
             }
 
-            // 从 localStorage 中移除项目 ID
-            const userProjects = JSON.parse(localStorage.getItem('userProjects') || '[]');
-            const updatedProjects = userProjects.filter(id => id !== projectToDelete.id);
-            localStorage.setItem('userProjects', JSON.stringify(updatedProjects));
-
             // 刷新页面以更新项目列表
             window.location.reload();
         } catch (error) {
