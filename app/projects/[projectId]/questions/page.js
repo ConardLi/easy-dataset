@@ -153,12 +153,25 @@ export default function QuestionsPage({ params }) {
     if (selectedQuestions.length > 0) {
       setSelectedQuestions([]);
     } else {
-      const allQuestionKeys = [];
-      questions.forEach(question => {
-        // 使用 JSON.stringify 创建 key
-        allQuestionKeys.push(JSON.stringify({ question: question.question, chunkId: question.chunkId }));
+      const filteredQuestions = questions.filter(question => {
+        const matchesSearch = searchTerm === '' ||
+          question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        let matchesAnswerFilter = true;
+        if (answerFilter === 'answered') {
+          matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
+        } else if (answerFilter === 'unanswered') {
+          matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
+        }
+
+        return matchesSearch && matchesAnswerFilter;
       });
-      setSelectedQuestions(allQuestionKeys);
+
+      const filteredQuestionKeys = filteredQuestions.map(question =>
+        JSON.stringify({ question: question.question, chunkId: question.chunkId })
+      );
+      setSelectedQuestions(filteredQuestionKeys);
     }
   };
 
