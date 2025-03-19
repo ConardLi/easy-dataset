@@ -47,7 +47,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    fullscreen: true,
+    show: false,
+    frame: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -89,8 +90,8 @@ function createWindow() {
     const currentPort = port.toString();
 
     // 检查是否是外部链接
-    if (parsedUrl.hostname !== currentHostname || 
-        (parsedUrl.port !== currentPort && parsedUrl.port !== '')) {
+    if (parsedUrl.hostname !== currentHostname ||
+      (parsedUrl.port !== currentPort && parsedUrl.port !== '')) {
       event.preventDefault();
       shell.openExternal(navigationUrl);
     }
@@ -104,8 +105,8 @@ function createWindow() {
     const currentPort = port.toString();
 
     // 检查是否是外部链接
-    if (parsedUrl.hostname !== currentHostname || 
-        (parsedUrl.port !== currentPort && parsedUrl.port !== '')) {
+    if (parsedUrl.hostname !== currentHostname ||
+      (parsedUrl.port !== currentPort && parsedUrl.port !== '')) {
       shell.openExternal(navigationUrl);
       return { action: 'deny' };
     }
@@ -118,6 +119,8 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  mainWindow.maximize();
 }
 
 // 创建应用菜单
