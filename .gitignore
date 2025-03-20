@@ -4,6 +4,7 @@ build
 website-local.json
 ai-local.json
 .next
+.idea
 .DS_Store
 tsconfig.tsbuildinfo
 mock-login-callback.ts
