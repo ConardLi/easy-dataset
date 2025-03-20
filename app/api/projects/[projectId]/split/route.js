@@ -42,10 +42,8 @@ export async function POST(request, { params }) {
     });
     // 生成领域树
     console.log(projectId, fileName, '分割完成，开始构建领域树');
-    const llmRes = await llmClient.chat(language === 'en' ? getLabelEnPrompt(toc) : getLabelPrompt(toc));
-    const response = llmRes.choices?.[0]?.message?.content ||
-      llmRes.response ||
-      '';
+    const response = await llmClient.chat(language === 'en' ? getLabelEnPrompt(toc) : getLabelPrompt(toc));
+
     const tags = extractJsonFromLLMOutput(response);
     if (!response || !tags) {
       // 删除前面生成的文件

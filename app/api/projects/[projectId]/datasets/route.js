@@ -55,9 +55,7 @@ export async function POST(request, { params }) {
     // console.log(prompt);
     // 调用大模型生成答案
     const llmRes = await llmClient.chat(prompt);
-    let answer = llmRes.choices?.[0]?.message?.content ||
-      llmRes.response ||
-      '';
+    let answer = llmRes
 
     let cot = '';
     if (answer.startsWith('<think>') || answer.startsWith('<thinking>')) {

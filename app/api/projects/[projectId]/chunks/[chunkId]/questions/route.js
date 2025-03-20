@@ -55,12 +55,8 @@ export async function POST(request, { params }) {
 
     const llmRes = await llmClient.chat(prompt);
 
-    const response = llmRes.choices?.[0]?.message?.content ||
-      llmRes.response ||
-      '';
-
     // 从LLM输出中提取JSON格式的问题列表
-    const questions = extractJsonFromLLMOutput(response);
+    const questions = extractJsonFromLLMOutput(llmRes);
 
     console.log(projectId, chunkId, 'Questions：', questions);
 
@@ -73,10 +69,7 @@ export async function POST(request, { params }) {
     // 根据语言选择相应的标签提示词函数
     const labelPromptFunc = language === 'en' ? getAddLabelEnPrompt : getAddLabelPrompt;
     const labelPrompt = labelPromptFunc(JSON.stringify(tags), JSON.stringify(questions));
-    const llmLabelRes = await llmClient.chat(labelPrompt);
-    const labelResponse = llmLabelRes.choices?.[0]?.message?.content ||
-      llmLabelRes.response ||
-      '';
+    const labelResponse = await llmClient.chat(labelPrompt);
     // 从LLM输出中提取JSON格式的问题列表
     const labelQuestions = extractJsonFromLLMOutput(labelResponse);
     console.log(projectId, chunkId, 'Label Questions：', labelQuestions);

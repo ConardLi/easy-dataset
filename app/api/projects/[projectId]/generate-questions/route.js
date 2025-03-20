@@ -70,11 +70,7 @@ export async function POST(request, { params }) {
         const promptFunc = language === 'en' ? getQuestionEnPrompt : getQuestionPrompt;
         // 生成问题
         const prompt = promptFunc(chunk.content, questionNumber, language);
-        const llmRes = await llmClient.chat(prompt);
-
-        const response = llmRes.choices?.[0]?.message?.content ||
-          llmRes.response ||
-          '';
+        const response = await llmClient.chat(prompt);
 
         // 从LLM输出中提取JSON格式的问题列表
         const questions = extractJsonFromLLMOutput(response);

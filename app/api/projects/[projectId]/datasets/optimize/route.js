@@ -58,11 +58,7 @@ export async function POST(request, { params }) {
       advice
     );
 
-    const llmRes = await llmClient.chat(prompt);
-
-    const response = llmRes.choices?.[0]?.message?.content ||
-      llmRes.response ||
-      '';
+    const response = await llmClient.chat(prompt);
 
     // 从LLM输出中提取JSON格式的优化结果
     const optimizedResult = extractJsonFromLLMOutput(response);
