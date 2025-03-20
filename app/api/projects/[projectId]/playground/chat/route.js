@@ -25,7 +25,7 @@ export async function POST(request, { params }) {
 
     // 使用自定义的LLM客户端
     const llmClient = new LLMClient({
-      provider: model.provider,
+      providerId: model.providerId,
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,

@@ -35,7 +35,7 @@ export async function POST(request, { params }) {
 
     const { toc } = result;
     const llmClient = new LLMClient({
-      provider: model.provider,
+      providerId: model.providerId,
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,

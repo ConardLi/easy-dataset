@@ -52,7 +52,7 @@ export async function POST(request, { params }) {
     }
 
     const llmClient = new LLMClient({
-      provider: model.provider,
+      providerId: model.providerId,
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,
