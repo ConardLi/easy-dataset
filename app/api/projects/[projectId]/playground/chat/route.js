@@ -38,7 +38,7 @@ export async function POST(request, { params }) {
     }));
 
     // 调用LLM API
-    let response;
+    let response = '';
     try {
       response = await llmClient.chat(formattedMessages);
     } catch (error) {

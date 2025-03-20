@@ -20,6 +20,8 @@ import FileUploader from '@/components/text-split/FileUploader';
 import ChunkList from '@/components/text-split/ChunkList';
 import DomainAnalysis from '@/components/text-split/DomainAnalysis';
 import request from '@/lib/util/request';
+import { processInParallel } from '@/lib/util/async'
+import useTaskSettings from '@/hooks/useTaskSettings';
 
 export default function TextSplitPage({ params }) {
   const { t } = useTranslation();
@@ -32,6 +34,7 @@ export default function TextSplitPage({ params }) {
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null); // 可以是字符串或对象 { severity, message }
+  const {taskSettings } = useTaskSettings(projectId);
 
   // 进度状态
   const [progress, setProgress] = useState({
@@ -152,7 +155,7 @@ export default function TextSplitPage({ params }) {
   };
 
   // 处理删除文本块
-  const handleDeleteChunk = async (chunkId) => {
+  const handleDeleteChunk = async chunkId => {
     try {
       const response = await fetch(`/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}`, {
         method: 'DELETE'
@@ -172,35 +175,8 @@ export default function TextSplitPage({ params }) {
     }
   };
 
-  // 并行处理数组的辅助函数，限制并发数
-  const processInParallel = async (items, processFunction, concurrencyLimit) => {
-    const results = [];
-    const inProgress = new Set();
-    const queue = [...items];
-
-    while (queue.length > 0 || inProgress.size > 0) {
-      // 如果有空闲槽位且队列中还有任务，启动新任务
-      while (inProgress.size < concurrencyLimit && queue.length > 0) {
-        const item = queue.shift();
-        const promise = processFunction(item).then(result => {
-          inProgress.delete(promise);
-          return result;
-        });
-        inProgress.add(promise);
-        results.push(promise);
-      }
-
-      // 等待其中一个任务完成
-      if (inProgress.size > 0) {
-        await Promise.race(inProgress);
-      }
-    }
-
-    return Promise.all(results);
-  };
-
   // 处理生成问题
-  const handleGenerateQuestions = async (chunkIds) => {
+  const handleGenerateQuestions = async chunkIds => {
     try {
       setProcessing(true);
       setError(null);
@@ -253,7 +229,12 @@ export default function TextSplitPage({ params }) {
 
         const data = await response.json();
         console.log(t('textSplit.questionsGenerated', { chunkId, total: data.total }));
-        setError({ severity: 'success', message: t('textSplit.questionsGeneratedSuccess', { total: data.total }) });
+        setError({
+          severity: 'success',
+          message: t('textSplit.questionsGeneratedSuccess', {
+            total: data.total
+          })
+        });
       } else {
         // 如果是多个文本块，循环调用单个文本块的问题生成接口，限制并行数为2
         let totalQuestions = 0;
@@ -261,7 +242,7 @@ export default function TextSplitPage({ params }) {
         let errorCount = 0;
 
         // 单个文本块处理函数
-        const processChunk = async (chunkId) => {
+        const processChunk = async chunkId => {
           try {
             // 获取当前语言环境
             const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
@@ -276,7 +257,10 @@ export default function TextSplitPage({ params }) {
 
             if (!response.ok) {
               const errorData = await response.json();
-              console.error(t('textSplit.generateQuestionsForChunkFailed', { chunkId }), errorData.error);
+              console.error(
+                t('textSplit.generateQuestionsForChunkFailed', { chunkId }),
+                errorData.error
+              );
               errorCount++;
               return { success: false, chunkId, error: errorData.error };
             }
@@ -298,7 +282,7 @@ export default function TextSplitPage({ params }) {
               };
             });
 
-            totalQuestions += (data.total || 0);
+            totalQuestions += data.total || 0;
             successCount++;
             return { success: true, chunkId, total: data.total };
           } catch (error) {
@@ -322,18 +306,25 @@ export default function TextSplitPage({ params }) {
         };
 
         // 并行处理所有文本块，最多同时处理2个
-        await processInParallel(chunkIds, processChunk, 2);
+        await processInParallel(chunkIds, processChunk, taskSettings.concurrencyLimit);
 
         // 处理完成后设置结果消息
         if (errorCount > 0) {
           setError({
             severity: 'warning',
-            message: t('textSplit.partialSuccess', { successCount, total: chunkIds.length, errorCount })
+            message: t('textSplit.partialSuccess', {
+              successCount,
+              total: chunkIds.length,
+              errorCount
+            })
           });
         } else {
           setError({
             severity: 'success',
-            message: t('textSplit.allSuccess', { successCount, totalQuestions })
+            message: t('textSplit.allSuccess', {
+              successCount,
+              totalQuestions
+            })
           });
         }
       }
@@ -358,10 +349,30 @@ export default function TextSplitPage({ params }) {
   };
 
   // 处理文件删除
-  const handleFileDeleted = (fileName) => {
-    console.log(t('textSplit.fileDeleted', { fileName }));
-    // 刷新文本块列表
-    fetchChunks();
+  const handleFileDeleted = (fileName,filesCount)=> {
+    console.log(t('textSplit.fileDeleted', { fileName}));
+    // 从 localStorage 获取当前选择的模型信息
+    let selectedModelInfo = null;
+
+    // 尝试从 localStorage 获取完整的模型信息
+    const modelInfoStr = localStorage.getItem('selectedModelInfo');
+
+    if (modelInfoStr) {
+      try {
+        selectedModelInfo = JSON.parse(modelInfoStr);
+      } catch (e) {
+        throw new Error(t('textSplit.modelInfoParseError'));
+      }
+    } else {
+      throw new Error(t('textSplit.selectModelFirst'));
+    }
+    //如果多个文件的情况下，删除的不是最后一个文件，就复用handleSplitText重新构建领域树
+    if(filesCount > 1){
+      handleSplitText(["rebuildToc.md"],selectedModelInfo); 
+    }else{//删除最后一个文件仅刷新界面即可
+      location.reload();
+    }
+       
   };
 
   // 关闭错误提示
@@ -445,12 +456,7 @@ export default function TextSplitPage({ params }) {
 
         {/* 领域分析标签内容 */}
         {activeTab === 1 && (
-          <DomainAnalysis
-            projectId={projectId}
-            toc={tocData}
-            loading={loading}
-            tags={tags}
-          />
+          <DomainAnalysis projectId={projectId} toc={tocData} loading={loading} tags={tags} />
         )}
       </Box>
 
@@ -458,7 +464,7 @@ export default function TextSplitPage({ params }) {
       <Backdrop
         sx={{
           color: '#fff',
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+          zIndex: theme => theme.zIndex.drawer + 1,
           position: 'fixed',
           backdropFilter: 'blur(3px)'
         }}
@@ -479,7 +485,9 @@ export default function TextSplitPage({ params }) {
         >
           <CircularProgress size={40} sx={{ mb: 2 }} />
           <Typography variant="h6">{t('textSplit.loading')}</Typography>
-          <Typography variant="body2" color="text.secondary">{t('textSplit.fetchingDocuments')}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {t('textSplit.fetchingDocuments')}
+          </Typography>
         </Paper>
       </Backdrop>
 
@@ -487,7 +495,7 @@ export default function TextSplitPage({ params }) {
       <Backdrop
         sx={{
           color: '#fff',
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+          zIndex: theme => theme.zIndex.drawer + 1,
           position: 'fixed',
           backdropFilter: 'blur(3px)'
         }}
@@ -511,17 +519,36 @@ export default function TextSplitPage({ params }) {
 
           {progress.total > 1 ? (
             <Box sx={{ width: '100%', mt: 1, mb: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  mb: 0.5
+                }}
+              >
                 <Typography variant="body2" color="text.secondary">
-                  {t('textSplit.progressStatus', { total: progress.total, completed: progress.completed })}
+                  {t('textSplit.progressStatus', {
+                    total: progress.total,
+                    completed: progress.completed
+                  })}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   {progress.percentage}%
                 </Typography>
               </Box>
-              <LinearProgress variant="determinate" value={progress.percentage} sx={{ height: 8, borderRadius: 4 }} />
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
-                {t('textSplit.questionsGenerated', { total: progress.questionCount })}
+              <LinearProgress
+                variant="determinate"
+                value={progress.percentage}
+                sx={{ height: 8, borderRadius: 4 }}
+              />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 1, textAlign: 'center' }}
+              >
+                {t('textSplit.questionsGenerated', {
+                  total: progress.questionCount
+                })}
               </Typography>
             </Box>
           ) : (

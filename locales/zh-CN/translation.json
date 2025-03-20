@@ -30,7 +30,9 @@
         "questionGenDescription": "设置生成问题的最大长度",
         "huggingfaceSettings": "Hugging Face 设置",
         "huggingfaceToken": "Hugging Face Token",
-        "huggingfaceNotImplemented": "Hugging Face 功能暂未实现"
+        "huggingfaceNotImplemented": "Hugging Face 功能暂未实现",
+        "concurrencyLimit": "并发限制数量",
+        "saveTaskConfig": "保存任务配置"
     },
     "questions": {
         "filterAll": "全部问题",
@@ -41,7 +43,6 @@
         "confirmDeleteContent": "您确定要删除问题\"{{question}}\"吗？此操作不可恢复。",
         "deleting": "正在删除问题...",
         "batchDeleteTitle": "确认批量删除问题",
-        "batchDeleteContent": "您确定要删除选中的 {{count}} 个问题吗？此操作不可恢复。",
         "batchDeleting": "正在删除 {{count}} 个问题...",
         "deleteSuccess": "问题删除成功",
         "deleteFailed": "删除问题失败",
@@ -110,6 +111,8 @@
         "createFailed": "创建项目失败",
         "createError": "创建项目出错",
         "createNew": "创建新项目",
+        "saveFailed": "保存项目失败",
+        "id": "项目ID",
         "name": "项目名称",
         "description": "项目描述",
         "questions": "问题",
@@ -118,6 +121,7 @@
         "viewDetails": "查看详情",
         "createFirst": "创建第一个项目",
         "noProjects": "暂无项目",
+        "notExist": "项目不存在",
         "createProject": "创建项目",
         "deleteConfirm": "确认删除项目吗？此操作不可恢复。",
         "deleteSuccess": "项目删除成功",
@@ -127,6 +131,8 @@
     },
     "textSplit": {
         "noFilesUploaded": "暂未上传文件",
+        "unknownFile": "未知文件",
+        "fetchFilesFailed": "获取文件列表出错",
         "editTag": "编辑标签",
         "deleteTag": "删除标签",
         "addTag": "添加标签",
@@ -235,6 +241,7 @@
         "customFormatSettings": "自定义格式设置",
         "questionFieldName": "问题字段名",
         "answerFieldName": "答案字段名",
+        "cotFieldName": "思维链字段名",
         "includeLabels": "包含标签"
     },
     "datasets": {
@@ -345,6 +352,8 @@
     "models": {
         "configNotFound": "模型配置未找到，请检查！",
         "parseError": "解析模型配置出错，请检查！",
+        "fetchFailed": "获取模型失败",
+        "saveFailed": "保存模型配置失败",
         "title": "模型管理",
         "add": "添加模型",
         "unselectedModel": "未选择模型",
@@ -355,6 +364,15 @@
         "modelName": "模型名称",
         "endpoint": "接口地址",
         "apiKey": "API密钥",
-        "provider": "提供商"
+        "provider": "提供商",
+        "localModel": "本地模型",
+        "apiKeyConfigured": "API Key 已经配置",
+        "apiKeyNotConfigured": "API Key 未配置"
+    },
+    "stats": {
+        "ongoingProjects": "正在运行的项目",
+        "questionCount": "问题数量",
+        "generatedDatasets": "已生成的数据集",
+        "supportedModels": "已支持的模型"
     }
 }

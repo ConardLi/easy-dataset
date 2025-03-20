@@ -60,7 +60,6 @@ export async function POST(request, { params }) {
     // 生成答案的提示词
     const prompt = language === 'en' ? getAnswerEnPrompt(chunk.content, question.question) : getAnswerPrompt(chunk.content, question.question);
 
-    // console.log(prompt);
     // 调用大模型生成答案
     const llmRes = await llmClient.chat(prompt);
     let answer = llmRes
@@ -72,7 +71,6 @@ export async function POST(request, { params }) {
     } else {
       cot = llmRes.choices?.[0]?.message?.reasoning_content || llmRes.choices?.[0]?.message?.reasoning || '';
     }
-
 
     // 获取现有数据集
     const datasets = await getDatasets(projectId);

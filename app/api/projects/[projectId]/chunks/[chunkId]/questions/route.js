@@ -71,6 +71,7 @@ export async function POST(request, { params }) {
     // 根据语言选择相应的标签提示词函数
     const labelPromptFunc = language === 'en' ? getAddLabelEnPrompt : getAddLabelPrompt;
     const labelPrompt = labelPromptFunc(JSON.stringify(tags), JSON.stringify(questions));
+
     const labelResponse = await llmClient.chat(labelPrompt);
     // 从LLM输出中提取JSON格式的问题列表
     const labelQuestions = extractJsonFromLLMOutput(labelResponse);

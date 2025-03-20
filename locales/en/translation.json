@@ -30,7 +30,9 @@
         "questionGenDescription": "Set the maximum length for generated questions",
         "huggingfaceSettings": "Hugging Face Settings",
         "huggingfaceToken": "Hugging Face Token",
-        "huggingfaceNotImplemented": "Hugging Face functionality is not yet implemented"
+        "huggingfaceNotImplemented": "Hugging Face functionality is not yet implemented",
+        "concurrencyLimit": "Concurrency Limit",
+        "saveTaskConfig": "Save Task Config"
     },
     "questions": {
         "filterAll": "All Questions",
@@ -297,7 +299,7 @@
         "currentVersion": "Current Version",
         "latestVersion": "Latest Version",
         "downloadNow": "Download Now",
-        "downloading": "Downloading:",
+        "downloading": "Downloading",
         "installNow": "Install Now",
         "updating": "Updating...",
         "updateNow": "Update Now",
