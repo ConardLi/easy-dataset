@@ -40,30 +40,7 @@ export async function POST(request, { params }) {
     // 调用LLM API
     let response;
     try {
-      // 如果是Ollama提供商，使用专门的API
-      if (model.provider.toLowerCase() === 'ollama') {
-        const ollamaHost = new URL(model.endpoint).hostname;
-        const ollamaPort = new URL(model.endpoint).port || '11434';
-
-        // 获取最后一条消息内容
-        const lastMessage = formattedMessages[formattedMessages.length - 1];
-
-        const ollama = new LLMClient({
-          provider: 'ollama',
-          endpoint: `http://${ollamaHost}:${ollamaPort}`,
-          model: model.name
-        });
-
-        const result = await ollama.chat(lastMessage.content);
-        response = result.message?.content || result.response || '无响应';
-
-      } else {
-        // 对于其他提供商，使用通用客户端
-        const result = await llmClient.chat(formattedMessages);
-        response = result.choices?.[0]?.message?.content ||
-          result.response ||
-          '无法解析模型响应';
-      }
+      response = await llmClient.chat(formattedMessages);
     } catch (error) {
       console.error('调用LLM API失败:', error);
       return NextResponse.json({
