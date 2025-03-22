@@ -11,7 +11,6 @@ import { getTaskConfig } from '@/lib/db/projects';
 import { getTags } from '@/lib/db/tags';
 import logger from '@/lib/util/logger';
 
-
 // 为指定文本块生成问题
 export async function POST(request, { params }) {
   try {
@@ -47,6 +46,7 @@ export async function POST(request, { params }) {
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,
+      temperature: model.temperature
     });
 
     // 生成问题的数量，如果未指定，则根据文本长度自动计算
@@ -89,7 +89,10 @@ export async function POST(request, { params }) {
     });
   } catch (error) {
     logger.error('Error generating questions:', error);
-    return NextResponse.json({ error: error.message || 'Error generating questions' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Error generating questions' },
+      { status: 500 }
+    );
   }
 }
 

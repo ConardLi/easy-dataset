@@ -39,10 +39,13 @@ export async function POST(request, { params }) {
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,
+      temperature: model.temperature
     });
     // 生成领域树
     console.log(projectId, fileName, '分割完成，开始构建领域树');
-    const response = await llmClient.getResponse(language === 'en' ? getLabelEnPrompt(toc) : getLabelPrompt(toc));
+    const response = await llmClient.getResponse(
+      language === 'en' ? getLabelEnPrompt(toc) : getLabelPrompt(toc)
+    );
     const tags = extractJsonFromLLMOutput(response);
     if (!response || !tags) {
       // 删除前面生成的文件
@@ -54,7 +57,10 @@ export async function POST(request, { params }) {
         ...project,
         uploadedFiles: updatedFiles
       });
-      return NextResponse.json({ error: 'AI 分析失败，请检查模型配置，删除文件后重试！' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'AI 分析失败，请检查模型配置，删除文件后重试！' },
+        { status: 400 }
+      );
     }
     console.log(projectId, fileName, '领域树构建完成:', tags);
     await saveTags(projectId, tags);

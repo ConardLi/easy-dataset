@@ -22,14 +22,15 @@ import {
   Chip,
   Avatar,
   Stack,
-  Tooltip
+  Tooltip,
+  Slider
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import { MODEL_PROVIDERS } from '@/constant/model';
+import { DEFAULT_MODEL_SETTINGS, MODEL_PROVIDERS } from '@/constant/model';
 import { useTranslation } from 'react-i18next';
 
 const providerOptions = MODEL_PROVIDERS.map(provider => ({
@@ -46,7 +47,7 @@ export default function ModelSettings({ projectId }) {
   const [ollamaModels, setOllamaModels] = useState([]);
 
   // 获取 Ollama 模型列表
-  const fetchOllamaModels = async (endpoint) => {
+  const fetchOllamaModels = async endpoint => {
     try {
       // 从 endpoint 中提取 host 和 port
       let host = '127.0.0.1';
@@ -103,7 +104,8 @@ export default function ModelSettings({ projectId }) {
             providerId: provider.id,
             name: provider.defaultModels[0],
             endpoint: provider.defaultEndpoint,
-            apiKey: ''
+            apiKey: '',
+            ...DEFAULT_MODEL_SETTINGS
           }));
           setModels(defaultModels);
         } else {
@@ -124,18 +126,15 @@ export default function ModelSettings({ projectId }) {
   useEffect(() => {
     const ollamaModel = models.find(m => m.providerId === 'ollama');
     if (ollamaModel) {
-      fetchOllamaModels(ollamaModel.endpoint)
-        .then(() => {
-          // 如果获取到了模型列表，并且当前 Ollama 模型不在列表中，更新为列表中的第一个模型
-          if (ollamaModels.length > 0 && !ollamaModels.includes(ollamaModel.name)) {
-            const updatedModels = models.map(m =>
-              m.id === ollamaModel.id
-                ? { ...m, name: ollamaModels[0] }
-                : m
-            );
-            setModels(updatedModels);
-          }
-        });
+      fetchOllamaModels(ollamaModel.endpoint).then(() => {
+        // 如果获取到了模型列表，并且当前 Ollama 模型不在列表中，更新为列表中的第一个模型
+        if (ollamaModels.length > 0 && !ollamaModels.includes(ollamaModel.name)) {
+          const updatedModels = models.map(m =>
+            m.id === ollamaModel.id ? { ...m, name: ollamaModels[0] } : m
+          );
+          setModels(updatedModels);
+        }
+      });
     }
   }, [models]);
 
@@ -146,9 +145,9 @@ export default function ModelSettings({ projectId }) {
       const response = await fetch(`/api/projects/${projectId}/models`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(models),
+        body: JSON.stringify(models)
       });
 
       if (!response.ok) {
@@ -174,7 +173,8 @@ export default function ModelSettings({ projectId }) {
         providerId: model.providerId,
         name: model.name,
         endpoint: model.endpoint,
-        apiKey: model.apiKey
+        apiKey: model.apiKey,
+        ...model
       });
 
       // 如果是 Ollama 提供商，获取模型列表
@@ -193,7 +193,8 @@ export default function ModelSettings({ projectId }) {
           provider: defaultProvider.name,
           providerId: defaultProvider.id,
           endpoint: defaultProvider.defaultEndpoint,
-          apiKey: ''
+          apiKey: '',
+          ...DEFAULT_MODEL_SETTINGS
           // 不设置 name，等待获取模型列表后再设置
         });
 
@@ -227,7 +228,8 @@ export default function ModelSettings({ projectId }) {
           providerId: defaultProvider.id,
           name: defaultProvider.defaultModels[0],
           endpoint: defaultProvider.defaultEndpoint,
-          apiKey: ''
+          apiKey: '',
+          ...DEFAULT_MODEL_SETTINGS
         });
       }
     }
@@ -240,7 +242,7 @@ export default function ModelSettings({ projectId }) {
   };
 
   // 处理模型表单变更
-  const handleModelFormChange = (e) => {
+  const handleModelFormChange = e => {
     const { name, value } = e.target;
 
     if (name === 'providerId') {
@@ -254,7 +256,7 @@ export default function ModelSettings({ projectId }) {
             ...prev,
             providerId: value,
             provider: selectedProvider.name,
-            endpoint: selectedProvider.defaultEndpoint,
+            endpoint: selectedProvider.defaultEndpoint
           }));
 
           // 获取 Ollama 模型列表
@@ -314,9 +316,7 @@ export default function ModelSettings({ projectId }) {
       // 更新现有模型
       setModels(prev => {
         const updatedModels = prev.map(m =>
-          m.id === editingModel.id
-            ? { ...m, ...modelForm }
-            : m
+          m.id === editingModel.id ? { ...m, ...modelForm } : m
         );
 
         // 保存更新后的模型引用，用于更新 localStorage
@@ -339,7 +339,7 @@ export default function ModelSettings({ projectId }) {
   };
 
   // 删除模型
-  const handleDeleteModel = (id) => {
+  const handleDeleteModel = id => {
     setModels(prev => {
       const updatedModels = prev.filter(m => m.id !== id);
       return updatedModels;
@@ -374,7 +374,7 @@ export default function ModelSettings({ projectId }) {
   };
 
   // 获取模型状态图标和颜色
-  const getModelStatusInfo = (model) => {
+  const getModelStatusInfo = model => {
     if (model.provider === 'Ollama') {
       return {
         icon: <CheckCircleIcon fontSize="small" />,
@@ -397,13 +397,13 @@ export default function ModelSettings({ projectId }) {
   };
 
   // 获取提供商图标
-  const getProviderAvatar = (providerId) => {
+  const getProviderAvatar = providerId => {
     const providerMap = {
-      'openai': '🤖',
-      'anthropic': '🧠',
-      'ollama': '🐑',
-      'azure': '☁️',
-      'custom': '🔧'
+      openai: '🤖',
+      anthropic: '🧠',
+      ollama: '🐑',
+      azure: '☁️',
+      custom: '🔧'
     };
 
     return providerMap[providerId] || '🔌';
@@ -432,7 +432,7 @@ export default function ModelSettings({ projectId }) {
         </Box>
 
         <Stack spacing={2}>
-          {models.map((model) => (
+          {models.map(model => (
             <Paper
               key={model.id}
               elevation={1}
@@ -486,7 +486,12 @@ export default function ModelSettings({ projectId }) {
                   <Tooltip title={getModelStatusInfo(model).text}>
                     <Chip
                       icon={getModelStatusInfo(model).icon}
-                      label={model.endpoint.replace(/^https?:\/\//, '') + (model.provider !== 'Ollama' && !model.apiKey ? " (" + t('models.unconfiguredAPIKey') + ")" : "")}
+                      label={
+                        model.endpoint.replace(/^https?:\/\//, '') +
+                        (model.provider !== 'Ollama' && !model.apiKey
+                          ? ' (' + t('models.unconfiguredAPIKey') + ')'
+                          : '')
+                      }
                       size="small"
                       color={getModelStatusInfo(model).color}
                       variant="outlined"
@@ -516,11 +521,7 @@ export default function ModelSettings({ projectId }) {
         </Stack>
 
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-          <Button
-            variant="contained"
-            onClick={saveAllModels}
-            color="primary"
-          >
+          <Button variant="contained" onClick={saveAllModels} color="primary">
             {t('models.saveAllModels')}
           </Button>
         </Box>
@@ -528,19 +529,21 @@ export default function ModelSettings({ projectId }) {
 
       {/* 模型表单对话框 */}
       <Dialog open={openModelDialog} onClose={handleCloseModelDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingModel ? t('models.edit') : t('models.add')}
-        </DialogTitle>
+        <DialogTitle>{editingModel ? t('models.edit') : t('models.add')}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
-
             <Grid item xs={12}>
               <FormControl fullWidth>
                 <Autocomplete
                   freeSolo
                   options={providerOptions}
-                  getOptionLabel={(option) => option.label}
-                  value={providerOptions.find(p => p.id === modelForm.providerId) || { id: 'custom', label: modelForm.provider }}
+                  getOptionLabel={option => option.label}
+                  value={
+                    providerOptions.find(p => p.id === modelForm.providerId) || {
+                      id: 'custom',
+                      label: modelForm.provider
+                    }
+                  }
                   onChange={(event, newValue) => {
                     if (typeof newValue === 'string') {
                       // 用户手动输入了自定义提供商
@@ -570,11 +573,11 @@ export default function ModelSettings({ projectId }) {
                       }
                     }
                   }}
-                  renderInput={(params) => (
+                  renderInput={params => (
                     <TextField
                       {...params}
                       label={t('models.provider')}
-                      onChange={(e) => {
+                      onChange={e => {
                         // 当用户手动输入时，更新 provider 字段
                         setModelForm(prev => ({
                           ...prev,
@@ -592,7 +595,12 @@ export default function ModelSettings({ projectId }) {
               <FormControl fullWidth>
                 <Autocomplete
                   freeSolo
-                  options={modelForm.providerId === 'ollama' ? ollamaModels : MODEL_PROVIDERS.find(p => p.id === modelForm.providerId)?.defaultModels || []}
+                  options={
+                    modelForm.providerId === 'ollama'
+                      ? ollamaModels
+                      : MODEL_PROVIDERS.find(p => p.id === modelForm.providerId)?.defaultModels ||
+                        []
+                  }
                   value={modelForm.name}
                   onChange={(event, newValue) => {
                     setModelForm(prev => ({
@@ -600,11 +608,11 @@ export default function ModelSettings({ projectId }) {
                       name: newValue
                     }));
                   }}
-                  renderInput={(params) => (
+                  renderInput={params => (
                     <TextField
                       {...params}
                       label={t('models.modelName')}
-                      onChange={(e) => {
+                      onChange={e => {
                         setModelForm(prev => ({
                           ...prev,
                           name: e.target.value
@@ -635,6 +643,28 @@ export default function ModelSettings({ projectId }) {
                 onChange={handleModelFormChange}
                 placeholder="例如: sk-..."
               />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography id="question-generation-length-slider" gutterBottom>
+                {t('models.temperature')}
+              </Typography>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Slider
+                  min={0}
+                  max={2}
+                  name="temperature"
+                  value={modelForm.temperature}
+                  onChange={handleModelFormChange}
+                  step={0.1}
+                  valueLabelDisplay="auto"
+                  aria-label="Temperature"
+                  sx={{ flex: 1 }}
+                />
+                <Typography variant="body2" sx={{ minWidth: '40px' }}>
+                  {modelForm.temperature}
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/llm/core/index';
 
-
 export async function POST(request, { params }) {
   try {
     const { projectId } = params;
@@ -29,6 +28,7 @@ export async function POST(request, { params }) {
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,
+      temperature: model.temperature
     });
 
     // 格式化消息历史
@@ -43,9 +43,12 @@ export async function POST(request, { params }) {
       response = await llmClient.getResponse(formattedMessages);
     } catch (error) {
       console.error('调用LLM API失败:', error);
-      return NextResponse.json({
-        error: `调用${model.provider}模型失败: ${error.message}`
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: `调用${model.provider}模型失败: ${error.message}`
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ response });
