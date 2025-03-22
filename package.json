@@ -21,7 +21,8 @@
     "electron-build": "pnpm clean-dist && next build && electron-builder -mwl",
     "electron-build-mac": "pnpm clean-dist && next build && electron-builder --mac",
     "electron-build-win": "pnpm clean-dist && next build && electron-builder --win",
-    "electron-build-linux": "pnpm clean-dist && next build && electron-builder --linux"
+    "electron-build-linux": "pnpm clean-dist && next build && electron-builder --linux",
+    "prepare": "husky install"
   },
   "bin": "desktop/server.js",
   "pkg": {
@@ -72,7 +73,7 @@
     "electron-builder": "^24.13.3",
     "eslint": "^8",
     "eslint-config-next": "15.2.3",
-    "husky": "^9.1.7",
+    "husky": "^8.0.0",
     "pkg": "^5.8.1",
     "wait-on": "^7.2.0"
   },
