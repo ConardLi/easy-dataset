@@ -36,7 +36,7 @@ import AddIcon from '@mui/icons-material/Add';
 import QuestionListView from '@/components/questions/QuestionListView';
 import QuestionTreeView from '@/components/questions/QuestionTreeView';
 import TabPanel from '@/components/text-split/components/TabPanel';
-import request from '@/lib/util/request'
+import request from '@/lib/util/request';
 import useTaskSettings from '@/hooks/useTaskSettings';
 import QuestionEditDialog from './components/QuestionEditDialog';
 import { useQuestionEdit } from './hooks/useQuestionEdit';
@@ -65,14 +65,13 @@ export default function QuestionsPage({ params }) {
 
   // 进度状态
   const [progress, setProgress] = useState({
-    total: 0,         // 总共选择的问题数量
-    completed: 0,     // 已处理完成的数量
-    percentage: 0,    // 进度百分比
-    datasetCount: 0   // 已生成的数据集数量
+    total: 0, // 总共选择的问题数量
+    completed: 0, // 已处理完成的数量
+    percentage: 0, // 进度百分比
+    datasetCount: 0 // 已生成的数据集数量
   });
 
   const { showSuccess, SnackbarComponent } = useSnackbar();
-
 
   const {
     editDialogOpen,
@@ -81,8 +80,8 @@ export default function QuestionsPage({ params }) {
     handleOpenCreateDialog,
     handleOpenEditDialog,
     handleCloseDialog,
-    handleSubmitQuestion,
-  } = useQuestionEdit(projectId, (updatedQuestion) => {
+    handleSubmitQuestion
+  } = useQuestionEdit(projectId, updatedQuestion => {
     // 直接更新 questions 数组中的数据
     setQuestions(prevQuestions => {
       if (editMode === 'create') {
@@ -104,7 +103,7 @@ export default function QuestionsPage({ params }) {
     confirmAction: null
   });
 
-  const fetchData = async (currentPage) => {
+  const fetchData = async currentPage => {
     if (!currentPage) {
       setLoading(true);
     }
@@ -134,7 +133,6 @@ export default function QuestionsPage({ params }) {
       }
       const data = await response.json();
       setChunks(data.chunks || []);
-
     } catch (error) {
       console.error(t('common.fetchError'), error);
       setError(error.message);
@@ -183,7 +181,8 @@ export default function QuestionsPage({ params }) {
       setSelectedQuestions([]);
     } else {
       const filteredQuestions = questions.filter(question => {
-        const matchesSearch = searchTerm === '' ||
+        const matchesSearch =
+          searchTerm === '' ||
           question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -254,7 +253,7 @@ export default function QuestionsPage({ params }) {
       setSnackbar({
         open: true,
         message: t('datasets.generating'),
-        severity: 'info',
+        severity: 'info'
       });
 
       // 调用API生成数据集
@@ -279,7 +278,7 @@ export default function QuestionsPage({ params }) {
 
       const result = await response.json();
       setSnackbar({
-        open: false,
+        open: false
       });
       fetchData(1);
       return result.dataset;
@@ -360,7 +359,7 @@ export default function QuestionsPage({ params }) {
       });
 
       // 单个问题处理函数
-      const processQuestion = async (key) => {
+      const processQuestion = async key => {
         try {
           // 从问题键中提取 chunkId 和 questionId
           const lastDashIndex = key.lastIndexOf('-');
@@ -381,7 +380,6 @@ export default function QuestionsPage({ params }) {
 
             return { success: false, key, error: t('questions.invalidQuestionKey') };
           }
-
 
           const { question: questionId, chunkId } = JSON.parse(key);
 
@@ -404,7 +402,10 @@ export default function QuestionsPage({ params }) {
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.error(t('datasets.generateError'), errorData.error || t('datasets.generateFailed'));
+            console.error(
+              t('datasets.generateError'),
+              errorData.error || t('datasets.generateFailed')
+            );
 
             // 更新进度状态（即使失败也计入已处理）
             setProgress(prev => {
@@ -459,7 +460,11 @@ export default function QuestionsPage({ params }) {
       };
 
       // 并行处理所有问题，最多同时处理2个
-      const results = await processInParallel(selectedQuestions, processQuestion, taskSettings.concurrencyLimit);
+      const results = await processInParallel(
+        selectedQuestions,
+        processQuestion,
+        taskSettings.concurrencyLimit
+      );
 
       // 刷新数据
       fetchData(1);
@@ -540,13 +545,16 @@ export default function QuestionsPage({ params }) {
       });
 
       // 调用删除问题的 API
-      const response = await fetch(`/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ chunkId })
-      });
+      const response = await fetch(
+        `/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ chunkId })
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -617,19 +625,21 @@ export default function QuestionsPage({ params }) {
       // 逐个删除问题，完全模仿单个删除的逻辑
       for (const key of selectedQuestions) {
         try {
-
           const { question: questionId, chunkId } = JSON.parse(key);
 
           console.log('开始删除问题:', { chunkId, questionId });
 
           // 调用删除问题的 API
-          const response = await fetch(`/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ chunkId })
-          });
+          const response = await fetch(
+            `/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ chunkId })
+            }
+          );
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -638,7 +648,9 @@ export default function QuestionsPage({ params }) {
           }
 
           // 从列表中移除已删除的问题，完全复制单个删除的逻辑
-          setQuestions(prev => prev.filter(q => !(q.question === questionId && q.chunkId === chunkId)));
+          setQuestions(prev =>
+            prev.filter(q => !(q.question === questionId && q.chunkId === chunkId))
+          );
 
           successCount++;
           console.log(`问题删除成功: ${questionId}`);
@@ -653,9 +665,10 @@ export default function QuestionsPage({ params }) {
       // 显示成功提示
       setSnackbar({
         open: true,
-        message: successCount === selectedQuestions.length
-          ? `成功删除 ${successCount} 个问题`
-          : `删除完成，成功: ${successCount}, 失败: ${selectedQuestions.length - successCount}`,
+        message:
+          successCount === selectedQuestions.length
+            ? `成功删除 ${successCount} 个问题`
+            : `删除完成，成功: ${successCount}, 失败: ${selectedQuestions.length - successCount}`,
         severity: successCount === selectedQuestions.length ? 'success' : 'warning'
       });
     } catch (error) {
@@ -674,7 +687,7 @@ export default function QuestionsPage({ params }) {
   };
 
   // 获取文本块内容
-  const getChunkContent = (chunkId) => {
+  const getChunkContent = chunkId => {
     const chunk = chunks.find(c => c.id === chunkId);
     return chunk ? chunk.content : '';
   };
@@ -682,7 +695,9 @@ export default function QuestionsPage({ params }) {
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}
+        >
           <CircularProgress />
         </Box>
       </Container>
@@ -721,7 +736,7 @@ export default function QuestionsPage({ params }) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            alignItems: 'center',
+            alignItems: 'center'
           }}
         >
           <Paper
@@ -731,7 +746,7 @@ export default function QuestionsPage({ params }) {
               maxWidth: 500,
               p: 3,
               borderRadius: 2,
-              textAlign: 'center',
+              textAlign: 'center'
             }}
           >
             <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
@@ -755,7 +770,10 @@ export default function QuestionsPage({ params }) {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Typography variant="body2">
-                  {t('questions.generatingProgress', { completed: progress.completed, total: progress.total })}
+                  {t('questions.generatingProgress', {
+                    completed: progress.completed,
+                    total: progress.total
+                  })}
                 </Typography>
                 <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
                   {t('questions.generatedCount', { count: progress.datasetCount })}
@@ -774,20 +792,25 @@ export default function QuestionsPage({ params }) {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">
-          {t('questions.title')} ({questions.filter(question => {
-            const matchesSearch = searchTerm === '' ||
-              question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+          {t('questions.title')} (
+          {
+            questions.filter(question => {
+              const matchesSearch =
+                searchTerm === '' ||
+                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
-            let matchesAnswerFilter = true;
-            if (answerFilter === 'answered') {
-              matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
-            } else if (answerFilter === 'unanswered') {
-              matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
-            }
+              let matchesAnswerFilter = true;
+              if (answerFilter === 'answered') {
+                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
+              } else if (answerFilter === 'unanswered') {
+                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
+              }
 
-            return matchesSearch && matchesAnswerFilter;
-          }).length})
+              return matchesSearch && matchesAnswerFilter;
+            }).length
+          }
+          )
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
@@ -800,11 +823,7 @@ export default function QuestionsPage({ params }) {
             {t('questions.deleteSelected')}
           </Button>
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenCreateDialog}
-          >
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateDialog}>
             {t('questions.createQuestion')}
           </Button>
           <Button
@@ -842,17 +861,26 @@ export default function QuestionsPage({ params }) {
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Checkbox
-                checked={selectedQuestions.length > 0 && selectedQuestions.length === totalQuestions}
-                indeterminate={selectedQuestions.length > 0 && selectedQuestions.length < totalQuestions}
+                checked={
+                  selectedQuestions.length > 0 && selectedQuestions.length === totalQuestions
+                }
+                indeterminate={
+                  selectedQuestions.length > 0 && selectedQuestions.length < totalQuestions
+                }
                 onChange={handleSelectAll}
               />
               <Typography variant="body2" sx={{ ml: 1 }}>
-                {selectedQuestions.length > 0 ? t('questions.selectedCount', { count: selectedQuestions.length }) : t('questions.selectAll')}
-                ({t('questions.totalCount', {
+                {selectedQuestions.length > 0
+                  ? t('questions.selectedCount', { count: selectedQuestions.length })
+                  : t('questions.selectAll')}
+                (
+                {t('questions.totalCount', {
                   count: questions.filter(question => {
-                    const matchesSearch = searchTerm === '' ||
+                    const matchesSearch =
+                      searchTerm === '' ||
                       question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+                      (question.label &&
+                        question.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
                     let matchesAnswerFilter = true;
                     if (answerFilter === 'answered') {
@@ -863,7 +891,8 @@ export default function QuestionsPage({ params }) {
 
                     return matchesSearch && matchesAnswerFilter;
                   }).length
-                })})
+                })}
+                )
               </Typography>
             </Box>
 
@@ -875,28 +904,30 @@ export default function QuestionsPage({ params }) {
                 fullWidth
                 sx={{ width: { xs: '100%', sm: 300 } }}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <SearchIcon fontSize="small" color="action" />
                     </InputAdornment>
-                  ),
+                  )
                 }}
               />
               <Select
                 value={answerFilter}
-                onChange={(e) => setAnswerFilter(e.target.value)}
+                onChange={e => setAnswerFilter(e.target.value)}
                 size="small"
                 sx={{
                   width: { xs: '100%', sm: 200 },
                   bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white',
                   borderRadius: '8px',
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.23)'
+                    borderColor:
+                      theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.23)'
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.87)'
+                    borderColor:
+                      theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.87)'
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'primary.main'
@@ -923,7 +954,8 @@ export default function QuestionsPage({ params }) {
           <QuestionListView
             questions={questions.filter(question => {
               // 搜索词筛选
-              const matchesSearch = searchTerm === '' ||
+              const matchesSearch =
+                searchTerm === '' ||
                 question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -951,7 +983,8 @@ export default function QuestionsPage({ params }) {
           <QuestionTreeView
             questions={questions.filter(question => {
               // 搜索词筛选
-              const matchesSearch = searchTerm === '' ||
+              const matchesSearch =
+                searchTerm === '' ||
                 question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
