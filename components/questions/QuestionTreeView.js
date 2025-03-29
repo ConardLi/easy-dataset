@@ -310,8 +310,7 @@ export default function QuestionTreeView({
             borderRadius: '4px',
             mb: 0.5,
             pr: 1
-          }}
-        >
+          }}>
           <FolderIcon fontSize="small" sx={{ mr: 1, color: 'inherit' }} />
           <ListItemText
             primary={
@@ -322,7 +321,13 @@ export default function QuestionTreeView({
                 <Chip
                   label={t('datasets.questionCount', { count: uncategorizedQuestions.length })}
                   size="small"
-                  sx={{ ml: 1, height: 20, fontSize: '0.7rem', color: '#fff', backgroundColor: '#333' }}
+                  sx={{
+                    ml: 1,
+                    height: 20,
+                    fontSize: '0.7rem',
+                    color: '#fff',
+                    backgroundColor: '#333'
+                  }}
                 />
               </Box>
             }
@@ -364,8 +369,7 @@ export default function QuestionTreeView({
         overflow: 'auto',
         p: 2,
         maxHeight: '75vh'
-      }}
-    >
+      }}>
       <List disablePadding>
         {renderUncategorizedQuestions()}
         {tags.map(tag => renderTagTree(tag))}
@@ -392,8 +396,7 @@ const QuestionItem = memo(
             '&:hover': {
               bgcolor: 'action.hover'
             }
-          }}
-        >
+          }}>
           <Checkbox checked={isSelected} onChange={() => onSelect(questionKey)} size="small" />
           <QuestionMarkIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
           <ListItemText
@@ -429,8 +432,7 @@ const QuestionItem = memo(
                     label: question.label || 'other'
                   })
                 }
-                disabled={isProcessing}
-              >
+                disabled={isProcessing}>
                 <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -469,8 +471,7 @@ const TagItem = memo(({ tag, level, isExpanded, totalQuestions, onToggle, t }) =
         borderRadius: '4px',
         mb: 0.5,
         pr: 1
-      }}
-    >
+      }}>
       {/* 内部内容保持不变 */}
       <FolderIcon fontSize="small" sx={{ mr: 1, color: level === 0 ? 'inherit' : 'primary.main' }} />
       <ListItemText
@@ -481,8 +482,7 @@ const TagItem = memo(({ tag, level, isExpanded, totalQuestions, onToggle, t }) =
               sx={{
                 fontWeight: level === 0 ? 600 : 400,
                 fontSize: level === 0 ? '1rem' : '0.9rem'
-              }}
-            >
+              }}>
               {tag.label}
             </Typography>
             {totalQuestions > 0 && (
@@ -491,7 +491,13 @@ const TagItem = memo(({ tag, level, isExpanded, totalQuestions, onToggle, t }) =
                 size="small"
                 color={level === 0 ? 'default' : 'primary'}
                 variant={level === 0 ? 'default' : 'outlined'}
-                sx={{ ml: 1, height: 20, fontSize: '0.7rem', color: '#fff', backgroundColor: '#333' }}
+                sx={{
+                  ml: 1,
+                  height: 20,
+                  fontSize: '0.7rem',
+                  color: '#fff',
+                  backgroundColor: '#333'
+                }}
               />
             )}
           </Box>
