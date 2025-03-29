@@ -22,7 +22,7 @@ import FileUploader from '@/components/text-split/FileUploader';
 import ChunkList from '@/components/text-split/ChunkList';
 import DomainAnalysis from '@/components/text-split/DomainAnalysis';
 import request from '@/lib/util/request';
-import { processInParallel } from '@/lib/util/async'
+import { processInParallel } from '@/lib/util/async';
 import useTaskSettings from '@/hooks/useTaskSettings';
 import { finished } from 'stream';
 
@@ -44,10 +44,10 @@ export default function TextSplitPage({ params }) {
 
   // 进度状态
   const [progress, setProgress] = useState({
-    total: 0,         // 总共选择的文本块数量
-    completed: 0,     // 已处理完成的数量
-    percentage: 0,    // 进度百分比
-    questionCount: 0  // 已生成的问题数量
+    total: 0, // 总共选择的文本块数量
+    completed: 0, // 已处理完成的数量
+    percentage: 0, // 进度百分比
+    questionCount: 0 // 已生成的问题数量
   });
 
   // 加载文本块数据
@@ -308,20 +308,20 @@ export default function TextSplitPage({ params }) {
             // 获取当前语言环境
             const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
 
-            const response = await request(`/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}/questions`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ model, language: currentLanguage })
-            });
+            const response = await request(
+              `/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}/questions`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ model, language: currentLanguage })
+              }
+            );
 
             if (!response.ok) {
               const errorData = await response.json();
-              console.error(
-                t('textSplit.generateQuestionsForChunkFailed', { chunkId }),
-                errorData.error
-              );
+              console.error(t('textSplit.generateQuestionsForChunkFailed', { chunkId }), errorData.error);
               errorCount++;
               return { success: false, chunkId, error: errorData.error };
             }
@@ -429,11 +429,11 @@ export default function TextSplitPage({ params }) {
     }
     //如果多个文件的情况下，删除的不是最后一个文件，就复用handleSplitText重新构建领域树
     if (filesCount > 1) {
-      handleSplitText(["rebuildToc.md"], selectedModelInfo);
-    } else {//删除最后一个文件仅刷新界面即可
+      handleSplitText(['rebuildToc.md'], selectedModelInfo);
+    } else {
+      //删除最后一个文件仅刷新界面即可
       location.reload();
     }
-
   };
 
   // 关闭错误提示
@@ -463,7 +463,7 @@ export default function TextSplitPage({ params }) {
   };
 
   // 处理筛选器变更
-  const handleQuestionFilterChange = (value) => {
+  const handleQuestionFilterChange = value => {
     setQuestionFilter(value);
 
     // 应用筛选
@@ -478,16 +478,16 @@ export default function TextSplitPage({ params }) {
     setShowChunks(filteredChunks);
   };
 
-  const handleSelected = (array) => {
+  const handleSelected = array => {
     if (array.length > 0) {
       let selectedChunks = [];
       for (let i = 0; i < array.length; i++) {
-        const name = array[i].replace(/\.md$/, "");
+        const name = array[i].replace(/\.md$/, '');
         console.log(name);
-        const tempChunks = chunks.filter(item => item.id.includes(name))
+        const tempChunks = chunks.filter(item => item.id.includes(name));
         tempChunks.forEach(item => {
           selectedChunks.push(item);
-        })
+        });
       }
       setShowChunks(selectedChunks);
       console.log(selectedChunks);
@@ -495,7 +495,7 @@ export default function TextSplitPage({ params }) {
       const allChunks = chunks;
       setShowChunks(allChunks);
     }
-  }
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8, position: 'relative' }}>
@@ -536,9 +536,7 @@ export default function TextSplitPage({ params }) {
         )}
 
         {/* 领域分析标签内容 */}
-        {activeTab === 1 && (
-          <DomainAnalysis projectId={projectId} toc={tocData} loading={loading} tags={tags} />
-        )}
+        {activeTab === 1 && <DomainAnalysis projectId={projectId} toc={tocData} loading={loading} tags={tags} />}
       </Box>
 
       {/* 加载中蒙版 */}
@@ -617,16 +615,8 @@ export default function TextSplitPage({ params }) {
                   {progress.percentage}%
                 </Typography>
               </Box>
-              <LinearProgress
-                variant="determinate"
-                value={progress.percentage}
-                sx={{ height: 8, borderRadius: 4 }}
-              />
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mt: 1, textAlign: 'center' }}
-              >
+              <LinearProgress variant="determinate" value={progress.percentage} sx={{ height: 8, borderRadius: 4 }} />
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
                 {t('textSplit.questionsGenerated', {
                   total: progress.questionCount
                 })}

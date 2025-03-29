@@ -18,9 +18,9 @@ const MenuProps = {
   PaperProps: {
     style: {
       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
+      width: 250
+    }
+  }
 };
 
 /**
@@ -32,7 +32,7 @@ const MenuProps = {
  */
 export default function ModelSelector({ models, selectedModels, onChange }) {
   // 获取模型名称
-  const getModelName = (modelId) => {
+  const getModelName = modelId => {
     const model = models.find(m => m.id === modelId);
     return model ? `${model.provider}: ${model.name}` : modelId;
   };
@@ -48,37 +48,33 @@ export default function ModelSelector({ models, selectedModels, onChange }) {
         value={selectedModels}
         onChange={onChange}
         input={<OutlinedInput label="选择模型（最多3个）" />}
-        renderValue={(selected) => (
+        renderValue={selected => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {selected.map((modelId) => (
-              <Chip
-                key={modelId}
-                label={getModelName(modelId)}
-                color="primary"
-                variant="outlined"
-                size="small"
-              />
+            {selected.map(modelId => (
+              <Chip key={modelId} label={getModelName(modelId)} color="primary" variant="outlined" size="small" />
             ))}
           </Box>
         )}
         MenuProps={MenuProps}
       >
-        {models.filter(m => {
-          if (m.provider === 'Ollama') {
-            return m.name && m.endpoint
-          } else {
-            return m.name && m.endpoint && m.apiKey
-          }
-        }).map((model) => (
-          <MenuItem
-            key={model.id}
-            value={model.id}
-            disabled={selectedModels.length >= 3 && !selectedModels.includes(model.id)}
-          >
-            <Checkbox checked={selectedModels.indexOf(model.id) > -1} />
-            <ListItemText primary={`${model.provider}: ${model.name}`} />
-          </MenuItem>
-        ))}
+        {models
+          .filter(m => {
+            if (m.provider === 'Ollama') {
+              return m.name && m.endpoint;
+            } else {
+              return m.name && m.endpoint && m.apiKey;
+            }
+          })
+          .map(model => (
+            <MenuItem
+              key={model.id}
+              value={model.id}
+              disabled={selectedModels.length >= 3 && !selectedModels.includes(model.id)}
+            >
+              <Checkbox checked={selectedModels.indexOf(model.id) > -1} />
+              <ListItemText primary={`${model.provider}: ${model.name}`} />
+            </MenuItem>
+          ))}
       </Select>
     </FormControl>
   );

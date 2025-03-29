@@ -65,7 +65,7 @@ export default function PromptSettings({ projectId }) {
     }
   };
 
-  const handleChange = (field) => (event) => {
+  const handleChange = field => event => {
     setPrompts(prev => ({
       ...prev,
       [field]: event.target.value
@@ -182,12 +182,7 @@ export default function PromptSettings({ projectId }) {
       </Grid>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={loading}
-          startIcon={<SaveIcon />}
-        >
+        <Button variant="contained" onClick={handleSave} disabled={loading} startIcon={<SaveIcon />}>
           {t('common.save')}
         </Button>
       </Box>

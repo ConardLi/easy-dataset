@@ -8,14 +8,16 @@ import getAnswerEnPrompt from '@/lib/llm/prompts/answerEn';
 import getOptimizeCotPrompt from '@/lib/llm/prompts/optimizeCot';
 import getOptimizeCotEnPrompt from '@/lib/llm/prompts/optimizeCotEn';
 
-
 const LLMClient = require('@/lib/llm/core');
 
 async function optimizeCot(originalQuestion, answer, originalCot, language, llmClient, id, projectId) {
-  const prompt = language === 'en' ? getOptimizeCotEnPrompt(originalQuestion, answer, originalCot) : getOptimizeCotPrompt(originalQuestion, answer, originalCot);
+  const prompt =
+    language === 'en'
+      ? getOptimizeCotEnPrompt(originalQuestion, answer, originalCot)
+      : getOptimizeCotPrompt(originalQuestion, answer, originalCot);
   const { answer: optimizedAnswer } = await llmClient.getResponseWithCOT(prompt);
   await updateDataset(projectId, id, { cot: optimizedAnswer.replace('优化后的思维链', '') });
-  console.log(originalQuestion, id, '已成功优化思维链');
+  console.log(originalQuestion, id, 'Successfully optimized thought process');
 }
 
 /**
@@ -28,26 +30,35 @@ export async function POST(request, { params }) {
 
     // 验证参数
     if (!projectId || !questionId || !chunkId || !model) {
-      return NextResponse.json({
-        error: '缺少必要参数'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: '缺少必要参数'
+        },
+        { status: 400 }
+      );
     }
 
     // 获取文本块内容
     const chunk = await getTextChunk(projectId, chunkId);
     if (!chunk) {
-      return NextResponse.json({
-        error: '文本块不存在'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          error: 'Text block does not exist'
+        },
+        { status: 404 }
+      );
     }
 
     // 获取问题
     const questions = await getQuestionsForChunk(projectId, chunkId);
     const question = questions.find(q => q.question === questionId);
     if (!question) {
-      return NextResponse.json({
-        error: '问题不存在'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          error: 'Question not found'
+        },
+        { status: 404 }
+      );
     }
 
     // 获取项目配置
@@ -60,6 +71,8 @@ export async function POST(request, { params }) {
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,
+      temperature: model.temperature,
+      maxTokens: model.maxTokens
     });
 
     const promptFuc = language === 'en' ? getAnswerEnPrompt : getAnswerPrompt;
@@ -78,8 +91,7 @@ export async function POST(request, { params }) {
     // 获取现有数据集
     const datasets = await getDatasets(projectId);
 
-
-    const datasetId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+    const datasetId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
     // 创建新的数据集项
     const datasetItem = {
@@ -100,17 +112,20 @@ export async function POST(request, { params }) {
     // 添加到数据集
     datasets.push(datasetItem);
     await saveDatasets(projectId, datasets);
-    console.log(datasets.length, '已成功生成数据集', question.question);
+    console.log(datasets.length, 'Successfully generated dataset', question.question);
 
     return NextResponse.json({
       success: true,
       dataset: datasetItem
     });
   } catch (error) {
-    console.error('生成数据集失败:', error);
-    return NextResponse.json({
-      error: error.message || '生成数据集失败'
-    }, { status: 500 });
+    console.error('Failed to generate dataset:', error);
+    return NextResponse.json(
+      {
+        error: error.message || 'Failed to generate dataset'
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -123,9 +138,12 @@ export async function GET(request, { params }) {
 
     // 验证项目ID
     if (!projectId) {
-      return NextResponse.json({
-        error: '项目ID不能为空'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: '项目ID不能为空'
+        },
+        { status: 400 }
+      );
     }
 
     // 获取数据集
@@ -134,9 +152,12 @@ export async function GET(request, { params }) {
     return NextResponse.json(datasets);
   } catch (error) {
     console.error('获取数据集失败:', error);
-    return NextResponse.json({
-      error: error.message || '获取数据集失败'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: error.message || '获取数据集失败'
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -151,15 +172,21 @@ export async function DELETE(request, { params }) {
 
     // 验证参数
     if (!projectId) {
-      return NextResponse.json({
-        error: '项目ID不能为空'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Project ID cannot be empty'
+        },
+        { status: 400 }
+      );
     }
 
     if (!datasetId) {
-      return NextResponse.json({
-        error: '数据集ID不能为空'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Dataset ID cannot be empty'
+        },
+        { status: 400 }
+      );
     }
 
     // 获取所有数据集
@@ -169,9 +196,12 @@ export async function DELETE(request, { params }) {
     const datasetIndex = datasets.findIndex(dataset => dataset.id === datasetId);
 
     if (datasetIndex === -1) {
-      return NextResponse.json({
-        error: '数据集不存在'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          error: 'Dataset does not exist'
+        },
+        { status: 404 }
+      );
     }
 
     // 删除数据集
@@ -182,13 +212,16 @@ export async function DELETE(request, { params }) {
 
     return NextResponse.json({
       success: true,
-      message: '数据集删除成功'
+      message: 'Dataset deleted successfully'
     });
   } catch (error) {
-    console.error('删除数据集失败:', error);
-    return NextResponse.json({
-      error: error.message || '删除数据集失败'
-    }, { status: 500 });
+    console.error('Failed to delete dataset:', error);
+    return NextResponse.json(
+      {
+        error: error.message || 'Failed to delete dataset'
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -204,15 +237,21 @@ export async function PATCH(request, { params }) {
 
     // 验证参数
     if (!projectId) {
-      return NextResponse.json({
-        error: '项目ID不能为空'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Project ID cannot be empty'
+        },
+        { status: 400 }
+      );
     }
 
     if (!datasetId) {
-      return NextResponse.json({
-        error: '数据集ID不能为空'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Dataset ID cannot be empty'
+        },
+        { status: 400 }
+      );
     }
 
     // 获取所有数据集
@@ -222,9 +261,12 @@ export async function PATCH(request, { params }) {
     const datasetIndex = datasets.findIndex(dataset => dataset.id === datasetId);
 
     if (datasetIndex === -1) {
-      return NextResponse.json({
-        error: '数据集不存在'
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          error: 'Dataset does not exist'
+        },
+        { status: 404 }
+      );
     }
 
     // 更新数据集
@@ -238,13 +280,16 @@ export async function PATCH(request, { params }) {
 
     return NextResponse.json({
       success: true,
-      message: '数据集更新成功',
+      message: 'Dataset updated successfully',
       dataset: dataset
     });
   } catch (error) {
-    console.error('编辑数据集失败:', error);
-    return NextResponse.json({
-      error: error.message || '编辑数据集失败'
-    }, { status: 500 });
+    console.error('Failed to update dataset:', error);
+    return NextResponse.json(
+      {
+        error: error.message || 'Failed to update dataset'
+      },
+      { status: 500 }
+    );
   }
 }

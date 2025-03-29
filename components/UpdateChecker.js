@@ -17,7 +17,7 @@ const UpdateChecker = () => {
   // 检查更新
   const checkForUpdates = async () => {
     if (!window.electron?.updater) {
-      console.warn('更新功能不可用，可能是在浏览器环境运行');
+      console.warn('Update feature is not available, possibly running in browser environment');
       return;
     }
 
@@ -26,7 +26,7 @@ const UpdateChecker = () => {
       setUpdateError(null);
 
       const result = await window.electron.updater.checkForUpdates();
-      console.log('检查更新结果:', result);
+      console.log('Update check result:', result);
 
       // 返回当前版本信息
       if (result) {
@@ -36,8 +36,8 @@ const UpdateChecker = () => {
         }));
       }
     } catch (error) {
-      console.error('检查更新失败:', error);
-      setUpdateError(error.message || '检查更新失败');
+      console.error('Failed to check for updates:', error);
+      // setUpdateError(error.message || 'Failed to check for updates');
     } finally {
       setChecking(false);
     }
@@ -65,8 +65,8 @@ const UpdateChecker = () => {
     try {
       await window.electron.updater.installUpdate();
     } catch (error) {
-      console.error('安装更新失败:', error);
-      setUpdateError(error.message || '安装更新失败');
+      console.error('Failed to install update:', error);
+      // setUpdateError(error.message || 'Failed to install update');
     }
   };
 
@@ -75,7 +75,7 @@ const UpdateChecker = () => {
     if (!window.electron?.updater) return;
 
     // 有可用更新
-    const removeUpdateAvailable = window.electron.updater.onUpdateAvailable((info) => {
+    const removeUpdateAvailable = window.electron.updater.onUpdateAvailable(info => {
       console.log('发现新版本:', info);
       setUpdateAvailable(true);
       setUpdateInfo(prev => ({
@@ -93,19 +93,19 @@ const UpdateChecker = () => {
     });
 
     // 更新错误
-    const removeUpdateError = window.electron.updater.onUpdateError((error) => {
+    const removeUpdateError = window.electron.updater.onUpdateError(error => {
       console.error('更新错误:', error);
-      setUpdateError(error);
+      // setUpdateError(error);
     });
 
     // 下载进度
-    const removeDownloadProgress = window.electron.updater.onDownloadProgress((progress) => {
+    const removeDownloadProgress = window.electron.updater.onDownloadProgress(progress => {
       console.log('下载进度:', progress);
       setDownloadProgress(progress.percent || 0);
     });
 
     // 更新下载完成
-    const removeUpdateDownloaded = window.electron.updater.onUpdateDownloaded((info) => {
+    const removeUpdateDownloaded = window.electron.updater.onUpdateDownloaded(info => {
       console.log('更新下载完成:', info);
       setDownloading(false);
       setUpdateDownloaded(true);
@@ -131,9 +131,12 @@ const UpdateChecker = () => {
   useEffect(() => {
     if (!window.electron?.updater) return;
 
-    const interval = setInterval(() => {
-      checkForUpdates();
-    }, 60 * 60 * 1000);
+    const interval = setInterval(
+      () => {
+        checkForUpdates();
+      },
+      60 * 60 * 1000
+    );
 
     return () => clearInterval(interval);
   }, []);
@@ -148,12 +151,7 @@ const UpdateChecker = () => {
   return (
     <>
       {updateAvailable && (
-        <Button
-          color="primary"
-          startIcon={<UpdateIcon />}
-          onClick={() => setOpen(true)}
-          sx={{ ml: 1 }}
-        >
+        <Button color="primary" startIcon={<UpdateIcon />} onClick={() => setOpen(true)} sx={{ ml: 1 }}>
           {t('update.newVersion')}
         </Button>
       )}
@@ -164,15 +162,9 @@ const UpdateChecker = () => {
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert
-          onClose={handleClose}
-          severity="info"
-          sx={{ width: '100%', maxWidth: 400 }}
-        >
+        <Alert onClose={handleClose} severity="info" sx={{ width: '100%', maxWidth: 400 }}>
           <Box sx={{ p: 1 }}>
-            <Typography variant="h6">
-              {t('update.newVersionAvailable')}
-            </Typography>
+            <Typography variant="h6">{t('update.newVersionAvailable')}</Typography>
 
             {updateInfo && (
               <>
@@ -193,11 +185,7 @@ const UpdateChecker = () => {
             )}
 
             {updateError && (
-              <Typography
-                variant="body2"
-                color="error.main"
-                sx={{ mt: 1 }}
-              >
+              <Typography variant="body2" color="error.main" sx={{ mt: 1 }}>
                 {updateError}
               </Typography>
             )}
@@ -232,14 +220,8 @@ const UpdateChecker = () => {
               ) : null} */}
 
               {updateInfo?.releaseUrl && (
-                <Link
-                  href={updateInfo.releaseUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="outlined">
-                    {t('update.viewRelease')}
-                  </Button>
+                <Link href={updateInfo.releaseUrl} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outlined">{t('update.viewRelease')}</Button>
                 </Link>
               )}
             </Box>

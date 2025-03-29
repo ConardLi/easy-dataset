@@ -24,7 +24,7 @@ import {
   DialogTitle,
   Tooltip,
   Menu,
-  MenuItem,
+  MenuItem
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import TabPanel from './components/TabPanel';
@@ -61,29 +61,29 @@ function TreeNode({ node, level = 0, onEdit, onDelete, onAddChild }) {
     }
   };
 
-  const handleMenuOpen = (event) => {
+  const handleMenuOpen = event => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = (event) => {
+  const handleMenuClose = event => {
     if (event) event.stopPropagation();
     setAnchorEl(null);
   };
 
-  const handleEdit = (event) => {
+  const handleEdit = event => {
     event.stopPropagation();
     onEdit(node);
     handleMenuClose();
   };
 
-  const handleDelete = (event) => {
+  const handleDelete = event => {
     event.stopPropagation();
     onDelete(node);
     handleMenuClose();
   };
 
-  const handleAddChild = (event) => {
+  const handleAddChild = event => {
     event.stopPropagation();
     onAddChild(node);
     handleMenuClose();
@@ -99,7 +99,7 @@ function TreeNode({ node, level = 0, onEdit, onDelete, onAddChild }) {
           bgcolor: level === 0 ? theme.palette.primary.light : 'transparent',
           color: level === 0 ? theme.palette.primary.contrastText : 'inherit',
           '&:hover': {
-            bgcolor: level === 0 ? theme.palette.primary.main : theme.palette.action.hover,
+            bgcolor: level === 0 ? theme.palette.primary.main : theme.palette.action.hover
           },
           borderRadius: '4px',
           mb: 0.5,
@@ -127,12 +127,7 @@ function TreeNode({ node, level = 0, onEdit, onDelete, onAddChild }) {
           {hasChildren && (open ? <ExpandLess /> : <ExpandMore />)}
         </Box>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={menuOpen}
-          onClose={handleMenuClose}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleMenuClose} onClick={e => e.stopPropagation()}>
           <MenuItem onClick={handleEdit}>
             <EditIcon fontSize="small" sx={{ mr: 1 }} />
             {t('textSplit.editTag')}
@@ -175,13 +170,7 @@ function DomainTree({ tags, onEdit, onDelete, onAddChild }) {
   return (
     <List component="nav" aria-label="domain tree">
       {tags.map((node, index) => (
-        <TreeNode
-          key={index}
-          node={node}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onAddChild={onAddChild}
-        />
+        <TreeNode key={index} node={node} onEdit={onEdit} onDelete={onDelete} onAddChild={onAddChild} />
       ))}
     </List>
   );
@@ -224,7 +213,7 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
   };
 
   // 打开编辑标签对话框
-  const handleEditTag = (node) => {
+  const handleEditTag = node => {
     setDialogMode('edit');
     setCurrentNode(node);
     setLabelValue(node.label);
@@ -232,7 +221,7 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
   };
 
   // 打开添加子标签对话框
-  const handleAddChildTag = (parentNode) => {
+  const handleAddChildTag = parentNode => {
     setDialogMode('addChild');
     setParentNode(parentNode);
     setLabelValue('');
@@ -240,7 +229,7 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
   };
 
   // 打开删除标签对话框
-  const handleDeleteTag = (node) => {
+  const handleDeleteTag = node => {
     setCurrentNode(node);
     setDeleteDialogOpen(true);
   };
@@ -266,12 +255,14 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
 
   // 查找并删除节点
   const findAndDeleteNode = (nodes, targetNode) => {
-    return nodes.filter(node => node !== targetNode).map(node => {
-      if (node.child && node.child.length > 0) {
-        return { ...node, child: findAndDeleteNode(node.child, targetNode) };
-      }
-      return node;
-    });
+    return nodes
+      .filter(node => node !== targetNode)
+      .map(node => {
+        if (node.child && node.child.length > 0) {
+          return { ...node, child: findAndDeleteNode(node.child, targetNode) };
+        }
+        return node;
+      });
   };
 
   // 查找并添加子节点
@@ -292,15 +283,15 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
   };
 
   // 保存标签更改
-  const saveTagChanges = async (updatedTags) => {
+  const saveTagChanges = async updatedTags => {
     setSaving(true);
     try {
       const response = await fetch(`/api/projects/${projectId}/tags`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ tags: updatedTags }),
+        body: JSON.stringify({ tags: updatedTags })
       });
 
       if (!response.ok) {
@@ -416,38 +407,35 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
           <Tab label={t('domain.tabs.structure')} />
         </Tabs>
 
-        <Box sx={{
-          p: 3,
-          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.8)',
-          borderBottomLeftRadius: 2,
-          borderBottomRightRadius: 2,
-          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)'
-        }}>
+        <Box
+          sx={{
+            p: 3,
+            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.8)',
+            borderBottomLeftRadius: 2,
+            borderBottomRightRadius: 2,
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)'
+          }}
+        >
           <TabPanel value={activeTab} index={0}>
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">
-                  {t('domain.tabs.tree')}
-                </Typography>
+                <Typography variant="h6">{t('domain.tabs.tree')}</Typography>
                 <Tooltip title="添加一级标签">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<AddIcon />}
-                    onClick={handleAddTag}
-                  >
+                  <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={handleAddTag}>
                     {t('domain.addRootTag')}
                   </Button>
                 </Tooltip>
               </Box>
               <Divider sx={{ mb: 2 }} />
-              <Box sx={{
-                p: 2,
-                bgcolor: theme.palette.background.paper,
-                borderRadius: 1,
-                maxHeight: '800px',
-                overflow: 'auto'
-              }}>
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: theme.palette.background.paper,
+                  borderRadius: 1,
+                  maxHeight: '800px',
+                  overflow: 'auto'
+                }}
+              >
                 {editingTags && editingTags.length > 0 ? (
                   <DomainTree
                     tags={editingTags}
@@ -480,21 +468,25 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
                 {t('domain.docStructure')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              <Box sx={{
-                p: 2,
-                bgcolor: theme.palette.background.paper,
-                borderRadius: 1,
-                maxHeight: '600px',
-                overflow: 'auto'
-              }}>
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: theme.palette.background.paper,
+                  borderRadius: 1,
+                  maxHeight: '600px',
+                  overflow: 'auto'
+                }}
+              >
                 <ReactMarkdown
                   components={{
                     root: ({ children }) => (
-                      <div style={{
-                        fontFamily: 'monospace',
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
-                      }}>
+                      <div
+                        style={{
+                          fontFamily: 'monospace',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word'
+                        }}
+                      >
                         {children}
                       </div>
                     )
@@ -511,14 +503,19 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
       {/* 添加/编辑标签对话框 */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {dialogMode === 'add' ? t('domain.dialog.addTitle') :
-            dialogMode === 'edit' ? t('domain.dialog.editTitle') : t('domain.dialog.addChildTitle')}
+          {dialogMode === 'add'
+            ? t('domain.dialog.addTitle')
+            : dialogMode === 'edit'
+              ? t('domain.dialog.editTitle')
+              : t('domain.dialog.addChildTitle')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            {dialogMode === 'add' ? t('domain.dialog.inputRoot') :
-              dialogMode === 'edit' ? t('domain.dialog.inputEdit') :
-                t('domain.dialog.inputChild', { label: parentNode?.label })}
+            {dialogMode === 'add'
+              ? t('domain.dialog.inputRoot')
+              : dialogMode === 'edit'
+                ? t('domain.dialog.inputEdit')
+                : t('domain.dialog.inputChild', { label: parentNode?.label })}
           </DialogContentText>
           <TextField
             autoFocus
@@ -528,18 +525,12 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
             fullWidth
             variant="outlined"
             value={labelValue}
-            onChange={(e) => setLabelValue(e.target.value)}
+            onChange={e => setLabelValue(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={saving || !labelValue.trim()}
-          >
+          <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
+          <Button onClick={handleSubmit} variant="contained" disabled={saving || !labelValue.trim()}>
             {saving ? t('common.saving') : t('common.save')}
           </Button>
         </DialogActions>
@@ -551,8 +542,7 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
         <DialogContent>
           <DialogContentText>
             {t('domain.dialog.deleteConfirm', { label: currentNode?.label })}
-            {currentNode?.child && currentNode.child.length > 0 &&
-              t('domain.dialog.deleteWarning')}
+            {currentNode?.child && currentNode.child.length > 0 && t('domain.dialog.deleteWarning')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -562,6 +552,6 @@ export default function DomainAnalysis({ projectId, toc = '', tags = [], loading
           </Button>
         </DialogActions>
       </Dialog>
-    </Box >
+    </Box>
   );
 }

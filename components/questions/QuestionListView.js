@@ -20,7 +20,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import EditIcon from '@mui/icons-material/Edit';
 
-
 export default function QuestionListView({
   questions = [],
   chunks = [],
@@ -45,7 +44,7 @@ export default function QuestionListView({
   const [processingQuestions, setProcessingQuestions] = useState({});
 
   // 获取文本块的标题
-  const getChunkTitle = (chunkId) => {
+  const getChunkTitle = chunkId => {
     const chunk = chunks.find(c => c.id === chunkId);
     if (!chunk) return t('chunks.defaultTitle', { id: chunkId });
 
@@ -139,7 +138,10 @@ export default function QuestionListView({
             <Typography variant="body2" sx={{ fontWeight: 500, mr: 2, display: { xs: 'none', sm: 'block' } }}>
               {t('common.label')}
             </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 500, width: 150, mr: 2, display: { xs: 'none', md: 'block' } }}>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 500, width: 150, mr: 2, display: { xs: 'none', md: 'block' } }}
+            >
               {t('chunks.title')}
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 500, width: 100, textAlign: 'center' }}>
@@ -171,7 +173,7 @@ export default function QuestionListView({
                 <Checkbox
                   checked={isSelected}
                   onChange={() => {
-                    onSelectQuestion(questionKey)
+                    onSelectQuestion(questionKey);
                   }}
                   size="small"
                 />
@@ -179,17 +181,15 @@ export default function QuestionListView({
                 <Box sx={{ ml: 1, flex: 1, mr: 2 }}>
                   <Typography variant="body2">
                     {question.question}
-                    {
-                      question.dataSites && question.dataSites.length > 0 ? (
-                        <Chip
-                          label={t('datasets.answerCount', { count: question.dataSites.length })}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                          sx={{ fontSize: '0.75rem', maxWidth: 150 }}
-                        />
-                      ) : null
-                    }
+                    {question.dataSites && question.dataSites.length > 0 ? (
+                      <Chip
+                        label={t('datasets.answerCount', { count: question.dataSites.length })}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                        sx={{ fontSize: '0.75rem', maxWidth: 150 }}
+                      />
+                    ) : null}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'block', sm: 'none' } }}>
                     {question.label || t('datasets.noTag')} • ID: {(question.question || '').substring(0, 8)}
@@ -206,7 +206,9 @@ export default function QuestionListView({
                       sx={{ fontSize: '0.75rem', maxWidth: 150 }}
                     />
                   ) : (
-                    <Typography variant="caption" color="text.disabled">{t('datasets.noTag')}</Typography>
+                    <Typography variant="caption" color="text.disabled">
+                      {t('datasets.noTag')}
+                    </Typography>
                   )}
                 </Box>
 
@@ -231,11 +233,13 @@ export default function QuestionListView({
                     <IconButton
                       size="small"
                       color="primary"
-                      onClick={() => onEditQuestion({
-                        question: question.question,
-                        chunkId: question.chunkId,
-                        label: question.label || 'other'
-                      })}
+                      onClick={() =>
+                        onEditQuestion({
+                          question: question.question,
+                          chunkId: question.chunkId,
+                          label: question.label || 'other'
+                        })
+                      }
                       disabled={processingQuestions[questionKey]}
                     >
                       <EditIcon fontSize="small" />

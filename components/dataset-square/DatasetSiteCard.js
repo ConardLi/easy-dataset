@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Typography,
-  Box,
-  Chip,
-  useTheme,
-  alpha
-} from '@mui/material';
+import { Card, CardActionArea, CardContent, CardMedia, Typography, Box, Chip, useTheme, alpha } from '@mui/material';
 import LaunchIcon from '@mui/icons-material/Launch';
 import StorageIcon from '@mui/icons-material/Storage';
 import { useTranslation } from 'react-i18next';
@@ -37,16 +27,12 @@ export function DatasetSiteCard({ site }) {
         transition: 'all 0.3s ease',
         borderRadius: 2,
         overflow: 'hidden',
-        boxShadow: theme.palette.mode === 'dark'
-          ? '0 4px 20px rgba(0,0,0,0.3)'
-          : '0 4px 20px rgba(0,0,0,0.1)',
+        boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.1)',
         '&:hover': {
           transform: 'translateY(-6px)',
-          boxShadow: theme.palette.mode === 'dark'
-            ? '0 8px 30px rgba(0,0,0,0.4)'
-            : '0 8px 30px rgba(0,0,0,0.15)',
+          boxShadow: theme.palette.mode === 'dark' ? '0 8px 30px rgba(0,0,0,0.4)' : '0 8px 30px rgba(0,0,0,0.15)',
           '& .MuiCardMedia-root': {
-            transform: 'scale(1.05)',
+            transform: 'scale(1.05)'
           }
         }
       }}
@@ -61,9 +47,10 @@ export function DatasetSiteCard({ site }) {
           height: '100%',
           '&:hover': {
             '& .card-content': {
-              background: theme.palette.mode === 'dark'
-                ? alpha(theme.palette.primary.dark, 0.1)
-                : alpha(theme.palette.primary.light, 0.1),
+              background:
+                theme.palette.mode === 'dark'
+                  ? alpha(theme.palette.primary.dark, 0.1)
+                  : alpha(theme.palette.primary.light, 0.1)
             }
           }
         }}
@@ -78,7 +65,7 @@ export function DatasetSiteCard({ site }) {
             sx={{
               objectFit: 'cover',
               bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.100',
-              transition: 'transform 0.5s ease',
+              transition: 'transform 0.5s ease'
             }}
           />
           <Box

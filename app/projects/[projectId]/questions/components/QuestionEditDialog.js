@@ -11,9 +11,8 @@ import {
   Button,
   Box,
   Autocomplete,
-  TextField as MuiTextField,
+  TextField as MuiTextField
 } from '@mui/material';
-
 
 export default function QuestionEditDialog({
   open,
@@ -27,7 +26,7 @@ export default function QuestionEditDialog({
   const { t } = useTranslation();
 
   // 获取文本块的标题
-  const getChunkTitle = (chunkId) => {
+  const getChunkTitle = chunkId => {
     const chunk = chunks.find(c => c.id === chunkId);
     return chunk?.filename || chunkId; // 直接使用文件名
   };
@@ -35,22 +34,22 @@ export default function QuestionEditDialog({
   const [formData, setFormData] = useState({
     question: '',
     chunkId: '',
-    label: '', // 默认不选中任何标签
+    label: '' // 默认不选中任何标签
   });
 
   useEffect(() => {
     if (initialData) {
-      console.log('初始数据:', initialData);  // 查看传入的初始数据
+      console.log('初始数据:', initialData); // 查看传入的初始数据
       setFormData({
         question: initialData.question || '',
         chunkId: initialData.chunkId || '',
-        label: initialData.label || 'other',  // 改用 label 而不是 label
+        label: initialData.label || 'other' // 改用 label 而不是 label
       });
     } else {
       setFormData({
         question: '',
         chunkId: '',
-        label: '',
+        label: ''
       });
     }
   }, [initialData]);
@@ -62,10 +61,10 @@ export default function QuestionEditDialog({
 
   const flattenTags = (tags, prefix = '') => {
     let flatTags = [];
-    const traverse = (node) => {
+    const traverse = node => {
       flatTags.push({
-        id: node.label,  // 使用标签名作为 id
-        label: node.label,  // 直接使用原始标签名
+        id: node.label, // 使用标签名作为 id
+        label: node.label, // 直接使用原始标签名
         originalLabel: node.label
       });
       if (node.child && node.child.length > 0) {
@@ -88,13 +87,13 @@ export default function QuestionEditDialog({
       setFormData({
         question: initialData.question || '',
         chunkId: initialData.chunkId || '',
-        label: initialData.label || 'other',
+        label: initialData.label || 'other'
       });
     } else {
       setFormData({
         question: '',
         chunkId: '',
-        label: '',  // 新建时默认为空
+        label: '' // 新建时默认为空
       });
     }
   }, [initialData]);
@@ -103,7 +102,7 @@ export default function QuestionEditDialog({
   <Autocomplete
     fullWidth
     options={flattenedTags}
-    getOptionLabel={(tag) => {
+    getOptionLabel={tag => {
       return tag.label;
     }}
     value={(() => {
@@ -114,20 +113,14 @@ export default function QuestionEditDialog({
     onChange={(e, newValue) => {
       setFormData({ ...formData, label: newValue ? newValue.id : 'other' });
     }}
-    renderInput={(params) => (
-      <MuiTextField
-        {...params}
-        label={t('questions.selectTag')}
-        placeholder={t('questions.searchTag')}
-      />
+    renderInput={params => (
+      <MuiTextField {...params} label={t('questions.selectTag')} placeholder={t('questions.searchTag')} />
     )}
-  />
+  />;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {mode === 'create' ? t('questions.createQuestion') : t('questions.editQuestion')}
-      </DialogTitle>
+      <DialogTitle>{mode === 'create' ? t('questions.createQuestion') : t('questions.editQuestion')}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
           <TextField
@@ -136,47 +129,35 @@ export default function QuestionEditDialog({
             rows={4}
             fullWidth
             value={formData.question}
-            onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+            onChange={e => setFormData({ ...formData, question: e.target.value })}
           />
 
           <Autocomplete
             fullWidth
             options={chunks}
-            getOptionLabel={(chunk) => getChunkTitle(chunk.id)}
+            getOptionLabel={chunk => getChunkTitle(chunk.id)}
             value={chunks.find(chunk => chunk.id === formData.chunkId) || null}
             onChange={(e, newValue) => setFormData({ ...formData, chunkId: newValue ? newValue.id : '' })}
-            renderInput={(params) => (
-              <MuiTextField
-                {...params}
-                label={t('questions.selectChunk')}
-                placeholder={t('questions.searchChunk')}
-              />
+            renderInput={params => (
+              <MuiTextField {...params} label={t('questions.selectChunk')} placeholder={t('questions.searchChunk')} />
             )}
           />
 
           <Autocomplete
             fullWidth
             options={flattenedTags}
-            getOptionLabel={(tag) => tag.label}
+            getOptionLabel={tag => tag.label}
             value={flattenedTags.find(tag => tag.id === formData.label) || null}
             onChange={(e, newValue) => setFormData({ ...formData, label: newValue ? newValue.id : '' })}
-            renderInput={(params) => (
-              <MuiTextField
-                {...params}
-                label={t('questions.selectTag')}
-                placeholder={t('questions.searchTag')}
-              />
+            renderInput={params => (
+              <MuiTextField {...params} label={t('questions.selectTag')} placeholder={t('questions.searchTag')} />
             )}
           />
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('common.cancel')}</Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={!formData.question || !formData.chunkId}
-        >
+        <Button onClick={handleSubmit} variant="contained" disabled={!formData.question || !formData.chunkId}>
           {mode === 'create' ? t('common.create') : t('common.save')}
         </Button>
       </DialogActions>

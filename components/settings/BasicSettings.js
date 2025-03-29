@@ -1,17 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Typography, 
-  Box, 
-  Button, 
-  TextField, 
-  Grid, 
-  Card,
-  CardContent,
-  Alert,
-  Snackbar
-} from '@mui/material';
+import { Typography, Box, Button, TextField, Grid, Card, CardContent, Alert, Snackbar } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import { useTranslation } from 'react-i18next';
 
@@ -31,11 +21,11 @@ export default function BasicSettings({ projectId }) {
       try {
         setLoading(true);
         const response = await fetch(`/api/projects/${projectId}`);
-        
+
         if (!response.ok) {
           throw new Error(t('projects.fetchFailed'));
         }
-        
+
         const data = await response.json();
         setProjectInfo(data);
       } catch (error) {
@@ -45,37 +35,37 @@ export default function BasicSettings({ projectId }) {
         setLoading(false);
       }
     }
-    
+
     fetchProjectInfo();
   }, [projectId, t]);
 
   // 处理项目信息变更
-  const handleProjectInfoChange = (e) => {
+  const handleProjectInfoChange = e => {
     const { name, value } = e.target;
     setProjectInfo(prev => ({
       ...prev,
       [name]: value
     }));
   };
-  
+
   // 保存项目信息
   const handleSaveProjectInfo = async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           name: projectInfo.name,
           description: projectInfo.description
-        }),
+        })
       });
-      
+
       if (!response.ok) {
         throw new Error(t('projects.saveFailed'));
       }
-      
+
       setSuccess(true);
     } catch (error) {
       console.error('保存项目信息出错:', error);
@@ -130,20 +120,16 @@ export default function BasicSettings({ projectId }) {
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={handleSaveProjectInfo}
-            >
+            <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSaveProjectInfo}>
               {t('settings.saveBasicInfo')}
             </Button>
           </Grid>
         </Grid>
       </CardContent>
 
-      <Snackbar 
-        open={success} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={success}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
@@ -152,9 +138,9 @@ export default function BasicSettings({ projectId }) {
         </Alert>
       </Snackbar>
 
-      <Snackbar 
-        open={!!error} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >

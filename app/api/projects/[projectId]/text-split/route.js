@@ -79,7 +79,7 @@ export async function POST(request, { params }) {
     // 获取项目信息
     const project = await getProject(projectId);
     if (!project) {
-      return NextResponse.json({ error: '项目不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'Project does not exist' }, { status: 404 });
     }
 
     // 文本分割设置
@@ -91,7 +91,7 @@ export async function POST(request, { params }) {
     const files = formData.getAll('files');
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ error: '未上传文件' }, { status: 400 });
+      return NextResponse.json({ error: 'No files uploaded' }, { status: 400 });
     }
 
     const results = [];
@@ -115,11 +115,7 @@ export async function POST(request, { params }) {
       const directory = extractDirectoryFromMarkdown(text);
 
       // 分割文本
-      const chunks = splitTextContent(
-        text,
-        textSplitSettings.minChars,
-        textSplitSettings.maxChars
-      );
+      const chunks = splitTextContent(text, textSplitSettings.minChars, textSplitSettings.maxChars);
 
       // 保存分割后的文本片段
       const chunkResults = [];
@@ -153,7 +149,7 @@ export async function POST(request, { params }) {
 
     return NextResponse.json(results);
   } catch (error) {
-    console.error('文本分割出错:', error);
+    console.error('Failed to split text:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -166,7 +162,7 @@ export async function GET(request, { params }) {
     // 获取项目信息
     const project = await getProject(projectId);
     if (!project) {
-      return NextResponse.json({ error: '项目不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'Project does not exist' }, { status: 404 });
     }
 
     // 获取所有文本片段
@@ -180,7 +176,7 @@ export async function GET(request, { params }) {
 
     return NextResponse.json(chunks);
   } catch (error) {
-    console.error('获取文本片段出错:', error);
+    console.error('Failed to get text chunks:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

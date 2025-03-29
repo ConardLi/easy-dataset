@@ -2,14 +2,12 @@ module.exports = {
   semi: true,
   trailingComma: 'none',
   singleQuote: true,
-  printWidth: 100,
-  tabWidth: 4,
+  tabWidth: 2,
   useTabs: false,
   bracketSpacing: true,
-  jsxBracketSameLine: false,
   arrowParens: 'avoid',
-  endOfLine: 'auto',
   proseWrap: 'preserve',
-  commentSpacing: true,
-  trailingComments: true
+  jsxBracketSameLine: true,
+  printWidth: 120,
+  endOfLine: 'auto'
 };

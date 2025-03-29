@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
 
     // 验证项目ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
 
     // 获取标签树
@@ -16,8 +16,8 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({ tags });
   } catch (error) {
-    console.error('获取标签树失败:', error);
-    return NextResponse.json({ error: error.message || '获取标签树失败' }, { status: 500 });
+    console.error('Failed to obtain the label tree:', error);
+    return NextResponse.json({ error: error.message || 'Failed to obtain the label tree' }, { status: 500 });
   }
 }
 
@@ -28,7 +28,7 @@ export async function PUT(request, { params }) {
 
     // 验证项目ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
 
     // 获取请求体
@@ -36,7 +36,7 @@ export async function PUT(request, { params }) {
 
     // 验证标签数据
     if (!tags || !Array.isArray(tags)) {
-      return NextResponse.json({ error: '标签数据格式不正确' }, { status: 400 });
+      return NextResponse.json({ error: 'Tag data format is incorrect' }, { status: 400 });
     }
 
     // 保存更新后的标签树
@@ -44,7 +44,7 @@ export async function PUT(request, { params }) {
 
     return NextResponse.json({ tags: updatedTags });
   } catch (error) {
-    console.error('更新标签失败:', error);
-    return NextResponse.json({ error: error.message || '更新标签失败' }, { status: 500 });
+    console.error('Failed to update tags:', error);
+    return NextResponse.json({ error: error.message || 'Failed to update tags' }, { status: 500 });
   }
 }

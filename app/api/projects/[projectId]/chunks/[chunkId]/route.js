@@ -13,11 +13,11 @@ export async function GET(request, { params }) {
 
     // 验证参数
     if (!projectId) {
-      return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Project ID cannot be empty' }, { status: 400 });
     }
 
     if (!chunkId) {
-      return NextResponse.json({ error: '文本块ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Text block ID cannot be empty' }, { status: 400 });
     }
 
     // 获取文本块内容
@@ -25,8 +25,8 @@ export async function GET(request, { params }) {
 
     return NextResponse.json(chunk);
   } catch (error) {
-    console.error('获取文本块内容出错:', error);
-    return NextResponse.json({ error: error.message || '获取文本块内容失败' }, { status: 500 });
+    console.error('Failed to get text block content:', error);
+    return NextResponse.json({ error: error.message || 'Failed to get text block content' }, { status: 500 });
   }
 }
 
@@ -39,11 +39,11 @@ export async function DELETE(request, { params }) {
 
     // 验证参数
     if (!projectId) {
-      return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Project ID cannot be empty' }, { status: 400 });
     }
 
     if (!chunkId) {
-      return NextResponse.json({ error: '文本块ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Text block ID cannot be empty' }, { status: 400 });
     }
 
     // 获取文本块路径
@@ -54,15 +54,15 @@ export async function DELETE(request, { params }) {
     try {
       await fs.access(chunkPath);
     } catch (error) {
-      return NextResponse.json({ error: '文本块不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
     }
 
     // 删除文件
     await fs.unlink(chunkPath);
 
-    return NextResponse.json({ message: '文本块已删除' });
+    return NextResponse.json({ message: 'Text block deleted successfully' });
   } catch (error) {
-    console.error('删除文本块出错:', error);
-    return NextResponse.json({ error: error.message || '删除文本块失败' }, { status: 500 });
+    console.error('Failed to delete text block:', error);
+    return NextResponse.json({ error: error.message || 'Failed to delete text block' }, { status: 500 });
   }
 }

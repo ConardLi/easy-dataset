@@ -1,39 +1,20 @@
 'use client';
 
-import {
-  Box,
-  Typography,
-  IconButton,
-  Chip,
-  Checkbox,
-  Tooltip,
-  Card,
-  CardContent,
-  CardActions
-} from '@mui/material';
+import { Box, Typography, IconButton, Chip, Checkbox, Tooltip, Card, CardContent, CardActions } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import QuizIcon from '@mui/icons-material/Quiz';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 
-export default function ChunkCard({
-  chunk,
-  selected,
-  onSelect,
-  onView,
-  onDelete,
-  onGenerateQuestions
-}) {
+export default function ChunkCard({ chunk, selected, onSelect, onView, onDelete, onGenerateQuestions }) {
   const theme = useTheme();
   const { t } = useTranslation();
 
   // 获取文本预览
   const getTextPreview = (content, maxLength = 150) => {
     if (!content) return '';
-    return content.length > maxLength
-      ? `${content.substring(0, maxLength)}...`
-      : content;
+    return content.length > maxLength ? `${content.substring(0, maxLength)}...` : content;
   };
 
   // 检查是否有已生成的问题
@@ -46,12 +27,8 @@ export default function ChunkCard({
         mb: 1,
         position: 'relative',
         transition: 'all 0.2s ease-in-out',
-        borderColor: selected
-          ? theme.palette.primary.main
-          : theme.palette.divider,
-        bgcolor: selected
-          ? `${theme.palette.primary.main}10`
-          : 'transparent',
+        borderColor: selected ? theme.palette.primary.main : theme.palette.divider,
+        bgcolor: selected ? `${theme.palette.primary.main}10` : 'transparent',
         borderRadius: 2,
         '&:hover': {
           borderColor: theme.palette.primary.main,
@@ -73,14 +50,16 @@ export default function ChunkCard({
             }}
           />
           <Box sx={{ flexGrow: 1 }}>
-            <Box sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 1.5,
-              flexWrap: 'wrap',
-              gap: 1
-            }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 1.5,
+                flexWrap: 'wrap',
+                gap: 1
+              }}
+            >
               <Typography
                 variant="subtitle1"
                 fontWeight="600"

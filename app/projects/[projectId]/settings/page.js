@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Container, 
-  Typography, 
-  Box, 
-  Tabs,
-  Tab,
-  Paper,
-  Alert,
-  CircularProgress
-} from '@mui/material';
+import { Container, Typography, Box, Tabs, Tab, Paper, Alert, CircularProgress } from '@mui/material';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
@@ -52,7 +43,7 @@ export default function SettingsPage({ params }) {
       try {
         setLoading(true);
         const response = await fetch(`/api/projects/${projectId}`);
-        
+
         if (!response.ok) {
           if (response.status === 404) {
             setProjectExists(false);
@@ -69,7 +60,7 @@ export default function SettingsPage({ params }) {
         setLoading(false);
       }
     }
-    
+
     checkProject();
   }, [projectId, t]);
 
@@ -109,11 +100,11 @@ export default function SettingsPage({ params }) {
       <Typography variant="h4" gutterBottom>
         {t('settings.title')}
       </Typography>
-      
+
       <Paper sx={{ mb: 4 }}>
-        <Tabs 
-          value={activeTab} 
-          onChange={handleTabChange} 
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
           variant="fullWidth"
           textColor="primary"
           indicatorColor="primary"
@@ -125,22 +116,14 @@ export default function SettingsPage({ params }) {
           <Tab value={TABS.PROMPTS} label={t('settings.promptConfig')} />
         </Tabs>
       </Paper>
-      
-      {activeTab === TABS.BASIC && (
-        <BasicSettings projectId={projectId} />
-      )}
-      
-      {activeTab === TABS.MODEL && (
-        <ModelSettings projectId={projectId} />
-      )}
-      
-      {activeTab === TABS.TASK && (
-        <TaskSettings projectId={projectId} />
-      )}
-      
-      {activeTab === TABS.PROMPTS && (
-        <PromptSettings projectId={projectId} />
-      )}
+
+      {activeTab === TABS.BASIC && <BasicSettings projectId={projectId} />}
+
+      {activeTab === TABS.MODEL && <ModelSettings projectId={projectId} />}
+
+      {activeTab === TABS.TASK && <TaskSettings projectId={projectId} />}
+
+      {activeTab === TABS.PROMPTS && <PromptSettings projectId={projectId} />}
     </Container>
   );
 }

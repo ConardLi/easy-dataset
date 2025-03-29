@@ -46,7 +46,7 @@ export function DatasetSearchBar() {
   }, []);
 
   // 处理搜索输入变化
-  const handleSearchChange = (event) => {
+  const handleSearchChange = event => {
     setSearchQuery(event.target.value);
     if (event.target.value) {
       setShowSuggestions(true);
@@ -56,7 +56,7 @@ export function DatasetSearchBar() {
   };
 
   // 处理回车搜索
-  const handleSearchSubmit = (event) => {
+  const handleSearchSubmit = event => {
     if (event.key === 'Enter' && searchQuery.trim()) {
       // 默认使用第一个搜索引擎
       if (sites.length > 0) {
@@ -66,7 +66,7 @@ export function DatasetSearchBar() {
   };
 
   // 保存最近搜索
-  const saveRecentSearch = (query) => {
+  const saveRecentSearch = query => {
     if (!query.trim()) return;
 
     // 添加到最近搜索并去重
@@ -82,7 +82,7 @@ export function DatasetSearchBar() {
   };
 
   // 处理点击搜索建议
-  const handleSuggestionClick = (site) => {
+  const handleSuggestionClick = site => {
     if (searchQuery.trim()) {
       // 根据不同网站处理搜索参数
       let searchUrl = site.link;
@@ -116,7 +116,7 @@ export function DatasetSearchBar() {
   };
 
   // 处理点击外部关闭建议
-  const handleClickAway = (event) => {
+  const handleClickAway = event => {
     // 确保点击的不是建议框本身
     if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
       setShowSuggestions(false);
@@ -142,30 +142,32 @@ export function DatasetSearchBar() {
             sx: {
               height: 56,
               borderRadius: 3,
-              backgroundColor: theme.palette.mode === 'dark'
-                ? alpha(theme.palette.background.default, 0.6)
-                : alpha(theme.palette.background.default, 0.8),
+              backgroundColor:
+                theme.palette.mode === 'dark'
+                  ? alpha(theme.palette.background.default, 0.6)
+                  : alpha(theme.palette.background.default, 0.8),
               backdropFilter: 'blur(8px)',
               px: 2,
               transition: 'all 0.3s ease',
               boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.15)}`,
               '&.MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: 'transparent',
+                  borderColor: 'transparent'
                 },
                 '&:hover fieldset': {
-                  borderColor: 'transparent',
+                  borderColor: 'transparent'
                 },
                 '&.Mui-focused': {
                   boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.3)}`,
-                  backgroundColor: theme.palette.mode === 'dark'
-                    ? alpha(theme.palette.background.paper, 0.8)
-                    : alpha(theme.palette.common.white, 0.95),
+                  backgroundColor:
+                    theme.palette.mode === 'dark'
+                      ? alpha(theme.palette.background.paper, 0.8)
+                      : alpha(theme.palette.common.white, 0.95)
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: 'transparent',
-                },
-              },
+                  borderColor: 'transparent'
+                }
+              }
             }
           }}
           sx={{
@@ -173,11 +175,11 @@ export function DatasetSearchBar() {
             '& .MuiInputBase-input': {
               fontSize: '1rem',
               fontWeight: 500,
-              color: theme.palette.text.primary,
+              color: theme.palette.text.primary
             },
             '& .MuiInputBase-input::placeholder': {
               color: alpha(theme.palette.text.primary, 0.6),
-              opacity: 0.7,
+              opacity: 0.7
             }
           }}
         />
@@ -194,7 +196,8 @@ export function DatasetSearchBar() {
               left: 0,
               boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
               pointerEvents: 'auto' // 确保可以点击
-            }}>
+            }}
+          >
             <Fade in={showSuggestions}>
               <Paper
                 elevation={6}

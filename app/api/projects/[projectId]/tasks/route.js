@@ -11,7 +11,7 @@ export async function GET(request, { params }) {
 
     // 验证项目 ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目 ID 不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
 
     // 获取项目根目录
@@ -22,15 +22,14 @@ export async function GET(request, { params }) {
     try {
       await fs.access(projectPath);
     } catch (error) {
-      return NextResponse.json({ error: '项目不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'Project does not exist' }, { status: 404 });
     }
 
     const taskConfig = await getTaskConfig(projectId);
     return NextResponse.json(taskConfig);
-
   } catch (error) {
-    console.error('获取任务配置出错:', error);
-    return NextResponse.json({ error: '获取任务配置失败' }, { status: 500 });
+    console.error('Failed to obtain task configuration:', error);
+    return NextResponse.json({ error: 'Failed to obtain task configuration' }, { status: 500 });
   }
 }
 
@@ -41,7 +40,7 @@ export async function PUT(request, { params }) {
 
     // 验证项目 ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目 ID 不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
 
     // 获取请求体
@@ -49,7 +48,7 @@ export async function PUT(request, { params }) {
 
     // 验证请求体
     if (!taskConfig) {
-      return NextResponse.json({ error: '任务配置不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Task configuration cannot be empty' }, { status: 400 });
     }
 
     // 获取项目根目录
@@ -60,7 +59,7 @@ export async function PUT(request, { params }) {
     try {
       await fs.access(projectPath);
     } catch (error) {
-      return NextResponse.json({ error: '项目不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'Project does not exist' }, { status: 404 });
     }
 
     // 获取任务配置文件路径
@@ -69,9 +68,9 @@ export async function PUT(request, { params }) {
     // 写入任务配置文件
     await fs.writeFile(taskConfigPath, JSON.stringify(taskConfig, null, 2), 'utf-8');
 
-    return NextResponse.json({ message: '任务配置已更新' });
+    return NextResponse.json({ message: 'Task configuration updated successfully' });
   } catch (error) {
-    console.error('更新任务配置出错:', error);
-    return NextResponse.json({ error: '更新任务配置失败' }, { status: 500 });
+    console.error('Failed to update task configuration:', error);
+    return NextResponse.json({ error: 'Failed to update task configuration' }, { status: 500 });
   }
 }

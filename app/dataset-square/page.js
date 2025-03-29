@@ -49,9 +49,10 @@ export default function DatasetSquarePage() {
         sx={{
           pt: 10,
           pb: 8,
-          background: theme.palette.mode === 'dark'
-            ? `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.6)} 0%, ${alpha(theme.palette.background.default, 0.9)} 100%)`
-            : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)} 0%, ${alpha(theme.palette.primary.light, 0.7)} 100%)`,
+          background:
+            theme.palette.mode === 'dark'
+              ? `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.6)} 0%, ${alpha(theme.palette.background.default, 0.9)} 100%)`
+              : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)} 0%, ${alpha(theme.palette.primary.light, 0.7)} 100%)`,
           borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           position: 'relative',
           boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
@@ -68,7 +69,7 @@ export default function DatasetSquarePage() {
             borderRadius: '50%',
             background: `radial-gradient(circle, ${alpha(theme.palette.secondary.main, 0.2)} 0%, transparent 70%)`,
             filter: 'blur(40px)',
-            zIndex: 0,
+            zIndex: 0
           }}
         />
         <Box
@@ -81,7 +82,7 @@ export default function DatasetSquarePage() {
             borderRadius: '50%',
             background: `radial-gradient(circle, ${alpha(theme.palette.primary.light, 0.15)} 0%, transparent 70%)`,
             filter: 'blur(30px)',
-            zIndex: 0,
+            zIndex: 0
           }}
         />
         <Box
@@ -94,7 +95,7 @@ export default function DatasetSquarePage() {
             borderRadius: '50%',
             background: `radial-gradient(circle, ${alpha(theme.palette.secondary.light, 0.15)} 0%, transparent 70%)`,
             filter: 'blur(20px)',
-            zIndex: 0,
+            zIndex: 0
           }}
         />
 
@@ -117,9 +118,10 @@ export default function DatasetSquarePage() {
                 textShadow: '0 2px 8px rgba(0,0,0,0.15)',
                 mb: 0,
                 letterSpacing: '-0.5px',
-                background: theme.palette.mode === 'dark'
-                  ? 'linear-gradient(90deg, #ffffff 0%, #e0e0e0 100%)'
-                  : 'linear-gradient(90deg, #ffffff 30%, #f5f5f5 100%)',
+                background:
+                  theme.palette.mode === 'dark'
+                    ? 'linear-gradient(90deg, #ffffff 0%, #e0e0e0 100%)'
+                    : 'linear-gradient(90deg, #ffffff 30%, #f5f5f5 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -146,12 +148,14 @@ export default function DatasetSquarePage() {
           </Typography>
 
           {/* 搜索栏组件 */}
-          <Box sx={{
-            maxWidth: 800,
-            mx: 'auto',
-            position: 'relative',
-            zIndex: 10
-          }}>
+          <Box
+            sx={{
+              maxWidth: 800,
+              mx: 'auto',
+              position: 'relative',
+              zIndex: 10
+            }}
+          >
             <Paper
               elevation={6}
               sx={{
@@ -160,17 +164,15 @@ export default function DatasetSquarePage() {
                 borderRadius: 3,
                 background: 'transparent',
                 backdropFilter: 'blur(10px)',
-                boxShadow: theme.palette.mode === 'dark'
-                  ? '0 10px 40px rgba(0,0,0,0.3)'
-                  : '0 10px 40px rgba(0,0,0,0.15)',
+                boxShadow:
+                  theme.palette.mode === 'dark' ? '0 10px 40px rgba(0,0,0,0.3)' : '0 10px 40px rgba(0,0,0,0.15)',
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                 transform: 'translateY(0)',
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 '&:hover': {
                   transform: 'translateY(-5px)',
-                  boxShadow: theme.palette.mode === 'dark'
-                    ? '0 15px 50px rgba(0,0,0,0.4)'
-                    : '0 15px 50px rgba(0,0,0,0.2)'
+                  boxShadow:
+                    theme.palette.mode === 'dark' ? '0 15px 50px rgba(0,0,0,0.4)' : '0 15px 50px rgba(0,0,0,0.2)'
                 },
                 overflow: 'visible' // 确保不裁剪子元素
               }}
@@ -189,14 +191,13 @@ export default function DatasetSquarePage() {
           sx={{
             p: { xs: 2, sm: 4 },
             borderRadius: 3,
-            bgcolor: theme.palette.mode === 'dark'
-              ? alpha(theme.palette.background.paper, 0.6)
-              : theme.palette.background.paper,
+            bgcolor:
+              theme.palette.mode === 'dark'
+                ? alpha(theme.palette.background.paper, 0.6)
+                : theme.palette.background.paper,
             backdropFilter: 'blur(8px)',
             border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            boxShadow: theme.palette.mode === 'dark'
-              ? '0 4px 20px rgba(0,0,0,0.2)'
-              : '0 4px 20px rgba(0,0,0,0.05)'
+            boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.2)' : '0 4px 20px rgba(0,0,0,0.05)'
           }}
         >
           <DatasetSiteList />

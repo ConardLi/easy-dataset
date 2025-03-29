@@ -169,6 +169,16 @@ function createMenu() {
           }
         },
         {
+          label: '打开数据目录',
+          click: () => {
+            const dataDir = path.join(app.getPath('userData'), 'local-db');
+            if (!fs.existsSync(dataDir)) {
+              fs.mkdirSync(dataDir, { recursive: true });
+            }
+            shell.openPath(dataDir);
+          }
+        },
+        {
           label: '关于',
           click: () => {
             dialog.showMessageBox(mainWindow, {

@@ -18,11 +18,7 @@ export default function TabPanel({ value, index, children }) {
       aria-labelledby={`domain-tab-${index}`}
       sx={{ height: '100%' }}
     >
-      {value === index && (
-        <Box sx={{ height: '100%' }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ height: '100%' }}>{children}</Box>}
     </Box>
   );
 }

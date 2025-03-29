@@ -6,12 +6,12 @@ import { IconButton, Tooltip, useTheme, Typography } from '@mui/material';
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const theme = useTheme();
-  
+
   const toggleLanguage = () => {
     const newLang = i18n.language === 'zh-CN' ? 'en' : 'zh-CN';
     i18n.changeLanguage(newLang);
   };
-  
+
   return (
     <Tooltip title={i18n.language === 'zh-CN' ? 'Switch to English' : '切换到中文'}>
       <IconButton

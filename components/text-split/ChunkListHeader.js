@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Typography,
-  Checkbox,
-  Button,
-  Select,
-  MenuItem
-} from '@mui/material';
+import { Box, Typography, Checkbox, Button, Select, MenuItem } from '@mui/material';
 import QuizIcon from '@mui/icons-material/Quiz';
 import { useTranslation } from 'react-i18next';
 
@@ -29,17 +22,13 @@ export default function ChunkListHeader({
           onChange={onSelectAll}
         />
         <Typography variant="body1">
-          {t('textSplit.selectedCount', { count: selectedChunks.length })} ,{t('textSplit.totalCount', { count: totalChunks })}
+          {t('textSplit.selectedCount', { count: selectedChunks.length })} ,
+          {t('textSplit.totalCount', { count: totalChunks })}
         </Typography>
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Select
-          value={questionFilter}
-          onChange={onQuestionFilterChange}
-          size="small"
-          sx={{ minWidth: 150 }}
-        >
+        <Select value={questionFilter} onChange={onQuestionFilterChange} size="small" sx={{ minWidth: 150 }}>
           <MenuItem value="all">{t('textSplit.allChunks')}</MenuItem>
           <MenuItem value="generated">{t('textSplit.generatedQuestions2')}</MenuItem>
           <MenuItem value="ungenerated">{t('textSplit.ungeneratedQuestions')}</MenuItem>
