@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
 
     // 验证项目 ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目 ID 不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
     }
 
     // 获取项目根目录
@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
     try {
       await fs.access(projectPath);
     } catch (error) {
-      return NextResponse.json({ error: '项目不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
     }
 
     // 获取模型配置文件路径
@@ -41,8 +41,8 @@ export async function GET(request, { params }) {
 
     return NextResponse.json(modelConfig);
   } catch (error) {
-    console.error('获取模型配置出错:', error);
-    return NextResponse.json({ error: '获取模型配置失败' }, { status: 500 });
+    console.error('Error obtaining model configuration:', error);
+    return NextResponse.json({ error: 'Failed to obtain model configuration' }, { status: 500 });
   }
 }
 
@@ -53,7 +53,7 @@ export async function PUT(request, { params }) {
 
     // 验证项目 ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目 ID 不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
     }
 
     // 获取请求体
@@ -61,7 +61,7 @@ export async function PUT(request, { params }) {
 
     // 验证请求体
     if (!modelConfig || !Array.isArray(modelConfig)) {
-      return NextResponse.json({ error: '模型配置必须是数组' }, { status: 400 });
+      return NextResponse.json({ error: 'The model configuration must be an array' }, { status: 400 });
     }
 
     // 获取项目根目录
@@ -72,7 +72,7 @@ export async function PUT(request, { params }) {
     try {
       await fs.access(projectPath);
     } catch (error) {
-      return NextResponse.json({ error: '项目不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
     }
 
     // 获取模型配置文件路径
@@ -81,9 +81,9 @@ export async function PUT(request, { params }) {
     // 写入模型配置文件
     await fs.writeFile(modelConfigPath, JSON.stringify(modelConfig, null, 2), 'utf-8');
 
-    return NextResponse.json({ message: '模型配置已更新' });
+    return NextResponse.json({ message: 'Model configuration updated successfully' });
   } catch (error) {
-    console.error('更新模型配置出错:', error);
-    return NextResponse.json({ error: '更新模型配置失败' }, { status: 500 });
+    console.error('Error updating model configuration:', error);
+    return NextResponse.json({ error: 'Failed to update model configuration' }, { status: 500 });
   }
 }

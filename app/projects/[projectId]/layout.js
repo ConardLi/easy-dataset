@@ -68,7 +68,6 @@ export default function ProjectLayout({ children, params }) {
           setModels([customModel]);
         }
       }
-
     } catch (error) {
       console.error('加载项目数据出错:', error);
       setError(error.message);
@@ -80,7 +79,7 @@ export default function ProjectLayout({ children, params }) {
   // 初始加载数据
   useEffect(() => {
     // 如果 projectId 是 undefined 或 "undefined"，直接重定向到首页
-    if (!projectId || projectId === "undefined") {
+    if (!projectId || projectId === 'undefined') {
       router.push('/');
       return;
     }
@@ -143,7 +142,15 @@ export default function ProjectLayout({ children, params }) {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh'
+        }}
+      >
         <CircularProgress />
         <Typography sx={{ mt: 2 }}>加载项目数据...</Typography>
       </Box>
@@ -152,8 +159,18 @@ export default function ProjectLayout({ children, params }) {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <Typography color="error">{t('projects.fetchFailed')}: {error}</Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh'
+        }}
+      >
+        <Typography color="error">
+          {t('projects.fetchFailed')}: {error}
+        </Typography>
         <Button variant="contained" onClick={() => router.push('/')} sx={{ mt: 2 }}>
           {t('projects.backToHome')}
         </Button>
@@ -163,11 +180,7 @@ export default function ProjectLayout({ children, params }) {
 
   return (
     <>
-      <Navbar
-        projects={projects}
-        currentProject={projectId}
-        models={models}
-      />
+      <Navbar projects={projects} currentProject={projectId} models={models} />
       <main>{children}</main>
     </>
   );

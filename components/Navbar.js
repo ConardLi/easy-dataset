@@ -52,14 +52,14 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
   // 只在项目详情页显示模块选项卡
   const isProjectDetail = pathname.includes('/projects/') && pathname.split('/').length > 3;
 
-  const handleProjectChange = (event) => {
+  const handleProjectChange = event => {
     const newProjectId = event.target.value;
     setSelectedProject(newProjectId);
     // 跳转到新选择的项目页面
     window.location.href = `/projects/${newProjectId}/text-split`;
   };
 
-  const handleModelChange = (event) => {
+  const handleModelChange = event => {
     if (!event || !event.target) return;
     const newModel = event.target.value;
     setSelectedModel(newModel);
@@ -78,22 +78,20 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
       color={theme.palette.mode === 'dark' ? 'transparent' : 'primary'}
       sx={{
         borderBottom: `1px solid ${theme.palette.divider}`,
-        bgcolor: theme.palette.mode === 'dark'
-          ? 'background.paper'
-          : 'primary.main',
-
+        bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'primary.main'
       }}
       style={{ borderRadius: 0, zIndex: 99000 }}
     >
       <Toolbar sx={{ minHeight: '64px' }} style={{ zIndex: 99000 }}>
         {/* 左侧Logo和项目选择 */}
         <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 0 }}>
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            mr: 2,
-            '&:hover': { opacity: 0.9 }
-          }}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mr: 2,
+              '&:hover': { opacity: 0.9 }
+            }}
             style={{ cursor: 'pointer', '&:hover': { opacity: 0.9 } }}
             onClick={() => {
               window.location.href = '/';
@@ -114,7 +112,7 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
               component="div"
               sx={{
                 fontWeight: 600,
-                letterSpacing: '-0.5px',
+                letterSpacing: '-0.5px'
               }}
               style={{ fontSize: '1.1rem' }}
               className={theme.palette.mode === 'dark' ? 'gradient-text' : ''}
@@ -124,52 +122,56 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
             </Typography>
           </Box>
 
-          {isProjectDetail && (<FormControl size="small" sx={{ minWidth: 160 }}>
-            <Select
-              value={selectedProject}
-              onChange={handleProjectChange}
-              displayEmpty
-              variant="outlined"
-              sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                borderRadius: '8px',
-                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                '& .MuiSelect-icon': {
-                  color: theme.palette.mode === 'dark' ? 'inherit' : 'white'
-                },
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'transparent'
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'transparent'
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'primary.main'
-                }
-              }}
-              MenuProps={{
-                PaperProps: {
-                  elevation: 2,
-                  sx: { mt: 1, borderRadius: 2 }
-                }
-              }}
-            >
-              <MenuItem value="" disabled>
-                {t('projects.selectProject')}
-              </MenuItem>
-              {projects.map((project) => (
-                <MenuItem key={project.id} value={project.id}>
-                  {project.name}
+          {isProjectDetail && (
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <Select
+                value={selectedProject}
+                onChange={handleProjectChange}
+                displayEmpty
+                variant="outlined"
+                sx={{
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
+                  borderRadius: '8px',
+                  color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
+                  '& .MuiSelect-icon': {
+                    color: theme.palette.mode === 'dark' ? 'inherit' : 'white'
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent'
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'transparent'
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main'
+                  }
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    elevation: 2,
+                    sx: { mt: 1, borderRadius: 2 }
+                  }
+                }}
+              >
+                <MenuItem value="" disabled>
+                  {t('projects.selectProject')}
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>)}
-
+                {projects.map(project => (
+                  <MenuItem key={project.id} value={project.id}>
+                    {project.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
         </Box>
 
         {/* 中间的功能模块导航 */}
         {isProjectDetail && (
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }} style={{ position: 'absolute', left: '400px' }}>
+          <Box
+            sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}
+            style={{ position: 'absolute', left: '400px' }}
+          >
             <Tabs
               value={pathname}
               textColor="inherit"
@@ -231,17 +233,14 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
         )}
 
         {/* 右侧操作区 */}
-        <Box sx={{ display: 'flex', flexGrow: 0, alignItems: 'center', gap: 2 }} style={{ position: 'absolute', right: '20px' }}>
-
-
+        <Box
+          sx={{ display: 'flex', flexGrow: 0, alignItems: 'center', gap: 2 }}
+          style={{ position: 'absolute', right: '20px' }}
+        >
           {/* 模型选择 */}
-          {
-            location.pathname.includes('/projects/') && (<ModelSelect
-              models={models}
-              selectedModel={selectedModel}
-              onChange={handleModelChange}
-            />)
-          }
+          {location.pathname.includes('/projects/') && (
+            <ModelSelect models={models} selectedModel={selectedModel} onChange={handleModelChange} />
+          )}
 
           {/* 数据集广场链接 - 改为图标按钮样式 */}
           <Tooltip title={t('datasetSquare.title')}>
@@ -282,7 +281,11 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
                 }
               }}
             >
-              {resolvedTheme === 'dark' ? <LightModeOutlinedIcon fontSize="small" /> : <DarkModeOutlinedIcon fontSize="small" />}
+              {resolvedTheme === 'dark' ? (
+                <LightModeOutlinedIcon fontSize="small" />
+              ) : (
+                <DarkModeOutlinedIcon fontSize="small" />
+              )}
             </IconButton>
           </Tooltip>
 
@@ -307,7 +310,6 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
 
           {/* 更新检查器 */}
           <UpdateChecker />
-
         </Box>
       </Toolbar>
     </AppBar>

@@ -16,7 +16,7 @@ export function useQuestionEdit(projectId, onSuccess) {
     setEditDialogOpen(true);
   };
 
-  const handleOpenEditDialog = (question) => {
+  const handleOpenEditDialog = question => {
     setEditMode('edit');
     setEditingQuestion(question);
     setEditDialogOpen(true);
@@ -27,29 +27,28 @@ export function useQuestionEdit(projectId, onSuccess) {
     setEditingQuestion(null);
   };
 
-
-  const handleSubmitQuestion = async (formData) => {
+  const handleSubmitQuestion = async formData => {
     try {
       const response = await request(`/api/projects/${projectId}/questions`, {
         method: editMode === 'create' ? 'POST' : 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(
           editMode === 'create'
             ? {
-              question: formData.question,
-              chunkId: formData.chunkId,
-              label: formData.label,
-            }
+                question: formData.question,
+                chunkId: formData.chunkId,
+                label: formData.label
+              }
             : {
-              question: formData.question,
-              oldQuestion: editingQuestion.question,
-              chunkId: formData.chunkId,
-              label: formData.label,
-              oldChunkId: editingQuestion.chunkId,
-            }
-        ),
+                question: formData.question,
+                oldQuestion: editingQuestion.question,
+                chunkId: formData.chunkId,
+                label: formData.label,
+                oldChunkId: editingQuestion.chunkId
+              }
+        )
       });
 
       if (!response.ok) {
@@ -77,6 +76,6 @@ export function useQuestionEdit(projectId, onSuccess) {
     handleOpenCreateDialog,
     handleOpenEditDialog,
     handleCloseDialog,
-    handleSubmitQuestion,
+    handleSubmitQuestion
   };
 }

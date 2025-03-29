@@ -1,28 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Grid,
-  Box,
-  Typography,
-  Skeleton,
-  Divider,
-  Tabs,
-  Tab,
-  Fade,
-  Chip,
-  useTheme,
-  alpha,
-  Paper
-} from '@mui/material';
+import { Grid, Box, Typography, Skeleton, Divider, Tabs, Tab, Fade, Chip, useTheme, alpha, Paper } from '@mui/material';
 import StorageIcon from '@mui/icons-material/Storage';
 import CategoryIcon from '@mui/icons-material/Category';
 import StarIcon from '@mui/icons-material/Star';
 import { DatasetSiteCard } from './DatasetSiteCard';
 import sites from '@/constant/sites.json';
 import { useTranslation } from 'react-i18next';
-
-
 
 export function DatasetSiteList() {
   const [loading, setLoading] = useState(true);
@@ -90,7 +75,10 @@ export function DatasetSiteList() {
           sx={{
             borderRadius: 2,
             p: 0.5,
-            bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.primary.dark, 0.1) : alpha(theme.palette.primary.light, 0.1),
+            bgcolor:
+              theme.palette.mode === 'dark'
+                ? alpha(theme.palette.primary.dark, 0.1)
+                : alpha(theme.palette.primary.light, 0.1),
             border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
             overflow: 'auto'
           }}
@@ -111,7 +99,8 @@ export function DatasetSiteList() {
                 mx: 0.5,
                 transition: 'all 0.2s',
                 '&.Mui-selected': {
-                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.2) : theme.palette.primary.main,
+                  bgcolor:
+                    theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.2) : theme.palette.primary.main,
                   color: theme.palette.mode === 'dark' ? theme.palette.primary.light : 'white',
                   fontWeight: 600
                 }
@@ -163,7 +152,8 @@ export function DatasetSiteList() {
               {/* 结果数量提示 */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="subtitle1" color="text.secondary">
-                  {t('datasetSquare.foundResources', { count: filteredSites.length })} <Chip
+                  {t('datasetSquare.foundResources', { count: filteredSites.length })}{' '}
+                  <Chip
                     label={filteredSites.length}
                     size="small"
                     color="primary"
@@ -190,14 +180,19 @@ export function DatasetSiteList() {
                   ))}
                 </Grid>
               ) : (
-                <Box sx={{
-                  py: 10,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.2) : alpha(theme.palette.grey[100], 0.5),
-                  borderRadius: 2
-                }}>
+                <Box
+                  sx={{
+                    py: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    bgcolor:
+                      theme.palette.mode === 'dark'
+                        ? alpha(theme.palette.background.paper, 0.2)
+                        : alpha(theme.palette.grey[100], 0.5),
+                    borderRadius: 2
+                  }}
+                >
                   <StorageIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
                     {t('datasetSquare.noDatasets')}

@@ -1,19 +1,14 @@
 'use client';
 
 import React from 'react';
-import {
-  FormControl,
-  Select,
-  MenuItem,
-  useTheme
-} from '@mui/material';
+import { FormControl, Select, MenuItem, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-export default function ModelSelect({ models = [], selectedModel, onChange, size = "small", minWidth = 180 }) {
+export default function ModelSelect({ models = [], selectedModel, onChange, size = 'small', minWidth = 180 }) {
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const handleModelChange = (event) => {
+  const handleModelChange = event => {
     if (!event || !event.target) return;
     const newModelId = event.target.value;
 
@@ -70,17 +65,19 @@ export default function ModelSelect({ models = [], selectedModel, onChange, size
         <MenuItem value="" disabled>
           {t('playground.selectModelFirst')}
         </MenuItem>
-        {models.filter(m => {
-          if (m.provider === 'Ollama') {
-            return m.name && m.endpoint
-          } else {
-            return m.name && m.endpoint && m.apiKey
-          }
-        }).map((model) => (
-          <MenuItem key={model.id} value={model.id}>
-            {model.provider}: {model.name}
-          </MenuItem>
-        ))}
+        {models
+          .filter(m => {
+            if (m.provider === 'Ollama') {
+              return m.name && m.endpoint;
+            } else {
+              return m.name && m.endpoint && m.apiKey;
+            }
+          })
+          .map(model => (
+            <MenuItem key={model.id} value={model.id}>
+              {model.provider}: {model.name}
+            </MenuItem>
+          ))}
       </Select>
     </FormControl>
   );

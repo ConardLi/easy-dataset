@@ -16,14 +16,14 @@ export async function POST(request, { params }) {
 
     // 验证项目ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
     }
 
     // 获取请求体
     const { model, chunkIds, language = '中文' } = await request.json();
 
     if (!model) {
-      return NextResponse.json({ error: '请选择模型' }, { status: 400 });
+      return NextResponse.json({ error: 'The model cannot be empty' }, { status: 400 });
     }
 
     // 如果没有指定文本块ID，则获取所有文本块
@@ -34,7 +34,7 @@ export async function POST(request, { params }) {
     } else {
       // 获取指定的文本块
       chunks = await Promise.all(
-        chunkIds.map(async (chunkId) => {
+        chunkIds.map(async chunkId => {
           const chunk = await getTextChunk(projectId, chunkId);
           if (chunk) {
             return {
@@ -50,7 +50,7 @@ export async function POST(request, { params }) {
     }
 
     if (chunks.length === 0) {
-      return NextResponse.json({ error: '没有找到有效的文本块' }, { status: 404 });
+      return NextResponse.json({ error: 'No valid text blocks found' }, { status: 404 });
     }
 
     const llmClient = new LLMClient({
@@ -58,6 +58,7 @@ export async function POST(request, { params }) {
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,
+      temperature: model.temperature
     });
 
     const results = [];
@@ -94,14 +95,14 @@ export async function POST(request, { params }) {
         } else {
           errors.push({
             chunkId: chunk.id,
-            error: '解析问题失败'
+            error: 'Failed to parse questions'
           });
         }
       } catch (error) {
-        console.error(`为文本块 ${chunk.id} 生成问题出错:`, error);
+        console.error(`Failed to generate questions for text block ${chunk.id}:`, error);
         errors.push({
           chunkId: chunk.id,
-          error: error.message || '生成问题失败'
+          error: error.message || 'Failed to generate questions'
         });
       }
     }
@@ -115,7 +116,7 @@ export async function POST(request, { params }) {
       totalChunks: chunks.length
     });
   } catch (error) {
-    console.error('批量生成问题出错:', error);
-    return NextResponse.json({ error: error.message || '批量生成问题失败' }, { status: 500 });
+    console.error('Failed to generate questions:', error);
+    return NextResponse.json({ error: error.message || 'Failed to generate questions' }, { status: 500 });
   }
 }

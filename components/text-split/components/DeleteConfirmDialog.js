@@ -3,12 +3,7 @@
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-export default function DeleteConfirmDialog({
-  open,
-  fileName,
-  onClose,
-  onConfirm
-}) {
+export default function DeleteConfirmDialog({ open, fileName, onClose, onConfirm }) {
   const { t } = useTranslation();
   return (
     <Dialog
@@ -21,9 +16,7 @@ export default function DeleteConfirmDialog({
         {t('common.confirmDelete')}「{fileName}」?
       </DialogTitle>
       <DialogContent>
-        <DialogContentText id="delete-dialog-description">
-          {t('common.confirmDeleteDescription')}
-        </DialogContentText>
+        <DialogContentText id="delete-dialog-description">{t('common.confirmDeleteDescription')}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary">

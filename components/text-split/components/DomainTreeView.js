@@ -12,20 +12,15 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
  */
 export default function DomainTreeView({ nodes = [] }) {
   if (!nodes || nodes.length === 0) return null;
-  
-  const renderTreeItems = (nodes) => {
+
+  const renderTreeItems = nodes => {
     return nodes.map((node, index) => (
-      <TreeItem 
-        key={`node-${index}`} 
-        nodeId={`node-${index}`} 
-        label={node.text}
-        sx={{ mb: 1 }}
-      >
+      <TreeItem key={`node-${index}`} nodeId={`node-${index}`} label={node.text} sx={{ mb: 1 }}>
         {node.children && node.children.length > 0 && renderTreeItems(node.children)}
       </TreeItem>
     ));
   };
-  
+
   return (
     <TreeView
       defaultCollapseIcon={<ExpandMoreIcon />}

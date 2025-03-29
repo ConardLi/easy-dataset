@@ -37,7 +37,7 @@ export default function ChatMessage({ message, modelName }) {
       </Box>
     );
   }
-  
+
   // 助手消息
   if (message.role === 'assistant') {
     return (
@@ -54,9 +54,7 @@ export default function ChatMessage({ message, modelName }) {
             p: 2,
             borderRadius: '16px 16px 16px 0',
             maxWidth: '80%',
-            bgcolor: theme.palette.mode === 'dark' 
-              ? theme.palette.grey[800] 
-              : theme.palette.grey[100]
+            bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100]
           }}
         >
           {modelName && (
@@ -66,15 +64,13 @@ export default function ChatMessage({ message, modelName }) {
           )}
           <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
             {message.content}
-            {message.isStreaming && (
-              <span className="blinking-cursor">|</span>
-            )}
+            {message.isStreaming && <span className="blinking-cursor">|</span>}
           </Typography>
         </Paper>
       </Box>
     );
   }
-  
+
   // 错误消息
   if (message.role === 'error') {
     return (
@@ -96,6 +92,6 @@ export default function ChatMessage({ message, modelName }) {
       </Box>
     );
   }
-  
+
   return null;
 }

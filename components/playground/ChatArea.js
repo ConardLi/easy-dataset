@@ -1,24 +1,13 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  CircularProgress
-} from '@mui/material';
+import { Box, Typography, Paper, Grid, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ChatMessage from './ChatMessage';
 import { playgroundStyles } from '@/styles/playground';
 import { useTranslation } from 'react-i18next';
 
-const ChatArea = ({
-  selectedModels,
-  conversations,
-  loading,
-  getModelName
-}) => {
+const ChatArea = ({ selectedModels, conversations, loading, getModelName }) => {
   const theme = useTheme();
   const styles = playgroundStyles(theme);
   const { t } = useTranslation();
@@ -42,9 +31,7 @@ const ChatArea = ({
   if (selectedModels.length === 0) {
     return (
       <Box sx={styles.emptyStateBox}>
-        <Typography color="textSecondary">
-          {t('playground.selectModelFirst')}
-        </Typography>
+        <Typography color="textSecondary">{t('playground.selectModelFirst')}</Typography>
       </Box>
     );
   }
@@ -66,18 +53,11 @@ const ChatArea = ({
           >
             <Paper elevation={1} sx={styles.modelPaper}>
               <Box sx={styles.modelHeader}>
-                <Typography variant="subtitle2">
-                  {getModelName(modelId)}
-                </Typography>
-                {isLoading && (
-                  <CircularProgress size={16} sx={{ ml: 1 }} color="inherit" />
-                )}
+                <Typography variant="subtitle2">{getModelName(modelId)}</Typography>
+                {isLoading && <CircularProgress size={16} sx={{ ml: 1 }} color="inherit" />}
               </Box>
 
-              <Box
-                ref={chatContainerRefs[refKey]}
-                sx={styles.modelChatBox}
-              >
+              <Box ref={chatContainerRefs[refKey]} sx={styles.modelChatBox}>
                 {modelConversation.length === 0 ? (
                   <Box sx={styles.emptyChatBox}>
                     <Typography color="textSecondary" variant="body2">
@@ -87,10 +67,7 @@ const ChatArea = ({
                 ) : (
                   modelConversation.map((message, msgIndex) => (
                     <React.Fragment key={msgIndex}>
-                      <ChatMessage
-                        message={message}
-                        modelName={null}
-                      />
+                      <ChatMessage message={message} modelName={null} />
                     </React.Fragment>
                   ))
                 )}

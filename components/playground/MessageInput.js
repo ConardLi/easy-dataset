@@ -7,20 +7,14 @@ import { useTheme } from '@mui/material/styles';
 import { playgroundStyles } from '@/styles/playground';
 import { useTranslation } from 'react-i18next';
 
-const MessageInput = ({ 
-  userInput, 
-  handleInputChange, 
-  handleSendMessage, 
-  loading, 
-  selectedModels 
-}) => {
+const MessageInput = ({ userInput, handleInputChange, handleSendMessage, loading, selectedModels }) => {
   const theme = useTheme();
   const styles = playgroundStyles(theme);
   const { t } = useTranslation();
-  
+
   const isDisabled = Object.values(loading).some(value => value) || selectedModels.length === 0;
   const isSendDisabled = isDisabled || !userInput.trim();
-  
+
   return (
     <Box sx={styles.inputContainer}>
       <TextField
@@ -30,7 +24,7 @@ const MessageInput = ({
         value={userInput}
         onChange={handleInputChange}
         disabled={isDisabled}
-        onKeyPress={(e) => {
+        onKeyPress={e => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();

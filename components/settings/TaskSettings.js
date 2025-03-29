@@ -21,8 +21,7 @@ import useTaskSettings from '@/hooks/useTaskSettings';
 
 export default function TaskSettings({ projectId }) {
   const { t } = useTranslation();
-  const { taskSettings, setTaskSettings, loading, error, success, setSuccess } =
-    useTaskSettings(projectId);
+  const { taskSettings, setTaskSettings, loading, error, success, setSuccess } = useTaskSettings(projectId);
   // 处理设置变更
   const handleSettingChange = e => {
     const { name, value } = e.target;
@@ -131,10 +130,10 @@ export default function TaskSettings({ projectId }) {
                 onChange={handleSliderChange('questionGenerationLength')}
                 aria-labelledby="question-generation-length-slider"
                 valueLabelDisplay="auto"
-                step={20}
+                step={10}
                 marks
-                min={100}
-                max={500}
+                min={10}
+                max={1000}
               />
 
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>

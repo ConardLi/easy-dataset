@@ -8,11 +8,11 @@ import ModelSelector from './ModelSelector';
 import { playgroundStyles } from '@/styles/playground';
 import { useTranslation } from 'react-i18next';
 
-const PlaygroundHeader = ({ 
-  availableModels, 
-  selectedModels, 
-  handleModelSelection, 
-  handleClearConversations, 
+const PlaygroundHeader = ({
+  availableModels,
+  selectedModels,
+  handleModelSelection,
+  handleClearConversations,
   conversations,
   outputMode,
   handleOutputModeChange
@@ -20,19 +20,14 @@ const PlaygroundHeader = ({
   const theme = useTheme();
   const styles = playgroundStyles(theme);
   const { t } = useTranslation();
-  
-  const isClearDisabled = selectedModels.length === 0 || 
-    Object.values(conversations).every(conv => conv.length === 0);
-  
+
+  const isClearDisabled = selectedModels.length === 0 || Object.values(conversations).every(conv => conv.length === 0);
+
   return (
     <>
       <Grid container spacing={2} sx={styles.controlsContainer}>
         <Grid item xs={12} md={6}>
-          <ModelSelector 
-            models={availableModels} 
-            selectedModels={selectedModels} 
-            onChange={handleModelSelection} 
-          />
+          <ModelSelector models={availableModels} selectedModels={selectedModels} onChange={handleModelSelection} />
         </Grid>
         <Grid item xs={12} md={3}>
           <FormControl fullWidth>
@@ -50,9 +45,9 @@ const PlaygroundHeader = ({
           </FormControl>
         </Grid>
         <Grid item xs={12} md={3}>
-          <Button 
-            variant="outlined" 
-            color="error" 
+          <Button
+            variant="outlined"
+            color="error"
             startIcon={<DeleteIcon />}
             onClick={handleClearConversations}
             disabled={isClearDisabled}
@@ -62,7 +57,7 @@ const PlaygroundHeader = ({
           </Button>
         </Grid>
       </Grid>
-      
+
       <Divider sx={styles.divider} />
     </>
   );

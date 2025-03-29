@@ -3,12 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import mammoth from 'mammoth';
-import {
-  Paper,
-  Alert,
-  Snackbar,
-  Grid
-} from '@mui/material';
+import { Paper, Alert, Snackbar, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import UploadArea from './components/UploadArea';
 import FileList from './components/FileList';
@@ -21,7 +16,7 @@ import DeleteConfirmDialog from './components/DeleteConfirmDialog';
  * @param {Function} props.onUploadSuccess - Upload success callback
  * @param {Function} props.onProcessStart - Process start callback
  */
-export default function FileUploader({ projectId, onUploadSuccess, onProcessStart, onFileDeleted,sendToPages }) {
+export default function FileUploader({ projectId, onUploadSuccess, onProcessStart, onFileDeleted, sendToPages }) {
   const theme = useTheme();
   const { t } = useTranslation();
   const [files, setFiles] = useState([]);
@@ -60,8 +55,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
   };
 
   // 处理文件选择
-  const handleFileSelect = (event) => {
-
+  const handleFileSelect = event => {
     const selectedFiles = Array.from(event.target.files);
 
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
@@ -73,15 +67,11 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
     }
 
     // 检查文件类型
-    const validFiles = selectedFiles.filter(file => 
-      file.name.endsWith('.md') || 
-      file.name.endsWith('.txt') || 
-      file.name.endsWith('.docx')
+    const validFiles = selectedFiles.filter(
+      file => file.name.endsWith('.md') || file.name.endsWith('.txt') || file.name.endsWith('.docx')
     );
-    const invalidFiles = selectedFiles.filter(file => 
-      !file.name.endsWith('.md') && 
-      !file.name.endsWith('.txt') && 
-      !file.name.endsWith('.docx')
+    const invalidFiles = selectedFiles.filter(
+      file => !file.name.endsWith('.md') && !file.name.endsWith('.txt') && !file.name.endsWith('.docx')
     );
 
     if (invalidFiles.length > 0) {
@@ -94,7 +84,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
   };
 
   // 移除文件
-  const removeFile = (index) => {
+  const removeFile = index => {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -187,7 +177,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
   };
 
   // 打开删除确认对话框
-  const openDeleteConfirm = (fileName) => {
+  const openDeleteConfirm = fileName => {
     setFileToDelete(fileName);
     setDeleteConfirmOpen(true);
   };
@@ -221,7 +211,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
       // 通知父组件文件已删除，需要刷新文本块列表
       if (onFileDeleted) {
         const filesLength = uploadedFiles.length;
-        onFileDeleted(fileToDelete,filesLength);
+        onFileDeleted(fileToDelete, filesLength);
       }
 
       setSuccessMessage(t('textSplit.deleteSuccess', { fileName: fileToDelete }));
@@ -245,9 +235,9 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
     setSuccess(false);
   };
 
-  const handleSelected = (array)  =>{
+  const handleSelected = array => {
     sendToPages(array);
-  }
+  };
   return (
     <Paper
       elevation={0}
@@ -258,9 +248,9 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
         borderRadius: 2
       }}
     >
-      <Grid container spacing={3} >
+      <Grid container spacing={3}>
         {/* 左侧：上传文件区域 */}
-        <Grid item xs={12} md={6} sx={{ maxWidth: '100%', width: '100%'  }}>
+        <Grid item xs={12} md={6} sx={{ maxWidth: '100%', width: '100%' }}>
           <UploadArea
             theme={theme}
             files={files}

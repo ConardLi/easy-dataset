@@ -87,9 +87,7 @@ export default function QuestionsPage({ params }) {
       if (editMode === 'create') {
         return [...prevQuestions, updatedQuestion];
       } else {
-        return prevQuestions.map(q =>
-          q.question === editingQuestion.question ? updatedQuestion : q
-        );
+        return prevQuestions.map(q => (q.question === editingQuestion.question ? updatedQuestion : q));
       }
     });
 
@@ -1030,15 +1028,10 @@ export default function QuestionsPage({ params }) {
       >
         <DialogTitle id="alert-dialog-title">{confirmDialog.title}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {confirmDialog.content}
-          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">{confirmDialog.content}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}
-            color="primary"
-          >
+          <Button onClick={() => setConfirmDialog({ ...confirmDialog, open: false })} color="primary">
             {t('common.cancel')}
           </Button>
           <Button

@@ -169,6 +169,16 @@ function createMenu() {
           }
         },
         {
+          label: '打开数据目录',
+          click: () => {
+            const dataDir = path.join(app.getPath('userData'), 'local-db');
+            if (!fs.existsSync(dataDir)) {
+              fs.mkdirSync(dataDir, { recursive: true });
+            }
+            shell.openPath(dataDir);
+          }
+        },
+        {
           label: '关于',
           click: () => {
             dialog.showMessageBox(mainWindow, {
@@ -244,7 +254,7 @@ function setupAutoUpdater() {
 
   // 检查更新时出错
   autoUpdater.on('error', (error) => {
-    dialog.showErrorBox('更新错误', `检查更新时出错: ${error.message}`);
+    // dialog.showErrorBox('更新错误', `检查更新时出错: ${error.message}`);
     if (mainWindow) {
       mainWindow.webContents.send('update-error', error.message);
     }

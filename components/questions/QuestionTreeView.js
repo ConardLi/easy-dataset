@@ -172,30 +172,31 @@ export default function QuestionTreeView({
 
   // 检查问题是否被选中 - 使用 useCallback 优化
   const isQuestionSelected = useCallback(
-    (questionId, chunkId) => {
-      return selectedQuestions.includes(`${chunkId}-${questionId}`);
+    questionKey => {
+      return selectedQuestions.includes(questionKey);
     },
     [selectedQuestions]
   );
 
   // 处理生成数据集 - 使用 useCallback 优化
   const handleGenerateDataset = useCallback(
-    async (questionId, chunkId) => {
+    async questionKey => {
       if (!onGenerateDataset) return;
 
+      const [question, chunkId] = JSON.parse(questionKey);
       setProcessingQuestions(prev => ({
         ...prev,
-        [`${chunkId}-${questionId}`]: true
+        [questionKey]: true
       }));
 
       try {
-        await onGenerateDataset(questionId, chunkId);
+        await onGenerateDataset(question, chunkId);
       } catch (error) {
         console.error('生成数据集失败:', error);
       } finally {
         setProcessingQuestions(prev => {
           const newState = { ...prev };
-          delete newState[`${chunkId}-${questionId}`];
+          delete newState[questionKey];
           return newState;
         });
       }
@@ -206,32 +207,25 @@ export default function QuestionTreeView({
   // 渲染单个问题项 - 使用 useCallback 优化
   const renderQuestionItem = useCallback(
     (question, index, total) => {
+      const questionKey = JSON.stringify({ question: question.question, chunkId: question.chunkId });
       return (
         <QuestionItem
-          key={`${question.chunkId}-${question.question}`}
+          key={questionKey}
           question={question}
           index={index}
           total={total}
-          isSelected={isQuestionSelected(question.question, question.chunkId)}
+          isSelected={isQuestionSelected(questionKey)}
           onSelect={onSelectQuestion}
           onDelete={onDeleteQuestion}
           onGenerate={handleGenerateDataset}
           onEdit={onEditQuestion}
-          isProcessing={processingQuestions[`${question.chunkId}-${question.question}`]}
+          isProcessing={processingQuestions[questionKey]}
           chunkTitle={chunksMap[question.chunkId]}
           t={t}
         />
       );
     },
-    [
-      isQuestionSelected,
-      onSelectQuestion,
-      onDeleteQuestion,
-      handleGenerateDataset,
-      processingQuestions,
-      chunksMap,
-      t
-    ]
+    [isQuestionSelected, onSelectQuestion, onDeleteQuestion, handleGenerateDataset, processingQuestions, chunksMap, t]
   );
 
   // 计算标签及其子标签下的所有问题数量 - 使用 useMemo 缓存计算结果
@@ -280,16 +274,12 @@ export default function QuestionTreeView({
           {isExpanded && (
             <Collapse in={true}>
               {hasChildren && (
-                <List disablePadding>
-                  {tag.child.map(childTag => renderTagTree(childTag, level + 1))}
-                </List>
+                <List disablePadding>{tag.child.map(childTag => renderTagTree(childTag, level + 1))}</List>
               )}
 
               {hasQuestions && (
                 <List disablePadding sx={{ mt: hasChildren ? 1 : 0 }}>
-                  {questions.map((question, index) =>
-                    renderQuestionItem(question, index, questions.length)
-                  )}
+                  {questions.map((question, index) => renderQuestionItem(question, index, questions.length))}
                 </List>
               )}
             </Collapse>
@@ -320,8 +310,7 @@ export default function QuestionTreeView({
             borderRadius: '4px',
             mb: 0.5,
             pr: 1
-          }}
-        >
+          }}>
           <FolderIcon fontSize="small" sx={{ mr: 1, color: 'inherit' }} />
           <ListItemText
             primary={
@@ -380,8 +369,7 @@ export default function QuestionTreeView({
         overflow: 'auto',
         p: 2,
         maxHeight: '75vh'
-      }}
-    >
+      }}>
       <List disablePadding>
         {renderUncategorizedQuestions()}
         {tags.map(tag => renderTagTree(tag))}
@@ -392,21 +380,10 @@ export default function QuestionTreeView({
 
 // 使用 memo 优化问题项渲染
 const QuestionItem = memo(
-  ({
-    question,
-    index,
-    total,
-    isSelected,
-    onSelect,
-    onDelete,
-    onGenerate,
-    onEdit,
-    isProcessing,
-    chunkTitle,
-    t
-  }) => {
+  ({ question, index, total, isSelected, onSelect, onDelete, onGenerate, onEdit, isProcessing, chunkTitle, t }) => {
+    const questionKey = JSON.stringify({ question: question.question, chunkId: question.chunkId });
     return (
-      <Box key={`${question.chunkId}-${question.question}`}>
+      <Box key={questionKey}>
         <ListItem
           sx={{
             pl: 4,
@@ -419,14 +396,8 @@ const QuestionItem = memo(
             '&:hover': {
               bgcolor: 'action.hover'
             }
-          }}
-        >
-          {/* 内部内容保持不变 */}
-          <Checkbox
-            checked={isSelected}
-            onChange={() => onSelect(question.question, question.chunkId)}
-            sx={{ mr: 1 }}
-          />
+          }}>
+          <Checkbox checked={isSelected} onChange={() => onSelect(questionKey)} size="small" />
           <QuestionMarkIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
           <ListItemText
             primary={
@@ -444,11 +415,7 @@ const QuestionItem = memo(
               </Typography>
             }
             secondary={
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mt: 0.5, display: 'block' }}
-              >
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
                 {t('datasets.source')}: {chunkTitle || question.chunkId}
               </Typography>
             }
@@ -465,30 +432,17 @@ const QuestionItem = memo(
                     label: question.label || 'other'
                   })
                 }
-                disabled={isProcessing}
-              >
+                disabled={isProcessing}>
                 <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
             <Tooltip title={t('datasets.generateDataset')}>
-              <IconButton
-                size="small"
-                sx={{ mr: 1 }}
-                onClick={() => onGenerate(question.question, question.chunkId)}
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <AutoFixHighIcon fontSize="small" />
-                )}
+              <IconButton size="small" sx={{ mr: 1 }} onClick={() => onGenerate(questionKey)} disabled={isProcessing}>
+                {isProcessing ? <CircularProgress size={16} /> : <AutoFixHighIcon fontSize="small" />}
               </IconButton>
             </Tooltip>
             <Tooltip title={t('common.delete')}>
-              <IconButton
-                size="small"
-                onClick={() => onDelete(question.question, question.chunkId)}
-              >
+              <IconButton size="small" onClick={() => onDelete(question.question, question.chunkId)}>
                 <DeleteIcon fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -517,13 +471,9 @@ const TagItem = memo(({ tag, level, isExpanded, totalQuestions, onToggle, t }) =
         borderRadius: '4px',
         mb: 0.5,
         pr: 1
-      }}
-    >
+      }}>
       {/* 内部内容保持不变 */}
-      <FolderIcon
-        fontSize="small"
-        sx={{ mr: 1, color: level === 0 ? 'inherit' : 'primary.main' }}
-      />
+      <FolderIcon fontSize="small" sx={{ mr: 1, color: level === 0 ? 'inherit' : 'primary.main' }} />
       <ListItemText
         primary={
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -532,8 +482,7 @@ const TagItem = memo(({ tag, level, isExpanded, totalQuestions, onToggle, t }) =
               sx={{
                 fontWeight: level === 0 ? 600 : 400,
                 fontSize: level === 0 ? '1rem' : '0.9rem'
-              }}
-            >
+              }}>
               {tag.label}
             </Typography>
             {totalQuestions > 0 && (

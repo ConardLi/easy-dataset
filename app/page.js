@@ -61,7 +61,6 @@ export default function Home() {
       >
         {/* <StatsCard projects={projects} /> */}
 
-
         {loading && (
           <Box
             sx={{
@@ -110,18 +109,12 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <ProjectList
-              projects={projects}
-              onCreateProject={() => setCreateDialogOpen(true)}
-            />
+            <ProjectList projects={projects} onCreateProject={() => setCreateDialogOpen(true)} />
           </motion.div>
         )}
       </Container>
 
-      <CreateProjectDialog
-        open={createDialogOpen}
-        onClose={() => setCreateDialogOpen(false)}
-      />
+      <CreateProjectDialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} />
     </main>
   );
 }

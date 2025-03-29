@@ -7,10 +7,9 @@ import getAddLabelPrompt from '@/lib/llm/prompts/addLabel';
 import getAddLabelEnPrompt from '@/lib/llm/prompts/addLabelEn';
 import { addQuestionsForChunk, getQuestionsForChunk } from '@/lib/db/questions';
 import { extractJsonFromLLMOutput } from '@/lib/llm/common/util';
-import { getTaskConfig } from '@/lib/db/projects';
+import { getTaskConfig, getProject } from '@/lib/db/projects';
 import { getTags } from '@/lib/db/tags';
 import logger from '@/lib/util/logger';
-
 
 // 为指定文本块生成问题
 export async function POST(request, { params }) {
@@ -19,7 +18,7 @@ export async function POST(request, { params }) {
 
     // 验证项目ID和文本块ID
     if (!projectId || !c) {
-      return NextResponse.json({ error: '项目ID或文本块ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Project ID or text block ID cannot be empty' }, { status: 400 });
     }
 
     const chunkId = decodeURIComponent(c);
@@ -28,18 +27,20 @@ export async function POST(request, { params }) {
     const { model, language = '中文', number } = await request.json();
 
     if (!model) {
-      return NextResponse.json({ error: '请选择模型' }, { status: 400 });
+      return NextResponse.json({ error: 'Model cannot be empty' }, { status: 400 });
     }
 
     // 获取文本块内容
     const chunk = await getTextChunk(projectId, chunkId);
     if (!chunk) {
-      return NextResponse.json({ error: '文本块不存在' }, { status: 404 });
+      return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
     }
 
     // 获取项目 task-config 信息
     const taskConfig = await getTaskConfig(projectId);
+    const config = await getProject(projectId);
     const { questionGenerationLength } = taskConfig;
+    const { globalPrompt, questionPrompt } = config;
 
     // 创建LLM客户端
     const llmClient = new LLMClient({
@@ -47,6 +48,7 @@ export async function POST(request, { params }) {
       endpoint: model.endpoint,
       apiKey: model.apiKey,
       model: model.name,
+      temperature: model.temperature
     });
 
     // 生成问题的数量，如果未指定，则根据文本长度自动计算
@@ -55,7 +57,7 @@ export async function POST(request, { params }) {
     // 根据语言选择相应的提示词函数
     const promptFunc = language === 'en' ? getQuestionEnPrompt : getQuestionPrompt;
     // 生成问题
-    const prompt = promptFunc(chunk.content, questionNumber, language);
+    const prompt = promptFunc({ text: chunk.content, number: questionNumber, language, globalPrompt, questionPrompt });
 
     const response = await llmClient.getResponse(prompt);
 
@@ -65,7 +67,7 @@ export async function POST(request, { params }) {
     console.log(projectId, chunkId, 'Questions：', questions);
 
     if (!questions || !Array.isArray(questions)) {
-      return NextResponse.json({ error: 'Error generating questions' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to generate questions' }, { status: 500 });
     }
 
     // 打标签
@@ -100,7 +102,7 @@ export async function GET(request, { params }) {
 
     // 验证项目ID和文本块ID
     if (!projectId || !chunkId) {
-      return NextResponse.json({ error: '项目ID或文本块ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'The item ID or text block ID cannot be empty' }, { status: 400 });
     }
 
     // 获取文本块的问题
@@ -113,7 +115,7 @@ export async function GET(request, { params }) {
       total: questions.length
     });
   } catch (error) {
-    console.error('获取问题出错:', error);
-    return NextResponse.json({ error: error.message || '获取问题失败' }, { status: 500 });
+    console.error('Error getting questions:', error);
+    return NextResponse.json({ error: error.message || 'Error getting questions' }, { status: 500 });
   }
 }

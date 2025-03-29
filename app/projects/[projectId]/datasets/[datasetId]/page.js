@@ -31,17 +31,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '@/lib/i18n';
 
 // 编辑区域组件
-const EditableField = ({
-  label,
-  value,
-  multiline = true,
-  editing,
-  onEdit,
-  onChange,
-  onSave,
-  onCancel,
-  onOptimize
-}) => {
+const EditableField = ({ label, value, multiline = true, editing, onEdit, onChange, onSave, onCancel, onOptimize }) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -75,8 +65,12 @@ const EditableField = ({
             sx={{ mb: 1 }}
           />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button size="small" onClick={onCancel}>{t('common.cancel')}</Button>
-            <Button size="small" variant="contained" onClick={onSave}>{t('common.save')}</Button>
+            <Button size="small" onClick={onCancel}>
+              {t('common.cancel')}
+            </Button>
+            <Button size="small" variant="contained" onClick={onSave}>
+              {t('common.save')}
+            </Button>
           </Box>
         </Box>
       ) : (
@@ -84,9 +78,7 @@ const EditableField = ({
           variant="body1"
           sx={{
             whiteSpace: 'pre-wrap',
-            bgcolor: theme.palette.mode === 'dark'
-              ? theme.palette.grey[800]
-              : theme.palette.grey[100],
+            bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
             p: 2,
             borderRadius: 1
           }}
@@ -112,7 +104,6 @@ const OptimizeDialog = ({ open, onClose, onConfirm, loading }) => {
       <DialogTitle>{t('datasets.aiOptimize')}</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-
           {t('datasets.aiOptimizeAdvice')}
         </Typography>
         <TextField
@@ -120,13 +111,15 @@ const OptimizeDialog = ({ open, onClose, onConfirm, loading }) => {
           multiline
           rows={4}
           value={advice}
-          onChange={(e) => setAdvice(e.target.value)}
+          onChange={e => setAdvice(e.target.value)}
           placeholder={t('datasets.aiOptimizeAdvicePlaceholder')}
           disabled={loading}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>{t('common.cancel')}</Button>
+        <Button onClick={onClose} disabled={loading}>
+          {t('common.cancel')}
+        </Button>
         <Button
           onClick={handleConfirm}
           variant="contained"
@@ -259,13 +252,14 @@ export default function DatasetDetailsPage({ params }) {
   }, [projectId, datasetId]);
 
   // 导航到其他数据集
-  const handleNavigate = (direction) => {
+  const handleNavigate = direction => {
     const currentIndex = datasets.findIndex(d => d.id === datasetId);
     if (currentIndex === -1) return;
 
-    const newIndex = direction === 'prev'
-      ? (currentIndex - 1 + datasets.length) % datasets.length
-      : (currentIndex + 1) % datasets.length;
+    const newIndex =
+      direction === 'prev'
+        ? (currentIndex - 1 + datasets.length) % datasets.length
+        : (currentIndex + 1) % datasets.length;
 
     const newDataset = datasets[newIndex];
     router.push(`/projects/${projectId}/datasets/${newDataset.id}`);
@@ -368,7 +362,7 @@ export default function DatasetDetailsPage({ params }) {
   };
 
   // 提交优化请求
-  const handleOptimize = async (advice) => {
+  const handleOptimize = async advice => {
     const model = getModelFromLocalStorage();
     if (!model) {
       setSnackbar({
@@ -451,16 +445,17 @@ export default function DatasetDetailsPage({ params }) {
       <Paper sx={{ p: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              startIcon={<NavigateBeforeIcon />}
-              onClick={() => router.push(`/projects/${projectId}/datasets`)}
-            >
+            <Button startIcon={<NavigateBeforeIcon />} onClick={() => router.push(`/projects/${projectId}/datasets`)}>
               {t('common.backToList')}
             </Button>
             <Divider orientation="vertical" flexItem />
             <Typography variant="h6">{t('datasets.datasetDetail')}</Typography>
             <Typography variant="body2" color="text.secondary">
-              {t('datasets.stats', { total: datasets.length, confirmed: datasets.filter(d => d.confirmed).length, percentage: Math.round((datasets.filter(d => d.confirmed).length / datasets.length) * 100) })}
+              {t('datasets.stats', {
+                total: datasets.length,
+                confirmed: datasets.filter(d => d.confirmed).length,
+                percentage: Math.round((datasets.filter(d => d.confirmed).length / datasets.length) * 100)
+              })}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
@@ -478,14 +473,15 @@ export default function DatasetDetailsPage({ params }) {
               onClick={handleConfirm}
               sx={{ mr: 1 }}
             >
-              {confirming ? <CircularProgress size={24} /> : dataset.confirmed ? t('datasets.confirmed') : t('datasets.confirmSave')}
+              {confirming ? (
+                <CircularProgress size={24} />
+              ) : dataset.confirmed ? (
+                t('datasets.confirmed')
+              ) : (
+                t('datasets.confirmSave')
+              )}
             </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={handleDelete}
-            >
+            <Button variant="outlined" color="error" startIcon={<DeleteIcon />} onClick={handleDelete}>
               {t('common.delete')}
             </Button>
           </Box>
@@ -508,7 +504,7 @@ export default function DatasetDetailsPage({ params }) {
           value={answerValue}
           editing={editingAnswer}
           onEdit={() => setEditingAnswer(true)}
-          onChange={(e) => setAnswerValue(e.target.value)}
+          onChange={e => setAnswerValue(e.target.value)}
           onSave={() => handleSave('answer', answerValue)}
           onCancel={() => {
             setEditingAnswer(false);
@@ -522,7 +518,7 @@ export default function DatasetDetailsPage({ params }) {
           value={cotValue}
           editing={editingCot}
           onEdit={() => setEditingCot(true)}
-          onChange={(e) => setCotValue(e.target.value)}
+          onChange={e => setCotValue(e.target.value)}
           onSave={() => handleSave('cot', cotValue)}
           onCancel={() => {
             setEditingCot(false);
@@ -535,16 +531,9 @@ export default function DatasetDetailsPage({ params }) {
             {t('datasets.metadata')}
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Chip
-              label={`${t('datasets.model')}: ${dataset.model}`}
-              variant="outlined"
-            />
+            <Chip label={`${t('datasets.model')}: ${dataset.model}`} variant="outlined" />
             {dataset.questionLabel && (
-              <Chip
-                label={`${t('common.label')}: ${dataset.questionLabel}`}
-                color="primary"
-                variant="outlined"
-              />
+              <Chip label={`${t('common.label')}: ${dataset.questionLabel}`} color="primary" variant="outlined" />
             )}
             <Chip
               label={`${t('datasets.createdAt')}: ${new Date(dataset.createdAt).toLocaleString('zh-CN')}`}
@@ -556,7 +545,7 @@ export default function DatasetDetailsPage({ params }) {
                 sx={{
                   backgroundColor: alpha(theme.palette.success.main, 0.1),
                   color: theme.palette.success.dark,
-                  fontWeight: 'medium',
+                  fontWeight: 'medium'
                 }}
               />
             )}

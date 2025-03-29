@@ -6,16 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { alpha } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 
-export default function UploadArea({
-  theme,
-  files,
-  uploading,
-  uploadedFiles,
-  onFileSelect,
-  onRemoveFile,
-  onUpload
-}) {
-
+export default function UploadArea({ theme, files, uploading, uploadedFiles, onFileSelect, onRemoveFile, onUpload }) {
   const { t } = useTranslation();
 
   return (
@@ -24,7 +15,7 @@ export default function UploadArea({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center', 
+        justifyContent: 'center',
         p: 3,
         height: '100%',
         border: `2px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
@@ -33,7 +24,7 @@ export default function UploadArea({
         transition: 'all 0.3s ease',
         '&:hover': {
           bgcolor: alpha(theme.palette.primary.main, 0.08),
-          borderColor: alpha(theme.palette.primary.main, 0.3),
+          borderColor: alpha(theme.palette.primary.main, 0.3)
         }
       }}
     >
@@ -60,11 +51,7 @@ export default function UploadArea({
       </Button>
 
       <Typography variant="body2" color="textSecondary">
-        {uploadedFiles.length > 0 ? (
-          t('textSplit.mutilFileMessage')
-        ) : (
-          t('textSplit.supportedFormats')
-        )}
+        {uploadedFiles.length > 0 ? t('textSplit.mutilFileMessage') : t('textSplit.supportedFormats')}
       </Typography>
 
       {files.length > 0 && (
@@ -89,10 +76,7 @@ export default function UploadArea({
                     </Button>
                   }
                 >
-                  <ListItemText
-                    primary={file.name}
-                    secondary={`${(file.size / 1024).toFixed(2)} KB`}
-                  />
+                  <ListItemText primary={file.name} secondary={`${(file.size / 1024).toFixed(2)} KB`} />
                 </ListItem>
                 {index < files.length - 1 && <Divider />}
               </Box>
@@ -100,13 +84,7 @@ export default function UploadArea({
           </List>
 
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={onUpload}
-              disabled={uploading}
-              sx={{ minWidth: 120 }}
-            >
+            <Button variant="contained" color="primary" onClick={onUpload} disabled={uploading} sx={{ minWidth: 120 }}>
               {uploading ? <CircularProgress size={24} /> : t('textSplit.uploadAndProcess')}
             </Button>
           </Box>

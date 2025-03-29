@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
 
     // 验证项目ID
     if (!projectId) {
-      return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing project ID' }, { status: 400 });
     }
 
     // 获取问题列表
@@ -38,8 +38,8 @@ export async function GET(request, { params }) {
 
     return NextResponse.json(flattenedQuestions);
   } catch (error) {
-    console.error('获取问题列表失败:', error);
-    return NextResponse.json({ error: error.message || '获取问题列表失败' }, { status: 500 });
+    console.error('Failed to get questions:', error);
+    return NextResponse.json({ error: error.message || 'Failed to get questions' }, { status: 500 });
   }
 }
 
@@ -52,7 +52,7 @@ export async function POST(request, { params }) {
 
     // 验证必要参数
     if (!projectId || !question || !chunkId) {
-      return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing necessary parameters' }, { status: 400 });
     }
 
     // 获取所有问题
@@ -69,11 +69,9 @@ export async function POST(request, { params }) {
     }
 
     // 检查问题是否已存在
-    const existingQuestion = questionsData[chunkIndex].questions.find(
-      q => q.question === question
-    );
+    const existingQuestion = questionsData[chunkIndex].questions.find(q => q.question === question);
     if (existingQuestion) {
-      return NextResponse.json({ error: '问题已存在' }, { status: 400 });
+      return NextResponse.json({ error: 'Question already exists' }, { status: 400 });
     }
 
     // 添加新问题
@@ -90,11 +88,11 @@ export async function POST(request, { params }) {
       question,
       chunkId,
       label,
-      dataSites: []  // 新问题还没有数据集
+      dataSites: [] // 新问题还没有数据集
     });
   } catch (error) {
-    console.error('创建问题失败:', error);
-    return NextResponse.json({ error: error.message || '创建问题失败' }, { status: 500 });
+    console.error('Failed to create question:', error);
+    return NextResponse.json({ error: error.message || 'Failed to create question' }, { status: 500 });
   }
 }
 
@@ -107,7 +105,7 @@ export async function PUT(request, { params }) {
 
     // 验证必要参数
     if (!projectId || !question || !oldQuestion || !chunkId || !oldChunkId) {
-      return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing necessary parameters' }, { status: 400 });
     }
 
     // 获取所有问题
@@ -116,15 +114,13 @@ export async function PUT(request, { params }) {
     // 找到原问题所在的文本块
     const oldChunkIndex = questionsData.findIndex(item => item.chunkId === oldChunkId);
     if (oldChunkIndex === -1) {
-      return NextResponse.json({ error: '找不到原文本块' }, { status: 404 });
+      return NextResponse.json({ error: 'Original chunk not found' }, { status: 404 });
     }
 
     // 找到原问题在文本块中的位置
-    const oldQuestionIndex = questionsData[oldChunkIndex].questions.findIndex(
-      q => q.question === oldQuestion
-    );
+    const oldQuestionIndex = questionsData[oldChunkIndex].questions.findIndex(q => q.question === oldQuestion);
     if (oldQuestionIndex === -1) {
-      return NextResponse.json({ error: '找不到原问题' }, { status: 404 });
+      return NextResponse.json({ error: 'Original question not found' }, { status: 404 });
     }
 
     // 如果文本块发生变化

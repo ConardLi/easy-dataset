@@ -50,7 +50,7 @@ export default function CreateProjectDialog({ open, onClose }) {
     fetchProjects();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -58,7 +58,7 @@ export default function CreateProjectDialog({ open, onClose }) {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -67,9 +67,9 @@ export default function CreateProjectDialog({ open, onClose }) {
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       });
 
       if (!response.ok) {
@@ -96,15 +96,15 @@ export default function CreateProjectDialog({ open, onClose }) {
       PaperProps={{
         sx: {
           borderRadius: '16px',
-          background: theme.palette.mode === 'dark'
-            ? 'rgba(30, 30, 30, 0.9)'
-            : 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(8px)',
+          background: theme.palette.mode === 'dark' ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(8px)'
         }
       }}
     >
       <DialogTitle>
-        <Typography variant="h5" fontWeight="bold">{t('projects.createNew')}</Typography>
+        <Typography variant="h5" fontWeight="bold">
+          {t('projects.createNew')}
+        </Typography>
       </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
