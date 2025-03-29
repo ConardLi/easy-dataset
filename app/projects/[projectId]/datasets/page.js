@@ -76,8 +76,7 @@ const DatasetList = ({
                   backgroundColor: bgColor,
                   color: color,
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 <Checkbox
                   color="primary"
                   indeterminate={selectedIds.length > 0 && selectedIds.length < datasets.length}
@@ -92,8 +91,7 @@ const DatasetList = ({
                   fontWeight: 'bold',
                   padding: '16px 8px',
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 {t('datasets.question')}
               </TableCell>
               <TableCell
@@ -103,8 +101,7 @@ const DatasetList = ({
                   fontWeight: 'bold',
                   padding: '16px 8px',
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 {t('datasets.createdAt')}
               </TableCell>
               <TableCell
@@ -114,8 +111,7 @@ const DatasetList = ({
                   fontWeight: 'bold',
                   padding: '16px 8px',
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 {t('datasets.model')}
               </TableCell>
               <TableCell
@@ -125,8 +121,7 @@ const DatasetList = ({
                   fontWeight: 'bold',
                   padding: '16px 8px',
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 {t('datasets.domainTag')}
               </TableCell>
               <TableCell
@@ -136,8 +131,7 @@ const DatasetList = ({
                   fontWeight: 'bold',
                   padding: '16px 8px',
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 {t('datasets.cot')}
               </TableCell>
               <TableCell
@@ -147,8 +141,7 @@ const DatasetList = ({
                   fontWeight: 'bold',
                   padding: '16px 8px',
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 {t('datasets.answer')}
               </TableCell>
               <TableCell
@@ -158,8 +151,7 @@ const DatasetList = ({
                   fontWeight: 'bold',
                   padding: '16px 8px',
                   borderBottom: `2px solid ${theme.palette.divider}`
-                }}
-              >
+                }}>
                 {t('common.actions')}
               </TableCell>
             </TableRow>
@@ -173,14 +165,12 @@ const DatasetList = ({
                   '&:hover': { backgroundColor: alpha(theme.palette.primary.light, 0.1) },
                   cursor: 'pointer'
                 }}
-                onClick={() => onViewDetails(dataset.id)}
-              >
+                onClick={() => onViewDetails(dataset.id)}>
                 <TableCell
                   padding="checkbox"
                   sx={{
                     borderLeft: `4px solid ${theme.palette.primary.main}`
-                  }}
-                >
+                  }}>
                   <Checkbox
                     color="primary"
                     checked={selectedIds.includes(dataset.id)}
@@ -197,8 +187,7 @@ const DatasetList = ({
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
                     py: 2
-                  }}
-                >
+                  }}>
                   <Typography variant="body2" fontWeight="medium">
                     {dataset.confirmed && (
                       <Chip
@@ -271,8 +260,7 @@ const DatasetList = ({
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
                       WebkitBoxOrient: 'vertical'
-                    }}
-                  >
+                    }}>
                     {dataset.answer}
                   </Typography>
                 </TableCell>
@@ -288,8 +276,7 @@ const DatasetList = ({
                         sx={{
                           color: theme.palette.primary.main,
                           '&:hover': { backgroundColor: alpha(theme.palette.primary.main, 0.1) }
-                        }}
-                      >
+                        }}>
                         <VisibilityIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -303,8 +290,7 @@ const DatasetList = ({
                         sx={{
                           color: theme.palette.error.main,
                           '&:hover': { backgroundColor: alpha(theme.palette.error.main, 0.1) }
-                        }}
-                      >
+                        }}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -357,8 +343,7 @@ const DeleteConfirmDialog = ({ open, datasets, onClose, onConfirm, batch, progre
       PaperProps={{
         elevation: 3,
         sx: { borderRadius: 2 }
-      }}
-    >
+      }}>
       <DialogTitle sx={{ pb: 1 }}>
         <Typography variant="h6" fontWeight="bold">
           {t('common.confirmDelete')}
@@ -381,8 +366,7 @@ const DeleteConfirmDialog = ({ open, datasets, onClose, onConfirm, batch, progre
               p: 2,
               backgroundColor: alpha(theme.palette.warning.light, 0.1),
               borderColor: theme.palette.warning.light
-            }}
-          >
+            }}>
             <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
               {t('datasets.question')}：
             </Typography>
@@ -626,6 +610,8 @@ export default function DatasetsPage({ params }) {
 
       // 根据选择的格式转换数据
       let formattedData;
+      // 不同文件格式
+      let mimeType = 'application/json';
 
       if (exportOptions.formatType === 'alpaca') {
         formattedData = dataToExport.map(({ question, answer, cot }) => ({
@@ -719,9 +705,8 @@ export default function DatasetsPage({ params }) {
         content = JSON.stringify(formattedData, null, 2);
         fileExtension = 'json';
       }
-
       // 创建 Blob 对象
-      const blob = new Blob([content], { type: 'application/json' });
+      const blob = new Blob([content], { type: mimeType || 'application/json' });
 
       // 创建下载链接
       const url = URL.createObjectURL(blob);
@@ -794,8 +779,7 @@ export default function DatasetsPage({ params }) {
             justifyContent: 'center',
             alignItems: 'center',
             height: '70vh'
-          }}
-        >
+          }}>
           <CircularProgress size={60} thickness={4} />
           <Typography variant="h6" sx={{ mt: 2 }}>
             {t('datasets.loading')}
@@ -814,8 +798,7 @@ export default function DatasetsPage({ params }) {
           p: 3,
           backgroundColor: alpha(theme.palette.primary.light, 0.05),
           borderRadius: 2
-        }}
-      >
+        }}>
         <Box
           sx={{
             display: 'flex',
@@ -823,8 +806,7 @@ export default function DatasetsPage({ params }) {
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: 2
-          }}
-        >
+          }}>
           <Box>
             <Typography variant="h4" fontWeight="bold" sx={{ mb: 0.5 }}>
               {t('datasets.management')}
@@ -849,8 +831,7 @@ export default function DatasetsPage({ params }) {
                 alignItems: 'center',
                 width: 300,
                 borderRadius: 2
-              }}
-            >
+              }}>
               <IconButton sx={{ p: '10px' }} aria-label="search">
                 <SearchIcon />
               </IconButton>
@@ -868,8 +849,7 @@ export default function DatasetsPage({ params }) {
               variant="outlined"
               startIcon={<FileDownloadIcon />}
               sx={{ borderRadius: 2 }}
-              onClick={handleOpenExportDialog}
-            >
+              onClick={handleOpenExportDialog}>
               {t('export.title')}
             </Button>
           </Box>
@@ -884,8 +864,7 @@ export default function DatasetsPage({ params }) {
             flexWrap: 'wrap',
             marginTop: '10px',
             gap: 2
-          }}
-        >
+          }}>
           <Typography variant="body1" color="text.secondary">
             {t('datasets.selected', {
               count: selectedIds.length
@@ -896,8 +875,7 @@ export default function DatasetsPage({ params }) {
             color="error"
             startIcon={<DeleteIcon />}
             sx={{ borderRadius: 2 }}
-            onClick={handleBatchDeleteDataset}
-          >
+            onClick={handleBatchDeleteDataset}>
             {t('datasets.batchDelete')}
           </Button>
         </Box>
@@ -933,8 +911,7 @@ export default function DatasetsPage({ params }) {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>

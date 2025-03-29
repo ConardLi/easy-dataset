@@ -24,7 +24,13 @@ import {
   Alert,
   CircularProgress,
   IconButton,
-  Tooltip
+  Tooltip,
+  Table,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableContainer
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
@@ -143,6 +149,74 @@ const ExportDatasetDialog = ({ open, onClose, onExport, projectId }) => {
     return fileFormat === 'json' ? JSON.stringify([example], null, 2) : JSON.stringify(example);
   };
 
+  // CSV 自定义格式化示例
+  const getPreviewData = () => {
+    if (formatType === 'alpaca') {
+      return {
+        headers: ['instruction', 'input', 'output', 'system'],
+        rows: [
+          {
+            instruction: '人类指令（必填）',
+            input: '人类输入（选填）',
+            output: '模型回答（必填）',
+            system: '系统提示词（选填）'
+          },
+          {
+            instruction: '第二个指令',
+            input: '',
+            output: '第二个回答',
+            system: '系统提示词'
+          }
+        ]
+      };
+    } else if (formatType === 'sharegpt') {
+      return {
+        headers: ['messages'],
+        rows: [
+          {
+            messages: JSON.stringify(
+              [
+                {
+                  messages: [
+                    {
+                      role: 'system',
+                      content: '系统提示词（选填）'
+                    },
+                    {
+                      role: 'user',
+                      content: '人类指令' // 映射到 question 字段
+                    },
+                    {
+                      role: 'assistant',
+                      content: '模型回答' // 映射到 cot+answer 字段
+                    }
+                  ]
+                }
+              ],
+              null,
+              2
+            )
+          }
+        ]
+      };
+    } else if (formatType === 'custom') {
+      const headers = [customFields.questionField, customFields.answerField];
+      if (includeCOT) headers.push(customFields.cotField);
+      if (customFields.includeLabels) headers.push('labels');
+
+      const row = {
+        [customFields.questionField]: '问题内容',
+        [customFields.answerField]: '答案内容'
+      };
+      if (includeCOT) row[customFields.cotField] = '思维链过程内容';
+      if (customFields.includeLabels) row.labels = '领域标签';
+      return {
+        headers,
+        rows: [row]
+      };
+    }
+  };
+
   // 检查配置文件是否存在
   useEffect(() => {
     if (currentTab === 1 && projectId) {
@@ -185,13 +259,28 @@ const ExportDatasetDialog = ({ open, onClose, onExport, projectId }) => {
       }
 
       setConfigExists(true);
-      setConfigPath(data.configPath);
     } catch (err) {
       setError(err.message);
     } finally {
       setGenerating(false);
     }
   };
+  // 检查配置文件是否存在
+  useEffect(() => {
+    if (currentTab === 1 && projectId) {
+      fetch(`/api/projects/${projectId}/llamaFactory/checkConfig`)
+        .then(res => res.json())
+        .then(data => {
+          setConfigExists(data.exists);
+          if (data.exists) {
+            setConfigPath(data.configPath);
+          }
+        })
+        .catch(err => {
+          setError(err.message);
+        });
+    }
+  }, [currentTab, projectId]);
 
   return (
     <Dialog
@@ -203,8 +292,7 @@ const ExportDatasetDialog = ({ open, onClose, onExport, projectId }) => {
         sx: {
           borderRadius: 2
         }
-      }}
-    >
+      }}>
       <DialogTitle>{t('export.title')}</DialogTitle>
       <DialogContent>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
@@ -228,31 +316,27 @@ const ExportDatasetDialog = ({ open, onClose, onExport, projectId }) => {
                   name="fileFormat"
                   value={fileFormat}
                   onChange={handleFileFormatChange}
-                  row
-                >
+                  row>
                   <FormControlLabel value="json" control={<Radio />} label="JSON" />
                   <FormControlLabel value="jsonl" control={<Radio />} label="JSONL" />
-                  {/* <FormControlLabel value="csv" control={<Radio />} label="CSV" /> */}
-                  {/* 暂时注释，修复完问题后再放开 */}
+                  <FormControlLabel value="csv" control={<Radio />} label="CSV" />
                 </RadioGroup>
               </FormControl>
             </Box>
 
             {/* 数据集风格 */}
-            {fileFormat !== 'csv' && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                  {t('export.format')}
-                </Typography>
-                <FormControl component="fieldset">
-                  <RadioGroup aria-label="format" name="format" value={formatType} onChange={handleFormatChange} row>
-                    <FormControlLabel value="alpaca" control={<Radio />} label="Alpaca" />
-                    <FormControlLabel value="sharegpt" control={<Radio />} label="ShareGPT" />
-                    <FormControlLabel value="custom" control={<Radio />} label={t('export.customFormat')} />
-                  </RadioGroup>
-                </FormControl>
-              </Box>
-            )}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                {t('export.format')}
+              </Typography>
+              <FormControl component="fieldset">
+                <RadioGroup aria-label="format" name="format" value={formatType} onChange={handleFormatChange} row>
+                  <FormControlLabel value="alpaca" control={<Radio />} label="Alpaca" />
+                  <FormControlLabel value="sharegpt" control={<Radio />} label="ShareGPT" />
+                  <FormControlLabel value="custom" control={<Radio />} label={t('export.customFormat')} />
+                </RadioGroup>
+              </FormControl>
+            </Box>
 
             {/* 自定义格式选项 */}
             {formatType === 'custom' && (
@@ -302,65 +386,94 @@ const ExportDatasetDialog = ({ open, onClose, onExport, projectId }) => {
               </Box>
             )}
 
-            {fileFormat !== 'csv' && (
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                  {t('export.example')}
-                </Typography>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                {t('export.example')}
+              </Typography>
+
+              {fileFormat === 'csv' ? (
+                <TableContainer component={Paper} sx={{ mb: 2 }}>
+                  {(() => {
+                    const { headers, rows } = getPreviewData();
+                    const tableKey = `${formatType}-${fileFormat}-${JSON.stringify(customFields)}`;
+                    return (
+                      <Table size="small" key={tableKey}>
+                        <TableHead>
+                          <TableRow>
+                            {headers.map(header => (
+                              <TableCell key={header}>{header}</TableCell>
+                            ))}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {rows.map((row, index) => (
+                            <TableRow key={index}>
+                              {headers.map(header => (
+                                <TableCell key={header}>
+                                  {Array.isArray(row[header]) ? row[header].join(', ') : row[header] || ''}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    );
+                  })()}
+                </TableContainer>
+              ) : (
                 <Paper
                   variant="outlined"
                   sx={{
                     p: 2,
                     backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[900] : theme.palette.grey[100],
                     overflowX: 'auto'
-                  }}
-                >
+                  }}>
                   <pre style={{ margin: 0 }}>
                     {formatType === 'custom'
                       ? getCustomFormatExample()
                       : formatType === 'alpaca'
-                        ? fileFormat === 'json'
-                          ? JSON.stringify(
-                              [
+                      ? fileFormat === 'json'
+                        ? JSON.stringify(
+                            [
+                              {
+                                instruction: '人类指令（必填）', // 映射到 question 字段
+                                input: '人类输入（选填）',
+                                output: '模型回答（必填）', // 映射到 cot+answer 字段
+                                system: '系统提示词（选填）'
+                              }
+                            ],
+                            null,
+                            2
+                          )
+                        : '{"instruction": "人类指令（必填）", "input": "人类输入（选填）", "output": "模型回答（必填）", "system": "系统提示词（选填）"}\n{"instruction": "第二个指令", "input": "", "output": "第二个回答", "system": "系统提示词"}'
+                      : fileFormat === 'json'
+                      ? JSON.stringify(
+                          [
+                            {
+                              messages: [
                                 {
-                                  instruction: '人类指令（必填）', // 映射到 question 字段
-                                  input: '人类输入（选填）',
-                                  output: '模型回答（必填）', // 映射到 cot+answer 字段
-                                  system: '系统提示词（选填）'
-                                }
-                              ],
-                              null,
-                              2
-                            )
-                          : '{"instruction": "人类指令（必填）", "input": "人类输入（选填）", "output": "模型回答（必填）", "system": "系统提示词（选填）"}\n{"instruction": "第二个指令", "input": "", "output": "第二个回答", "system": "系统提示词"}'
-                        : fileFormat === 'json'
-                          ? JSON.stringify(
-                              [
+                                  role: 'system',
+                                  content: '系统提示词（选填）'
+                                },
                                 {
-                                  messages: [
-                                    {
-                                      role: 'system',
-                                      content: '系统提示词（选填）'
-                                    },
-                                    {
-                                      role: 'user',
-                                      content: '人类指令' // 映射到 question 字段
-                                    },
-                                    {
-                                      role: 'assistant',
-                                      content: '模型回答' // 映射到 cot+answer 字段
-                                    }
-                                  ]
+                                  role: 'user',
+                                  content: '人类指令' // 映射到 question 字段
+                                },
+                                {
+                                  role: 'assistant',
+                                  content: '模型回答' // 映射到 cot+answer 字段
                                 }
-                              ],
-                              null,
-                              2
-                            )
-                          : '{"messages": [{"role": "system", "content": "系统提示词（选填）"}, {"role": "user", "content": "人类指令"}, {"role": "assistant", "content": "模型回答"}]}\n{"messages": [{"role": "user", "content": "第二个问题"}, {"role": "assistant", "content": "第二个回答"}]}'}
+                              ]
+                            }
+                          ],
+                          null,
+                          2
+                        )
+                      : '{"messages": [{"role": "system", "content": "系统提示词（选填）"}, {"role": "user", "content": "人类指令"}, {"role": "assistant", "content": "模型回答"}]}\n{"messages": [{"role": "user", "content": "第二个问题"}, {"role": "assistant", "content": "第二个回答"}]}'}
                   </pre>
                 </Paper>
-              </Box>
-            )}
+              )}
+            </Box>
 
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
@@ -390,7 +503,6 @@ const ExportDatasetDialog = ({ open, onClose, onExport, projectId }) => {
             </Box>
           </>
         )}
-
         {/* 第二个标签页：Llama Factory */}
         {currentTab === 1 && (
           <Box sx={{ mt: 2 }}>
