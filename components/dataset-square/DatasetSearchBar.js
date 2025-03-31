@@ -104,7 +104,9 @@ export function DatasetSearchBar() {
         searchUrl = `${site.link}?q=${encodeURIComponent(searchQuery)}`;
       } else {
         // 默认处理方式，在URL后添加搜索参数
-        searchUrl = `${site.link}${site.link.includes('?') ? '&' : '?'}search=${encodeURIComponent(searchQuery)}`;
+        searchUrl = `${site.link}${site.link.includes('?') ? '&' : '?'}search=${encodeURIComponent(
+          searchQuery
+        )}`;
       }
 
       // 保存最近搜索
@@ -224,7 +226,13 @@ export function DatasetSearchBar() {
                       >
                         <ListItemText
                           primary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                              }}
+                            >
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Avatar
                                   sx={{
@@ -243,7 +251,7 @@ export function DatasetSearchBar() {
                               </Box>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                                  "{searchQuery}"
+                                  {searchQuery}
                                 </Typography>
                                 <LaunchIcon fontSize="small" color="action" />
                               </Box>

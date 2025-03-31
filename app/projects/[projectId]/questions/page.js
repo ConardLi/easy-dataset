@@ -400,7 +400,10 @@ export default function QuestionsPage({ params }) {
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.error(t('datasets.generateError'), errorData.error || t('datasets.generateFailed'));
+            console.error(
+              t('datasets.generateError'),
+              errorData.error || t('datasets.generateFailed')
+            );
 
             // 更新进度状态（即使失败也计入已处理）
             setProgress(prev => {
@@ -455,7 +458,11 @@ export default function QuestionsPage({ params }) {
       };
 
       // 并行处理所有问题，最多同时处理2个
-      const results = await processInParallel(selectedQuestions, processQuestion, taskSettings.concurrencyLimit);
+      const results = await processInParallel(
+        selectedQuestions,
+        processQuestion,
+        taskSettings.concurrencyLimit
+      );
 
       // 刷新数据
       fetchData(1);
@@ -536,13 +543,16 @@ export default function QuestionsPage({ params }) {
       });
 
       // 调用删除问题的 API
-      const response = await fetch(`/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ chunkId })
-      });
+      const response = await fetch(
+        `/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ chunkId })
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -618,13 +628,16 @@ export default function QuestionsPage({ params }) {
           console.log('开始删除问题:', { chunkId, questionId });
 
           // 调用删除问题的 API
-          const response = await fetch(`/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ chunkId })
-          });
+          const response = await fetch(
+            `/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ chunkId })
+            }
+          );
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -633,7 +646,9 @@ export default function QuestionsPage({ params }) {
           }
 
           // 从列表中移除已删除的问题，完全复制单个删除的逻辑
-          setQuestions(prev => prev.filter(q => !(q.question === questionId && q.chunkId === chunkId)));
+          setQuestions(prev =>
+            prev.filter(q => !(q.question === questionId && q.chunkId === chunkId))
+          );
 
           successCount++;
           console.log(`问题删除成功: ${questionId}`);
@@ -678,7 +693,9 @@ export default function QuestionsPage({ params }) {
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}
+        >
           <CircularProgress />
         </Box>
       </Container>
@@ -751,7 +768,10 @@ export default function QuestionsPage({ params }) {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Typography variant="body2">
-                  {t('questions.generatingProgress', { completed: progress.completed, total: progress.total })}
+                  {t('questions.generatingProgress', {
+                    completed: progress.completed,
+                    total: progress.total
+                  })}
                 </Typography>
                 <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
                   {t('questions.generatedCount', { count: progress.datasetCount })}
@@ -839,8 +859,12 @@ export default function QuestionsPage({ params }) {
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Checkbox
-                checked={selectedQuestions.length > 0 && selectedQuestions.length === totalQuestions}
-                indeterminate={selectedQuestions.length > 0 && selectedQuestions.length < totalQuestions}
+                checked={
+                  selectedQuestions.length > 0 && selectedQuestions.length === totalQuestions
+                }
+                indeterminate={
+                  selectedQuestions.length > 0 && selectedQuestions.length < totalQuestions
+                }
                 onChange={handleSelectAll}
               />
               <Typography variant="body2" sx={{ ml: 1 }}>
@@ -853,7 +877,8 @@ export default function QuestionsPage({ params }) {
                     const matchesSearch =
                       searchTerm === '' ||
                       question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
+                      (question.label &&
+                        question.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
                     let matchesAnswerFilter = true;
                     if (answerFilter === 'answered') {
@@ -895,10 +920,12 @@ export default function QuestionsPage({ params }) {
                   bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'white',
                   borderRadius: '8px',
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.23)'
+                    borderColor:
+                      theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.23)'
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.87)'
+                    borderColor:
+                      theme.palette.mode === 'dark' ? 'transparent' : 'rgba(0, 0, 0, 0.87)'
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'primary.main'
