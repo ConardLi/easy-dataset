@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getQuestions, saveQuestions } from '@/lib/db/questions';
+import {getQuestions, getQuestionsWithPaginate, saveQuestions} from '@/lib/db/questions';
 import { getDatasets } from '@/lib/db/datasets';
 
 // 获取项目的所有问题
@@ -7,36 +7,21 @@ export async function GET(request, { params }) {
   try {
     const { projectId } = params;
 
+    const searchParams = request.nextUrl.searchParams;
+    const page = searchParams.get('page');
+    const limit = searchParams.get('limit');
+    const filter = searchParams.get('filter');
+    const q = searchParams.get('q') || '';
+
     // 验证项目ID
     if (!projectId) {
       return NextResponse.json({ error: 'Missing project ID' }, { status: 400 });
     }
 
     // 获取问题列表
-    const nestedQuestions = await getQuestions(projectId);
+    const questions = await getQuestionsWithPaginate(projectId, page, limit, filter, q);
 
-    // 获取数据集
-    const datasets = await getDatasets(projectId);
-
-    // 将嵌套的问题数据结构拍平
-    const flattenedQuestions = [];
-
-    nestedQuestions.forEach(item => {
-      const { chunkId, questions } = item;
-
-      if (questions && Array.isArray(questions)) {
-        questions.forEach(question => {
-          const dataSites = datasets.filter(dataset => dataset.question === question.question);
-          flattenedQuestions.push({
-            ...question,
-            chunkId,
-            dataSites
-          });
-        });
-      }
-    });
-
-    return NextResponse.json(flattenedQuestions);
+    return NextResponse.json(questions);
   } catch (error) {
     console.error('Failed to get questions:', error);
     return NextResponse.json({ error: error.message || 'Failed to get questions' }, { status: 500 });

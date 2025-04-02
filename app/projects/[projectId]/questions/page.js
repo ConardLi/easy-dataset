@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Container,
@@ -41,6 +41,7 @@ import useTaskSettings from '@/hooks/useTaskSettings';
 import QuestionEditDialog from './components/QuestionEditDialog';
 import { useQuestionEdit } from './hooks/useQuestionEdit';
 import { useSnackbar } from '@/hooks/useSnackbar';
+import {filter} from "framer-motion/m";
 
 export default function QuestionsPage({ params }) {
   const { t } = useTranslation();
@@ -49,6 +50,11 @@ export default function QuestionsPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [questions, setQuestions] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
+  const [totalQuestions, setTotalQuestions] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [tags, setTags] = useState([]);
   const [chunks, setChunks] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
@@ -114,14 +120,7 @@ export default function QuestionsPage({ params }) {
       const tagsData = await tagsResponse.json();
       setTags(tagsData.tags || []);
 
-      // 获取问题列表
-      const questionsResponse = await fetch(`/api/projects/${projectId}/questions`);
-      if (!questionsResponse.ok) {
-        throw new Error(t('common.fetchError'));
-      }
-      const questionsData = await questionsResponse.json();
-      setQuestions(questionsData || []);
-
+      await getQuestions();
       // 获取文本块列表
       const response = await fetch(`/api/projects/${projectId}/split`);
 
@@ -146,10 +145,29 @@ export default function QuestionsPage({ params }) {
     }
   };
 
+  const getQuestions = useCallback(async () => {
+    // 获取问题列表
+    const questionsResponse = await fetch(`/api/projects/${projectId}/questions?page=${page}&limit=${limit}&filter=${answerFilter}&q=${searchTerm}`);
+    if (!questionsResponse.ok) {
+      throw new Error(t('common.fetchError'));
+    }
+    const questionsData = await questionsResponse.json();
+    setQuestions(questionsData.data || []);
+    setTotalQuestions(questionsData.total)
+    setTotalPages(questionsData.totalPages)
+  }, [projectId, page, limit, answerFilter, searchTerm, t]);
+
   // 获取所有数据
   useEffect(() => {
     fetchData();
   }, [projectId]);
+
+  useEffect(() => {
+    (async () => {
+      await getQuestions();
+
+    })()
+  }, [answerFilter,  searchTerm, page])
 
   // 处理标签页切换
   const handleTabChange = (event, newValue) => {
@@ -562,6 +580,9 @@ export default function QuestionsPage({ params }) {
         message: t('common.deleteSuccess'),
         severity: 'success'
       });
+
+      await getQuestions();
+
     } catch (error) {
       console.error('删除问题失败:', error);
       setSnackbar({
@@ -654,6 +675,9 @@ export default function QuestionsPage({ params }) {
             : `删除完成，成功: ${successCount}, 失败: ${selectedQuestions.length - successCount}`,
         severity: successCount === selectedQuestions.length ? 'success' : 'warning'
       });
+
+      await getQuestions();
+
     } catch (error) {
       console.error('批量删除问题失败:', error);
       setSnackbar({
@@ -695,8 +719,6 @@ export default function QuestionsPage({ params }) {
     );
   }
 
-  // 计算问题总数
-  const totalQuestions = questions.length;
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
@@ -770,25 +792,7 @@ export default function QuestionsPage({ params }) {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">
-          {t('questions.title')} (
-          {
-            questions.filter(question => {
-              const matchesSearch =
-                searchTerm === '' ||
-                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
-
-              let matchesAnswerFilter = true;
-              if (answerFilter === 'answered') {
-                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
-              } else if (answerFilter === 'unanswered') {
-                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
-              }
-
-              return matchesSearch && matchesAnswerFilter;
-            }).length
-          }
-          )
+          {t('questions.title')} ({totalQuestions})
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
@@ -923,23 +927,11 @@ export default function QuestionsPage({ params }) {
 
         <TabPanel value={activeTab} index={0}>
           <QuestionListView
-            questions={questions.filter(question => {
-              // 搜索词筛选
-              const matchesSearch =
-                searchTerm === '' ||
-                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
-
-              // 答案状态筛选
-              let matchesAnswerFilter = true;
-              if (answerFilter === 'answered') {
-                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
-              } else if (answerFilter === 'unanswered') {
-                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
-              }
-
-              return matchesSearch && matchesAnswerFilter;
-            })}
+              totalQuestions={totalQuestions}
+              totalPages={totalPages}
+              setPage={setPage}
+              page={page}
+            questions={questions}
             chunks={chunks}
             selectedQuestions={selectedQuestions}
             onSelectQuestion={handleSelectQuestion}
