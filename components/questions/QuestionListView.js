@@ -28,11 +28,13 @@ export default function QuestionListView({
   onDeleteQuestion,
   onGenerateDataset,
   projectId,
-  onEditQuestion
+  onEditQuestion,
+  totalPages,
+  setPage,
+  page
 }) {
   const { t } = useTranslation();
-  // 分页状态
-  const [page, setPage] = useState(1);
+
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
   // 批量操作显示提示
@@ -110,15 +112,6 @@ export default function QuestionListView({
     }
   };
 
-  // 使用传入的问题列表
-  const filteredQuestions = questions;
-
-  // 计算当前页的问题
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentQuestions = filteredQuestions.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
-
   return (
     <Box style={{ padding: '20px' }}>
       {/* 问题列表 */}
@@ -152,7 +145,7 @@ export default function QuestionListView({
 
         <Divider />
 
-        {currentQuestions.map((question, index) => {
+        {questions.map((question, index) => {
           const isSelected = isQuestionSelected(question.question, question.chunkId);
           const questionKey = JSON.stringify({ question: question.question, chunkId: question.chunkId });
 
@@ -271,7 +264,6 @@ export default function QuestionListView({
                   </Tooltip>
                 </Box>
               </Box>
-              {index < currentQuestions.length - 1 && <Divider />}
             </Box>
           );
         })}
