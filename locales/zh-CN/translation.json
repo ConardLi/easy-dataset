@@ -48,9 +48,11 @@
     "huggingfaceNotImplemented": "Hugging Face 功能暂未实现",
     "concurrencyLimit": "并发限制数量",
     "saveTaskConfig": "保存任务配置",
-    "minerUSettings": "MinerU 设置",
-    "minerUToken": "MinerU Token",
-    "minerUHelper": "MinerU Token 只有14天有效期，请及时更换Token"
+    "pdfSettings": "PDF文件转换配置",
+    "minerUToken": "MinerU Token 配置",
+    "minerUHelper": "MinerU Token 只有14天有效期，请及时更换Token",
+    "vision": "自定义视觉大模型配置",
+    "visionConcurrencyLimit": "自定义视觉大模型并发限制数量"
   },
   "questions": {
     "filterAll": "全部问题",
@@ -431,7 +433,11 @@
     "apiKeyConfigured": "API Key 已经配置",
     "apiKeyNotConfigured": "API Key 未配置",
     "temperature": "模型温度",
-    "maxTokens": "最大生成 Token 数"
+    "maxTokens": "最大生成 Token 数",
+    "type": "模型标签",
+    "text": "大语言模型",
+    "vision": "视觉大模型",
+    "typeTips": "如果希望使用自定义视觉模型解析PDF请务必配置至少一个视觉大模型"
   },
   "stats": {
     "ongoingProjects": "正在运行的项目",

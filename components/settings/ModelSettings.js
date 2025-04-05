@@ -23,7 +23,10 @@ import {
   Avatar,
   Stack,
   Tooltip,
-  Slider
+  Slider,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -80,6 +83,7 @@ export default function ModelSettings({ projectId }) {
     provider: '',
     providerId: '',
     name: '',
+    type: "text",
     endpoint: '',
     apiKey: ''
   });
@@ -317,8 +321,12 @@ export default function ModelSettings({ projectId }) {
         // 保存更新后的模型引用，用于更新 localStorage
         updatedModel = updatedModels.find(m => m.id === editingModel.id);
         // 如果更新的是当前选中的模型，同时更新 localStorage
-        localStorage.setItem('selectedModelInfo', JSON.stringify(updatedModel));
-        console.log('已更新 localStorage 中的模型信息:', updatedModel);
+        const modelInfo = JSON.parse(localStorage.getItem('selectedModelInfo'));
+        if(modelInfo.id === updatedModel.id){
+          localStorage.setItem('selectedModelInfo', JSON.stringify(updatedModel));
+          console.log('已更新 localStorage 中的模型信息:', updatedModel);
+        }
+        
         return updatedModels;
       });
     } else {
@@ -488,7 +496,14 @@ export default function ModelSettings({ projectId }) {
                       variant="outlined"
                     />
                   </Tooltip>
-
+                  <Tooltip title={t("models.typeTips")}>
+                    <Chip sx={{ marginLeft: '5px' }}
+                        label={t(`models.${model.type || 'text'}`)}
+                        size="small"
+                        color={model.type === "vision"? "secondary" : "info"}
+                        variant="outlined"
+                      />
+                  </Tooltip>
                   <IconButton size="small" onClick={() => handleOpenModelDialog(model)} color="primary">
                     <EditIcon fontSize="small" />
                   </IconButton>
@@ -628,6 +643,22 @@ export default function ModelSettings({ projectId }) {
                 onChange={handleModelFormChange}
                 placeholder="例如: sk-..."
               />
+            </Grid>
+            {/* 新增：视觉模型选择项 */}
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>{t('models.type')}</InputLabel>
+                <Select
+                  label={t('models.type')}
+                  value={modelForm.type || 'text'}
+                  onChange={handleModelFormChange}
+                  name="type"
+                  
+                >
+                  <MenuItem value="text">{t('models.text')}</MenuItem>
+                  <MenuItem value="vision">{t('models.vision')}</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <Typography id="question-generation-length-slider" gutterBottom>

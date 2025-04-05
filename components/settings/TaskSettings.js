@@ -12,7 +12,11 @@ import {
   Slider,
   InputAdornment,
   Alert,
-  Snackbar
+  Snackbar,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -21,7 +25,7 @@ import useTaskSettings from '@/hooks/useTaskSettings';
 
 export default function TaskSettings({ projectId }) {
   const { t } = useTranslation();
-  const { taskSettings, setTaskSettings, loading, error, success, setSuccess } = useTaskSettings(projectId);
+  const { taskSettings, setTaskSettings, loading, error, success, setSuccess, visionModels } = useTaskSettings(projectId);
   // 处理设置变更
   const handleSettingChange = e => {
     const { name, value } = e.target;
@@ -52,13 +56,6 @@ export default function TaskSettings({ projectId }) {
 
       if (!response.ok) {
         throw new Error(t('settings.saveTasksFailed'));
-      }
-
-      const minerUToken = taskSettings.minerUToken;
-      if (minerUToken !== undefined || minerUToken !== null || minerUToken !== '') {
-        localStorage.setItem("isSettingMinerU"+projectId,true);
-      }else{
-        localStorage.removeItem("isSettingMinerU"+projectId);
       }
 
       setSuccess(true);
@@ -183,7 +180,7 @@ export default function TaskSettings({ projectId }) {
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              {t('settings.minerUSettings')}
+              {t('settings.pdfSettings')}
             </Typography>
             <TextField
               fullWidth
@@ -193,6 +190,37 @@ export default function TaskSettings({ projectId }) {
               onChange={handleSettingChange}
               type="password"
               helperText={t('settings.minerUHelper')}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+                <InputLabel>{t('settings.vision')}</InputLabel>
+                <Select
+                  label={t('settings.vision')}
+                  value={taskSettings.vision}
+                  onChange={handleSettingChange}
+                  name="vision"
+                >
+                  {visionModels.map((item) => (
+                      <MenuItem 
+                          key={item.id} 
+                          value={item.id}  
+                      >
+                          {item.provider} ({item.name}) 
+                      </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label={t('settings.visionConcurrencyLimit')}
+              name="visionConcurrencyLimit"
+              value={taskSettings.visionConcurrencyLimit ? taskSettings.visionConcurrencyLimit : 5}
+              onChange={handleSettingChange}
+              type="number"
             />
           </Grid>
 

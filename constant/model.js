@@ -2,18 +2,21 @@ export const MODEL_PROVIDERS = [
   {
     id: 'ollama',
     name: 'Ollama',
+    type: "text",
     defaultEndpoint: 'http://127.0.0.1:11434/v1/',
     defaultModels: []
   },
   {
     id: 'openai',
     name: 'OpenAI',
+    type: "text",
     defaultEndpoint: 'https://api.openai.com/v1/',
     defaultModels: ['gpt-4o', 'gpt-4o-mini', 'o1-mini']
   },
   {
     id: 'siliconflow',
     name: '硅基流动',
+    type: "text",
     defaultEndpoint: 'https://api.siliconflow.cn/v1/',
     defaultModels: [
       'deepseek-ai/DeepSeek-R1',
@@ -25,42 +28,49 @@ export const MODEL_PROVIDERS = [
   {
     id: 'deepseek',
     name: 'DeepSeek',
+    type: "text",
     defaultEndpoint: 'https://api.deepseek.com/v1/',
     defaultModels: ['deepseek-chat', 'deepseek-reasoner']
   },
   {
     id: '302ai',
     name: '302.AI',
+    type: "text",
     defaultEndpoint: 'https://api.302.ai/v1/',
     defaultModels: ['Doubao-pro-128k', 'deepseek-r1', 'kimi-latest', 'qwen-max']
   },
   {
     id: 'zhipu',
     name: '智谱AI',
+    type: "text",
     defaultEndpoint: 'https://open.bigmodel.cn/api/paas/v4/',
     defaultModels: ['glm-4-flash', 'glm-4-flashx', 'glm-4-plus', 'glm-4-long']
   },
   {
     id: 'huoshan',
     name: '火山引擎',
+    type: "text",
     defaultEndpoint: 'https://ark.cn-beijing.volces.com/api/v3/',
     defaultModels: []
   },
   {
     id: 'groq',
     name: 'Groq',
+    type: "text",
     defaultEndpoint: 'https://api.groq.com/openai',
     defaultModels: ['Gemma 7B', 'LLaMA3 8B', 'LLaMA3 70B']
   },
   {
     id: 'grok',
     name: 'Grok',
+    type: "text",
     defaultEndpoint: 'https://api.x.ai',
     defaultModels: ['Grok Beta']
   },
   {
     id: 'OpenRouter',
     name: 'OpenRouter',
+    type: "text",
     defaultEndpoint: 'https://openrouter.ai/api/v1/',
     defaultModels: [
       'google/gemma-2-9b-it:free',
@@ -71,6 +81,7 @@ export const MODEL_PROVIDERS = [
   {
     id: 'alibailian',
     name: '阿里云百炼',
+    type: "text",
     defaultEndpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     defaultModels: ['qwen-max-latest', 'qwen-max-2025-01-25']
   }

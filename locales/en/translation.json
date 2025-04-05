@@ -48,9 +48,11 @@
     "huggingfaceNotImplemented": "Hugging Face functionality is not yet implemented",
     "concurrencyLimit": "Concurrency Limit",
     "saveTaskConfig": "Save Task Config",
-    "minerUSettings": "MinerU Settings",
-    "minerUToken": "MinerU Token",
-    "minerUHelper": "MinerU Token is valid for only 14 days, please update the Token in time"
+    "pdfSettings": "PDF file conversion configuration",
+    "minerUToken": "MinerU Token configuration",
+    "minerUHelper": "MinerU Token is valid for only 14 days. Please replace the Token in time",
+    "vision": "Custom large-scale vision model configuration",
+    "visionConcurrencyLimit": "Concurrency limit for custom large-scale vision models"
   },
   "questions": {
     "filterAll": "All Questions",
@@ -431,7 +433,11 @@
     "apiKeyConfigured": "API Key Configured",
     "apiKeyNotConfigured": "API Key Not Configured",
     "temperature": "Temperature",
-    "maxTokens": "Max Tokens"
+    "maxTokens": "Max Tokens",
+    "type": "Model Type",
+    "text": "Large Language Model",
+    "vision": "Vision Large Model",
+    "typeTips": "If you want to use a custom vision model to parse PDFs, please configure at least one vision large model"
   },
   "stats": {
     "ongoingProjects": "Ongoing Projects",

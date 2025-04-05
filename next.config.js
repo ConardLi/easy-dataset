@@ -1,7 +1,7 @@
 // 最佳实践配置示例
 module.exports = {
     experimental: {
-      serverComponentsExternalPackages: ['@opendocsg/pdf2md'],
+      serverComponentsExternalPackages: ['@opendocsg/pdf2md','pdfjs-dist'],
     },
     webpack: (config, { isServer }) => {
       if (!isServer) {

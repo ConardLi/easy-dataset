@@ -31,6 +31,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [pdfProcessConfirmOpen, setpdfProcessConfirmOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState(null);
+  const [taskSettings, setTaskSettings] = useState(null);
 
 
   // 设置PDF文件的处理方式
@@ -56,6 +57,17 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
 
       const data = await response.json();
       setUploadedFiles(data.files || []);
+
+      //获取到配置信息，用于判断用户是否启用MinerU和视觉大模型
+      const taskResponse = await fetch(`/api/projects/${projectId}/tasks`);
+        if (!taskResponse.ok) {
+          throw new Error(t('settings.fetchTasksFailed'));
+        }
+
+      const taskData = await taskResponse.json();
+
+      setTaskSettings(taskData);
+
     } catch (error) {
       console.error('获取文件列表出错:', error);
       setError(error.message);
@@ -320,6 +332,7 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
         onRadioChange={handleRadioChange}
         value={pdfStrategy}
         projectId={projectId}
+        taskSettings={taskSettings}
       />
     </Paper>    
   );
