@@ -43,7 +43,7 @@ export default function UploadArea({ theme, files, uploading, uploadedFiles, onF
         <input
           type="file"
           hidden
-          accept=".md,.txt,.docx,.pdf"
+          accept=".md,.mdx,.txt,.docx,.pdf"
           multiple
           onChange={onFileSelect}
           // disabled={uploadedFiles.length > 0}

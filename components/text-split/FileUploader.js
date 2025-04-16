@@ -128,12 +128,9 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
       return;
     }
 
-    const validFiles = selectedFiles.filter(
-      file => file.name.endsWith('.md') || file.name.endsWith('.txt') || file.name.endsWith('.docx') || file.name.endsWith('.pdf')
-    );
-    const invalidFiles = selectedFiles.filter(
-      file => !file.name.endsWith('.md') && !file.name.endsWith('.txt') && !file.name.endsWith('.docx') && !file.name.endsWith('.pdf')
-    );
+    const supportedFileTypes = ['.md', '.mdx', '.txt', '.docx', '.pdf'];
+    const validFiles = selectedFiles.filter(file => supportedFileTypes.some(type => file.name.endsWith(type)));
+    const invalidFiles = selectedFiles.filter(file => !supportedFileTypes.some(type => file.name.endsWith(type)) );
 
     if (invalidFiles.length > 0) {
       setError(t('textSplit.unsupportedFormat', { files: invalidFiles.map(f => f.name).join(', ') }));
@@ -190,22 +187,24 @@ export default function FileUploader({ projectId, onUploadSuccess, onProcessStar
       for (const file of files) {
         let fileContent;
         let fileName = file.name;
+        let extension = file.name.split('.').pop();
 
         // 如果是 docx 文件，先转换为 markdown
-        if (file.name.endsWith('.docx')) {
+        if (extension == 'docx') {
           const arrayBuffer = await file.arrayBuffer();
           const result = await mammoth.convertToMarkdown({ arrayBuffer });
           fileContent = result.value;
-          fileName = file.name.replace('.docx', '.md');
         } else {
-          // 对于 md 和 txt 文件，直接读取内容
           const reader = new FileReader();
           fileContent = await new Promise((resolve, reject) => {
             reader.onload = () => resolve(reader.result);
             reader.onerror = reject;
             reader.readAsArrayBuffer(file);
           });
-          fileName = file.name.replace('.txt', '.md');
+        }
+
+        if (['md', 'mdx', 'txt', 'docx'].includes(extension)) {
+          fileName = fileName.replace(`.${extension}`, '.md');
         }
 
         // 使用自定义请求头发送文件
