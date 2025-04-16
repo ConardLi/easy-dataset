@@ -72,7 +72,8 @@
     "react-markdown": "^10.0.1",
     "sharp": "^0.33.1",
     "uuid": "^11.1.0",
-    "zhipu-ai-provider": "^0.1.1"
+    "zhipu-ai-provider": "^0.1.1",
+    "zod": "^3.24.2"
   },
   "license": "Apache-2.0",
   "devDependencies": {
