@@ -13,3 +13,4 @@ mock-login-callback.ts
 /local-db
 /test
 /dist
+.idea
