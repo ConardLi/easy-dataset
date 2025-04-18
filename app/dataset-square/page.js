@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 
 export default function DatasetSquarePage() {
   const [projects, setProjects] = useState([]);
-  const [models, setModels] = useState([]);
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -24,13 +23,6 @@ export default function DatasetSquarePage() {
           const projectsData = await response.json();
           setProjects(projectsData);
         }
-
-        // 获取模型列表
-        const modelsResponse = await fetch('/api/models');
-        if (modelsResponse.ok) {
-          const modelsData = await modelsResponse.json();
-          setModels(modelsData);
-        }
       } catch (error) {
         console.error('获取数据失败:', error);
       }
@@ -42,7 +34,7 @@ export default function DatasetSquarePage() {
   return (
     <main>
       {/* 导航栏 */}
-      <Navbar projects={projects} models={models} hideModels={true} />
+      <Navbar projects={projects} />
 
       {/* 头部区域 */}
       <Box

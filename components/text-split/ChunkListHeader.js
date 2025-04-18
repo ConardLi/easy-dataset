@@ -10,7 +10,7 @@ export default function ChunkListHeader({
   onSelectAll,
   onBatchGenerateQuestions,
   questionFilter,
-  onQuestionFilterChange
+  setQuestionFilter
 }) {
   const { t } = useTranslation();
   return (
@@ -28,7 +28,7 @@ export default function ChunkListHeader({
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Select value={questionFilter} onChange={onQuestionFilterChange} size="small" sx={{ minWidth: 150 }}>
+        <Select value={questionFilter} onChange={setQuestionFilter} size="small" sx={{ minWidth: 150 }}>
           <MenuItem value="all">{t('textSplit.allChunks')}</MenuItem>
           <MenuItem value="generated">{t('textSplit.generatedQuestions2')}</MenuItem>
           <MenuItem value="ungenerated">{t('textSplit.ungeneratedQuestions')}</MenuItem>

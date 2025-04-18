@@ -34,6 +34,8 @@
     "saveBasicInfo": "保存基本信息",
     "saveSuccess": "保存成功",
     "saveFailed": "保存失败",
+    "deleteSuccess": "删除成功",
+    "deleteFailed": "删除失败",
     "fetchTasksFailed": "获取任务配置失败",
     "saveTasksFailed": "保存任务配置失败",
     "textSplitSettings": "文本分割设置",
@@ -127,6 +129,7 @@
     "confirmDeleteQuestion": "确认删除此问题吗？此操作不可恢复。",
     "deleteSuccess": "删除成功",
     "visitGitHub": "访问GitHub仓库",
+    "syncOldData": "同步文件数据",
     "copy": "复制",
     "copied": "已复制"
   },

@@ -42,11 +42,10 @@ export function useQuestionEdit(projectId, onSuccess) {
                 label: formData.label
               }
             : {
+                id: formData.id,
                 question: formData.question,
-                oldQuestion: editingQuestion.question,
                 chunkId: formData.chunkId,
-                label: formData.label,
-                oldChunkId: editingQuestion.chunkId
+                label: formData.label
               }
         )
       });

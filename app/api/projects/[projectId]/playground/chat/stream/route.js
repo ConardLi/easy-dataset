@@ -16,15 +16,7 @@ export async function POST(request, { params }) {
     }
 
     // 创建 LLM 客户端
-    const llmClient = new LLMClient({
-      provider: model.provider,
-      endpoint: model.endpoint,
-      apiKey: model.apiKey,
-      model: model.name,
-      temperature: model.temperature,
-      maxTokens: model.maxTokens,
-      type: model.type // 添加模型类型，用于区分语言模型和视觉模型
-    });
+    const llmClient = new LLMClient(model);
 
     // 格式化消息历史
     const formattedMessages = messages.map(msg => {

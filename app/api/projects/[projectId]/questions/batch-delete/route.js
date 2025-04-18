@@ -2,41 +2,22 @@ import { NextResponse } from 'next/server';
 import { batchDeleteQuestions } from '@/lib/db/questions';
 
 // 批量删除问题
-export async function DELETE(request, { params }) {
+export async function DELETE(request) {
   try {
-    const { projectId } = params;
+    const body = await request.json();
+    const { questionIds } = body;
 
-    // 验证项目ID
-    if (!projectId) {
-      return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
+    // 验证参数
+    if (questionIds.length === 0) {
+      return NextResponse.json({ error: 'Question ID is required' }, { status: 400 });
     }
 
-    // 从请求体中获取要删除的问题列表
-    const { questions } = await request.json();
+    // 删除问题
+    await batchDeleteQuestions(questionIds);
 
-    if (!questions || !Array.isArray(questions) || questions.length === 0) {
-      return NextResponse.json({ error: 'Questions list is required' }, { status: 400 });
-    }
-
-    // 验证每个问题都有必要的字段
-    for (const question of questions) {
-      if (!question.questionId || !question.chunkId) {
-        return NextResponse.json(
-          { error: 'Question information is incomplete, must include questionId and chunkId' },
-          { status: 400 }
-        );
-      }
-    }
-
-    // 批量删除问题
-    await batchDeleteQuestions(projectId, questions);
-
-    return NextResponse.json({
-      success: true,
-      message: `Successfully deleted ${questions.length} questions`
-    });
+    return NextResponse.json({ success: true, message: 'Delete successful' });
   } catch (error) {
-    console.error('Failed to batch delete questions:', error);
-    return NextResponse.json({ error: error.message || 'Failed to batch delete questions' }, { status: 500 });
+    console.error('Delete failed:', error);
+    return NextResponse.json({ error: error.message || 'Delete failed' }, { status: 500 });
   }
 }

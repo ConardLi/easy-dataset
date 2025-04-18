@@ -1,34 +1,32 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormControl, Select, MenuItem, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai/index';
+import { modelConfigListAtom } from '@/lib/store';
 
-export default function ModelSelect({ models = [], selectedModel, onChange, size = 'small', minWidth = 180 }) {
+export default function ModelSelect({ size = 'small', minWidth = 180 }) {
   const theme = useTheme();
   const { t } = useTranslation();
-
+  const models = useAtomValue(modelConfigListAtom);
+  let selectedModelId = localStorage.getItem('selectedModelId');
+  const [selectedModel, setSelectedModel] = useState(selectedModelId ? selectedModelId : models[0]?.id || '');
   const handleModelChange = event => {
     if (!event || !event.target) return;
     const newModelId = event.target.value;
 
     // 找到选中的模型对象
     const selectedModelObj = models.find(model => model.id === newModelId);
-
     if (selectedModelObj) {
+      setSelectedModel(newModelId);
       // 将完整的模型信息存储到 localStorage
+      localStorage.setItem('selectedModelId', newModelId);
       localStorage.setItem('selectedModelInfo', JSON.stringify(selectedModelObj));
     } else {
       // 如果没有找到对应模型，则只存储ID
       localStorage.removeItem('selectedModelInfo');
     }
-
-    // 通知父组件
-    onChange?.(event);
-
-    // 触发模型选择变化事件
-    const modelChangeEvent = new CustomEvent('model-selection-changed');
-    window.dispatchEvent(modelChangeEvent);
   };
 
   return (
@@ -67,15 +65,15 @@ export default function ModelSelect({ models = [], selectedModel, onChange, size
         </MenuItem>
         {models
           .filter(m => {
-            if (m.provider === 'Ollama') {
-              return m.name && m.endpoint;
+            if (m.providerId.toLowerCase() === 'ollama') {
+              return m.modelName && m.endpoint;
             } else {
-              return m.name && m.endpoint && m.apiKey;
+              return m.modelName && m.endpoint && m.apiKey;
             }
           })
           .map(model => (
             <MenuItem key={model.id} value={model.id}>
-              {model.provider}: {model.name}
+              {model.providerName}: {model.modelName}
             </MenuItem>
           ))}
       </Select>

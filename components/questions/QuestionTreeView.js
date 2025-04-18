@@ -24,41 +24,31 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import EditIcon from '@mui/icons-material/Edit';
 import FolderIcon from '@mui/icons-material/Folder';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import { useGenerateDataset } from '@/hooks/useGenerateDataset';
 
 /**
  * 问题树视图组件
  * @param {Object} props
  * @param {Array} props.questions - 问题列表
- * @param {Array} props.chunks - 文本块列表
  * @param {Array} props.tags - 标签树
  * @param {Array} props.selectedQuestions - 已选择的问题ID列表
  * @param {Function} props.onSelectQuestion - 选择问题的回调函数
  * @param {Function} props.onDeleteQuestion - 删除问题的回调函数
- * @param {Function} props.onGenerateDataset - 生成数据集的回调函数
  */
 export default function QuestionTreeView({
   questions = [],
-  chunks = [],
   tags = [],
   selectedQuestions = [],
   onSelectQuestion,
   onDeleteQuestion,
-  onGenerateDataset,
-  onEditQuestion
+  onEditQuestion,
+  projectId
 }) {
   const { t } = useTranslation();
   const [expandedTags, setExpandedTags] = useState({});
   const [questionsByTag, setQuestionsByTag] = useState({});
   const [processingQuestions, setProcessingQuestions] = useState({});
-
-  // 使用 useMemo 缓存 chunks 的映射，避免在渲染时重复查找
-  const chunksMap = useMemo(() => {
-    const map = {};
-    chunks.forEach(chunk => {
-      map[chunk.id] = chunk.title || chunk.id;
-    });
-    return map;
-  }, [chunks]);
+  const { generateSingleDataset } = useGenerateDataset();
 
   // 初始化时，将所有标签设置为收起状态（而不是展开状态）
   useEffect(() => {
@@ -179,35 +169,24 @@ export default function QuestionTreeView({
   );
 
   // 处理生成数据集 - 使用 useCallback 优化
-  const handleGenerateDataset = useCallback(
-    async questionKey => {
-      if (!onGenerateDataset) return;
-
-      const [question, chunkId] = JSON.parse(questionKey);
-      setProcessingQuestions(prev => ({
-        ...prev,
-        [questionKey]: true
-      }));
-
-      try {
-        await onGenerateDataset(question, chunkId);
-      } catch (error) {
-        console.error('生成数据集失败:', error);
-      } finally {
-        setProcessingQuestions(prev => {
-          const newState = { ...prev };
-          delete newState[questionKey];
-          return newState;
-        });
-      }
-    },
-    [onGenerateDataset]
-  );
+  const handleGenerateDataset = async (questionId, questionInfo) => {
+    // 设置处理状态
+    setProcessingQuestions(prev => ({
+      ...prev,
+      [questionId]: true
+    }));
+    await generateSingleDataset({ projectId, questionId, questionInfo });
+    // 重置处理状态
+    setProcessingQuestions(prev => ({
+      ...prev,
+      [questionId]: false
+    }));
+  };
 
   // 渲染单个问题项 - 使用 useCallback 优化
   const renderQuestionItem = useCallback(
     (question, index, total) => {
-      const questionKey = JSON.stringify({ question: question.question, chunkId: question.chunkId });
+      const questionKey = question.id;
       return (
         <QuestionItem
           key={questionKey}
@@ -220,12 +199,11 @@ export default function QuestionTreeView({
           onGenerate={handleGenerateDataset}
           onEdit={onEditQuestion}
           isProcessing={processingQuestions[questionKey]}
-          chunkTitle={chunksMap[question.chunkId]}
           t={t}
         />
       );
     },
-    [isQuestionSelected, onSelectQuestion, onDeleteQuestion, handleGenerateDataset, processingQuestions, chunksMap, t]
+    [isQuestionSelected, onSelectQuestion, onDeleteQuestion, handleGenerateDataset, processingQuestions, t]
   );
 
   // 计算标签及其子标签下的所有问题数量 - 使用 useMemo 缓存计算结果
@@ -376,10 +354,10 @@ export default function QuestionTreeView({
 
 // 使用 memo 优化问题项渲染
 const QuestionItem = memo(
-  ({ question, index, total, isSelected, onSelect, onDelete, onGenerate, onEdit, isProcessing, chunkTitle, t }) => {
-    const questionKey = JSON.stringify({ question: question.question, chunkId: question.chunkId });
+  ({ question, index, total, isSelected, onSelect, onDelete, onGenerate, onEdit, isProcessing, t }) => {
+    const questionKey = question.id;
     return (
-      <Box key={questionKey}>
+      <Box key={question.id}>
         <ListItem
           sx={{
             pl: 4,
@@ -413,7 +391,7 @@ const QuestionItem = memo(
             }
             secondary={
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                {t('datasets.source')}: {chunkTitle || question.chunkId}
+                {t('datasets.source')}: {question.chunk.name || question.chunkId}
               </Typography>
             }
           />
@@ -435,7 +413,12 @@ const QuestionItem = memo(
               </IconButton>
             </Tooltip>
             <Tooltip title={t('datasets.generateDataset')}>
-              <IconButton size="small" sx={{ mr: 1 }} onClick={() => onGenerate(questionKey)} disabled={isProcessing}>
+              <IconButton
+                size="small"
+                sx={{ mr: 1 }}
+                onClick={() => onGenerate(question.id, question.question)}
+                disabled={isProcessing}
+              >
                 {isProcessing ? <CircularProgress size={16} /> : <AutoFixHighIcon fontSize="small" />}
               </IconButton>
             </Tooltip>

@@ -13,8 +13,6 @@ import {
   CircularProgress,
   Divider,
   Checkbox,
-  Snackbar,
-  Alert,
   TextField,
   InputAdornment,
   Stack,
@@ -36,31 +34,66 @@ import AddIcon from '@mui/icons-material/Add';
 import QuestionListView from '@/components/questions/QuestionListView';
 import QuestionTreeView from '@/components/questions/QuestionTreeView';
 import TabPanel from '@/components/text-split/components/TabPanel';
-import request from '@/lib/util/request';
 import useTaskSettings from '@/hooks/useTaskSettings';
 import QuestionEditDialog from './components/QuestionEditDialog';
 import { useQuestionEdit } from './hooks/useQuestionEdit';
-import { useSnackbar } from '@/hooks/useSnackbar';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useAtomValue } from 'jotai/index';
+import { selectedModelInfoAtom } from '@/lib/store';
+import { useGenerateDataset } from '@/hooks/useGenerateDataset';
 
 export default function QuestionsPage({ params }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { projectId } = params;
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [questions, setQuestions] = useState([]);
+  // 问题数据
+  const [questions, setQuestions] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [answerFilter, setAnswerFilter] = useState('all'); // 'all', 'answered', 'unanswered'
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm);
   const [tags, setTags] = useState([]);
-  const [chunks, setChunks] = useState([]);
+  const model = useAtomValue(selectedModelInfoAtom);
+  const { generateMultipleDataset } = useGenerateDataset();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const getQuestionList = async () => {
+    try {
+      // 获取问题列表
+      const questionsResponse = await axios.get(
+        `/api/projects/${projectId}/questions?page=${currentPage}&size=10&status=${answerFilter}&input=${searchTerm}`
+      );
+      if (questionsResponse.status !== 200) {
+        throw new Error(t('common.fetchError'));
+      }
+      setQuestions(questionsResponse.data || {});
+
+      // 获取标签树
+      const tagsResponse = await axios.get(`/api/projects/${projectId}/tags`);
+      if (tagsResponse.status !== 200) {
+        throw new Error(t('common.fetchError'));
+      }
+      setTags(tagsResponse.data.tags || []);
+
+      setLoading(false);
+    } catch (error) {
+      console.error(t('common.fetchError'), error);
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    getQuestionList();
+  }, [currentPage, answerFilter, debouncedSearchTerm]);
+
   const [processing, setProcessing] = useState(false);
-  const [answerFilter, setAnswerFilter] = useState('all'); // 'all', 'answered', 'unanswered'
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success'
-  });
+
   const { taskSettings } = useTaskSettings(projectId);
 
   // 进度状态
@@ -71,8 +104,6 @@ export default function QuestionsPage({ params }) {
     datasetCount: 0 // 已生成的数据集数量
   });
 
-  const { showSuccess, SnackbarComponent } = useSnackbar();
-
   const {
     editDialogOpen,
     editMode,
@@ -82,16 +113,8 @@ export default function QuestionsPage({ params }) {
     handleCloseDialog,
     handleSubmitQuestion
   } = useQuestionEdit(projectId, updatedQuestion => {
-    // 直接更新 questions 数组中的数据
-    setQuestions(prevQuestions => {
-      if (editMode === 'create') {
-        return [...prevQuestions, updatedQuestion];
-      } else {
-        return prevQuestions.map(q => (q.question === editingQuestion.question ? updatedQuestion : q));
-      }
-    });
-
-    showSuccess(t('questions.operationSuccess'));
+    getQuestionList();
+    toast.success(t('questions.operationSuccess'));
   });
 
   const [confirmDialog, setConfirmDialog] = useState({
@@ -101,54 +124,9 @@ export default function QuestionsPage({ params }) {
     confirmAction: null
   });
 
-  const fetchData = async currentPage => {
-    if (!currentPage) {
-      setLoading(true);
-    }
-    try {
-      // 获取标签树
-      const tagsResponse = await fetch(`/api/projects/${projectId}/tags`);
-      if (!tagsResponse.ok) {
-        throw new Error(t('common.fetchError'));
-      }
-      const tagsData = await tagsResponse.json();
-      setTags(tagsData.tags || []);
-
-      // 获取问题列表
-      const questionsResponse = await fetch(`/api/projects/${projectId}/questions`);
-      if (!questionsResponse.ok) {
-        throw new Error(t('common.fetchError'));
-      }
-      const questionsData = await questionsResponse.json();
-      setQuestions(questionsData || []);
-
-      // 获取文本块列表
-      const response = await fetch(`/api/projects/${projectId}/split`);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || t('common.fetchError'));
-      }
-      const data = await response.json();
-      setChunks(data.chunks || []);
-    } catch (error) {
-      console.error(t('common.fetchError'), error);
-      setError(error.message);
-      setSnackbar({
-        open: true,
-        message: error.message,
-        severity: 'error'
-      });
-    } finally {
-      if (!currentPage) {
-        setLoading(false);
-      }
-    }
-  };
-
   // 获取所有数据
   useEffect(() => {
-    fetchData();
+    getQuestionList();
   }, [projectId]);
 
   // 处理标签页切换
@@ -178,7 +156,7 @@ export default function QuestionsPage({ params }) {
     if (selectedQuestions.length > 0) {
       setSelectedQuestions([]);
     } else {
-      const filteredQuestions = questions.filter(question => {
+      const filteredQuestions = questions.data.filter(question => {
         const matchesSearch =
           searchTerm === '' ||
           question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -190,404 +168,63 @@ export default function QuestionsPage({ params }) {
         } else if (answerFilter === 'unanswered') {
           matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
         }
-
         return matchesSearch && matchesAnswerFilter;
       });
 
-      const filteredQuestionKeys = filteredQuestions.map(question =>
-        JSON.stringify({ question: question.question, chunkId: question.chunkId })
-      );
+      const filteredQuestionKeys = filteredQuestions.map(question => question.id);
       setSelectedQuestions(filteredQuestionKeys);
     }
   };
 
-  // 从本地存储获取模型参数
-  const getModelFromLocalStorage = () => {
-    if (typeof window === 'undefined') return null;
-
-    try {
-      // 从 localStorage 获取当前选择的模型信息
-      let model = null;
-
-      // 尝试从 localStorage 获取完整的模型信息
-      const modelInfoStr = localStorage.getItem('selectedModelInfo');
-
-      if (modelInfoStr) {
-        try {
-          model = JSON.parse(modelInfoStr);
-        } catch (e) {
-          console.error(t('models.parseError'), e);
-          return null;
-        }
-      }
-
-      // 如果没有模型 ID 或模型信息，返回 null
-      if (!model) {
-        return null;
-      }
-
-      return model;
-    } catch (error) {
-      console.error(t('models.configNotFound'), error);
-      return null;
-    }
-  };
-
-  // 生成单个问题的数据集
-  const handleGenerateDataset = async (questionId, chunkId) => {
-    try {
-      // 获取模型参数
-      const model = getModelFromLocalStorage();
-      if (!model) {
-        setSnackbar({
-          open: true,
-          message: t('models.configNotFound'),
-          severity: 'error'
-        });
-        return null;
-      }
-
-      // 显示处理中提示
-      setSnackbar({
-        open: true,
-        message: t('datasets.generating'),
-        severity: 'info'
-      });
-
-      // 调用API生成数据集
-      const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
-      const response = await request(`/api/projects/${projectId}/datasets`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          questionId,
-          chunkId,
-          model,
-          language: currentLanguage
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || t('datasets.generateFailed'));
-      }
-
-      const result = await response.json();
-      setSnackbar({
-        open: false
-      });
-      fetchData(1);
-      return result.dataset;
-    } catch (error) {
-      console.error(t('datasets.generateError'), error);
-      setSnackbar({
-        open: true,
-        message: error.message || t('datasets.generateFailed'),
-        severity: 'error'
-      });
-      return null;
-    }
-  };
-
-  // 并行处理数组的辅助函数，限制并发数
-  const processInParallel = async (items, processFunction, concurrencyLimit) => {
-    const results = [];
-    const inProgress = new Set();
-    const queue = [...items];
-
-    while (queue.length > 0 || inProgress.size > 0) {
-      // 如果有空闲槽位且队列中还有任务，启动新任务
-      while (inProgress.size < concurrencyLimit && queue.length > 0) {
-        const item = queue.shift();
-        const promise = processFunction(item).then(result => {
-          inProgress.delete(promise);
-          return result;
-        });
-        inProgress.add(promise);
-        results.push(promise);
-      }
-
-      // 等待其中一个任务完成
-      if (inProgress.size > 0) {
-        await Promise.race(inProgress);
-      }
-    }
-
-    return Promise.all(results);
-  };
-
   const handleBatchGenerateAnswers = async () => {
     if (selectedQuestions.length === 0) {
-      setSnackbar({
-        open: true,
-        message: t('questions.noQuestionsSelected'),
-        severity: 'warning'
-      });
+      toast.warning(t('questions.noQuestionsSelected'));
       return;
     }
-
-    // 获取模型参数
-    const model = getModelFromLocalStorage();
-    if (!model) {
-      setSnackbar({
-        open: true,
-        message: t('models.configNotFound'),
-        severity: 'error'
-      });
-      return;
-    }
-
-    try {
-      setProgress({
-        total: selectedQuestions.length,
-        completed: 0,
-        percentage: 0,
-        datasetCount: 0
-      });
-
-      // 然后设置处理状态为真，确保进度条显示
-      setProcessing(true);
-
-      setSnackbar({
-        open: true,
-        message: t('questions.batchGenerateStart', { count: selectedQuestions.length }),
-        severity: 'info'
-      });
-
-      // 单个问题处理函数
-      const processQuestion = async key => {
-        try {
-          // 从问题键中提取 chunkId 和 questionId
-          const lastDashIndex = key.lastIndexOf('-');
-          if (lastDashIndex === -1) {
-            console.error(t('questions.invalidQuestionKey'), key);
-
-            // 更新进度状态（即使失败也计入已处理）
-            setProgress(prev => {
-              const completed = prev.completed + 1;
-              const percentage = Math.round((completed / prev.total) * 100);
-
-              return {
-                ...prev,
-                completed,
-                percentage
-              };
-            });
-
-            return { success: false, key, error: t('questions.invalidQuestionKey') };
-          }
-
-          const { question: questionId, chunkId } = JSON.parse(key);
-
-          console.log('开始生成数据集:', { chunkId, questionId });
-
-          const language = i18n.language === 'zh-CN' ? '中文' : 'en';
-          // 调用API生成数据集
-          const response = await request(`/api/projects/${projectId}/datasets`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              questionId,
-              chunkId,
-              model,
-              language
-            })
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error(t('datasets.generateError'), errorData.error || t('datasets.generateFailed'));
-
-            // 更新进度状态（即使失败也计入已处理）
-            setProgress(prev => {
-              const completed = prev.completed + 1;
-              const percentage = Math.round((completed / prev.total) * 100);
-
-              return {
-                ...prev,
-                completed,
-                percentage
-              };
-            });
-
-            return { success: false, key, error: errorData.error || t('datasets.generateFailed') };
-          }
-
-          const data = await response.json();
-
-          // 更新进度状态
-          setProgress(prev => {
-            const completed = prev.completed + 1;
-            const percentage = Math.round((completed / prev.total) * 100);
-            const datasetCount = prev.datasetCount + 1;
-
-            return {
-              ...prev,
-              completed,
-              percentage,
-              datasetCount
-            };
-          });
-
-          console.log(`数据集生成成功: ${questionId}`);
-          return { success: true, key, data: data.dataset };
-        } catch (error) {
-          console.error('生成数据集失败:', error);
-
-          // 更新进度状态（即使失败也计入已处理）
-          setProgress(prev => {
-            const completed = prev.completed + 1;
-            const percentage = Math.round((completed / prev.total) * 100);
-
-            return {
-              ...prev,
-              completed,
-              percentage
-            };
-          });
-
-          return { success: false, key, error: error.message };
-        }
-      };
-
-      // 并行处理所有问题，最多同时处理2个
-      const results = await processInParallel(selectedQuestions, processQuestion, taskSettings.concurrencyLimit);
-
-      // 刷新数据
-      fetchData(1);
-
-      // 处理完成后设置结果消息
-      const successCount = results.filter(r => r.success).length;
-      const failCount = results.filter(r => !r.success).length;
-
-      if (failCount > 0) {
-        setSnackbar({
-          open: true,
-          message: t('datasets.partialSuccess', {
-            successCount,
-            total: selectedQuestions.length,
-            failCount
-          }),
-          severity: 'warning'
-        });
-      } else {
-        setSnackbar({
-          open: true,
-          message: t('common.success', { successCount }),
-          severity: 'success'
-        });
-      }
-    } catch (error) {
-      console.error('生成数据集出错:', error);
-      setSnackbar({
-        open: true,
-        message: error.message || '生成数据集失败',
-        severity: 'error'
-      });
-    } finally {
-      // 延迟关闭处理状态，确保用户可以看到完成的进度
-      setTimeout(() => {
-        setProcessing(false);
-        // 再次延迟重置进度状态
-        setTimeout(() => {
-          setProgress({
-            total: 0,
-            completed: 0,
-            percentage: 0,
-            datasetCount: 0
-          });
-        }, 500);
-      }, 2000); // 延迟关闭处理状态，让用户看到完成的进度
-    }
-  };
-
-  // 关闭提示框
-  const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    let data = questions.data.filter(question => selectedQuestions.includes(question.id));
+    await generateMultipleDataset(projectId, data);
+    await getQuestionList();
   };
 
   // 处理删除问题
-  const confirmDeleteQuestion = (questionId, chunkId) => {
-    // 根据 questionId 找到对应的问题对象
-    const question = questions.find(q => q.question === questionId && q.chunkId === chunkId);
-    const questionText = question ? question.question : questionId;
-
+  const confirmDeleteQuestion = questionId => {
     // 显示确认对话框
     setConfirmDialog({
       open: true,
       title: t('common.confirmDelete'),
       content: t('common.confirmDeleteQuestion'),
-      confirmAction: () => executeDeleteQuestion(questionId, chunkId)
+      confirmAction: () => executeDeleteQuestion(questionId)
     });
   };
 
   // 执行删除问题的操作
-  const executeDeleteQuestion = async (questionId, chunkId) => {
-    try {
-      // 显示删除中的提示
-      setSnackbar({
-        open: true,
-        message: t('common.deleting'),
-        severity: 'info'
-      });
-
-      // 调用删除问题的 API
-      const response = await fetch(`/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ chunkId })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '删除问题失败');
+  const executeDeleteQuestion = async questionId => {
+    toast.promise(axios.delete(`/api/projects/${projectId}/questions/${questionId}`), {
+      loading: '数据删除中',
+      success: data => {
+        setSelectedQuestions(prev =>
+          prev.includes(questionId) ? prev.filter(id => id !== questionId) : [...prev, questionId]
+        );
+        getQuestionList();
+        return t('common.deleteSuccess');
+      },
+      error: error => {
+        return error.response?.data?.message || '删除失败';
       }
-
-      // 从列表中移除已删除的问题
-      setQuestions(prev => prev.filter(q => !(q.question === questionId && q.chunkId === chunkId)));
-
-      // 从选中列表中移除已删除的问题
-      const questionKey = JSON.stringify({ question: questionId, chunkId });
-      setSelectedQuestions(prev => prev.filter(id => id !== questionKey));
-
-      // 显示成功提示
-      setSnackbar({
-        open: true,
-        message: t('common.deleteSuccess'),
-        severity: 'success'
-      });
-    } catch (error) {
-      console.error('删除问题失败:', error);
-      setSnackbar({
-        open: true,
-        message: error.message || '删除问题失败',
-        severity: 'error'
-      });
-    }
+    });
   };
 
   // 处理删除问题的入口函数
-  const handleDeleteQuestion = (questionId, chunkId) => {
-    confirmDeleteQuestion(questionId, chunkId);
+  const handleDeleteQuestion = questionId => {
+    confirmDeleteQuestion(questionId);
   };
 
   // 确认批量删除问题
   const confirmBatchDeleteQuestions = () => {
     if (selectedQuestions.length === 0) {
-      setSnackbar({
-        open: true,
-        message: '请先选择问题',
-        severity: 'warning'
-      });
+      toast.warning('请先选择问题');
       return;
     }
-
     // 显示确认对话框
     setConfirmDialog({
       open: true,
@@ -599,80 +236,25 @@ export default function QuestionsPage({ params }) {
 
   // 执行批量删除问题
   const executeBatchDeleteQuestions = async () => {
-    try {
-      // 显示删除中的提示
-      setSnackbar({
-        open: true,
-        message: `正在删除 ${selectedQuestions.length} 个问题...`,
-        severity: 'info'
-      });
-
-      // 存储成功删除的问题数量
-      let successCount = 0;
-
-      // 逐个删除问题，完全模仿单个删除的逻辑
-      for (const key of selectedQuestions) {
-        try {
-          const { question: questionId, chunkId } = JSON.parse(key);
-
-          console.log('开始删除问题:', { chunkId, questionId });
-
-          // 调用删除问题的 API
-          const response = await fetch(`/api/projects/${projectId}/questions/${encodeURIComponent(questionId)}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ chunkId })
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error(`删除问题失败:`, errorData.error || '删除问题失败');
-            continue;
-          }
-
-          // 从列表中移除已删除的问题，完全复制单个删除的逻辑
-          setQuestions(prev => prev.filter(q => !(q.question === questionId && q.chunkId === chunkId)));
-
-          successCount++;
-          console.log(`问题删除成功: ${questionId}`);
-        } catch (error) {
-          console.error('删除问题失败:', error);
+    toast.promise(
+      axios.delete(`/api/projects/${projectId}/questions/batch-delete`, { data: { questionIds: selectedQuestions } }),
+      {
+        loading: `正在删除 ${selectedQuestions.length} 个问题...`,
+        success: data => {
+          getQuestionList();
+          setSelectedQuestions([]);
+          return `成功删除 ${selectedQuestions.length} 个问题`;
+        },
+        error: error => {
+          return error.response?.data?.message || '批量删除问题失败';
         }
       }
-
-      // 清空选中列表
-      setSelectedQuestions([]);
-
-      // 显示成功提示
-      setSnackbar({
-        open: true,
-        message:
-          successCount === selectedQuestions.length
-            ? `成功删除 ${successCount} 个问题`
-            : `删除完成，成功: ${successCount}, 失败: ${selectedQuestions.length - successCount}`,
-        severity: successCount === selectedQuestions.length ? 'success' : 'warning'
-      });
-    } catch (error) {
-      console.error('批量删除问题失败:', error);
-      setSnackbar({
-        open: true,
-        message: error.message || '批量删除问题失败',
-        severity: 'error'
-      });
-    }
+    );
   };
 
   // 处理批量删除问题的入口函数
   const handleBatchDeleteQuestions = () => {
     confirmBatchDeleteQuestions();
-  };
-
-  // 获取文本块内容
-  const getChunkContent = chunkId => {
-    const chunk = chunks.find(c => c.id === chunkId);
-    return chunk ? chunk.content : '';
   };
 
   if (loading) {
@@ -685,22 +267,8 @@ export default function QuestionsPage({ params }) {
     );
   }
 
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      </Container>
-    );
-  }
-
-  // 计算问题总数
-  const totalQuestions = questions.length;
-
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
-      <SnackbarComponent />
       {/* 处理中的进度显示 - 全局蒙版样式 */}
       {processing && (
         <Box
@@ -751,7 +319,10 @@ export default function QuestionsPage({ params }) {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Typography variant="body2">
-                  {t('questions.generatingProgress', { completed: progress.completed, total: progress.total })}
+                  {t('questions.generatingProgress', {
+                    completed: progress.completed,
+                    total: progress.total
+                  })}
                 </Typography>
                 <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
                   {t('questions.generatedCount', { count: progress.datasetCount })}
@@ -770,25 +341,7 @@ export default function QuestionsPage({ params }) {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">
-          {t('questions.title')} (
-          {
-            questions.filter(question => {
-              const matchesSearch =
-                searchTerm === '' ||
-                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
-
-              let matchesAnswerFilter = true;
-              if (answerFilter === 'answered') {
-                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
-              } else if (answerFilter === 'unanswered') {
-                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
-              }
-
-              return matchesSearch && matchesAnswerFilter;
-            }).length
-          }
-          )
+          {t('questions.title')} ({questions.total})
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
@@ -839,8 +392,8 @@ export default function QuestionsPage({ params }) {
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Checkbox
-                checked={selectedQuestions.length > 0 && selectedQuestions.length === totalQuestions}
-                indeterminate={selectedQuestions.length > 0 && selectedQuestions.length < totalQuestions}
+                checked={selectedQuestions.length > 0 && selectedQuestions.length === questions?.total}
+                indeterminate={selectedQuestions.length > 0 && selectedQuestions.length < questions?.total}
                 onChange={handleSelectAll}
               />
               <Typography variant="body2" sx={{ ml: 1 }}>
@@ -849,21 +402,7 @@ export default function QuestionsPage({ params }) {
                   : t('questions.selectAll')}
                 (
                 {t('questions.totalCount', {
-                  count: questions.filter(question => {
-                    const matchesSearch =
-                      searchTerm === '' ||
-                      question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
-
-                    let matchesAnswerFilter = true;
-                    if (answerFilter === 'answered') {
-                      matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
-                    } else if (answerFilter === 'unanswered') {
-                      matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
-                    }
-
-                    return matchesSearch && matchesAnswerFilter;
-                  }).length
+                  count: questions.total
                 })}
                 )
               </Typography>
@@ -923,74 +462,31 @@ export default function QuestionsPage({ params }) {
 
         <TabPanel value={activeTab} index={0}>
           <QuestionListView
-            questions={questions.filter(question => {
-              // 搜索词筛选
-              const matchesSearch =
-                searchTerm === '' ||
-                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
-
-              // 答案状态筛选
-              let matchesAnswerFilter = true;
-              if (answerFilter === 'answered') {
-                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
-              } else if (answerFilter === 'unanswered') {
-                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
-              }
-
-              return matchesSearch && matchesAnswerFilter;
-            })}
-            chunks={chunks}
+            questions={questions.data}
+            currentPage={currentPage}
+            totalQuestions={Math.ceil(questions.total / pageSize)}
+            handlePageChange={(_, newPage) => setCurrentPage(newPage)}
             selectedQuestions={selectedQuestions}
             onSelectQuestion={handleSelectQuestion}
             onDeleteQuestion={handleDeleteQuestion}
-            onGenerateDataset={handleGenerateDataset}
             onEditQuestion={handleOpenEditDialog}
+            refreshQuestions={getQuestionList}
             projectId={projectId}
           />
         </TabPanel>
 
         <TabPanel value={activeTab} index={1}>
           <QuestionTreeView
-            questions={questions.filter(question => {
-              // 搜索词筛选
-              const matchesSearch =
-                searchTerm === '' ||
-                question.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (question.label && question.label.toLowerCase().includes(searchTerm.toLowerCase()));
-
-              // 答案状态筛选
-              let matchesAnswerFilter = true;
-              if (answerFilter === 'answered') {
-                matchesAnswerFilter = question.dataSites && question.dataSites.length > 0;
-              } else if (answerFilter === 'unanswered') {
-                matchesAnswerFilter = !question.dataSites || question.dataSites.length === 0;
-              }
-
-              return matchesSearch && matchesAnswerFilter;
-            })}
-            chunks={chunks}
+            questions={questions.data}
             tags={tags}
             selectedQuestions={selectedQuestions}
             onSelectQuestion={handleSelectQuestion}
             onDeleteQuestion={handleDeleteQuestion}
-            onGenerateDataset={handleGenerateDataset}
             onEditQuestion={handleOpenEditDialog}
             projectId={projectId}
           />
         </TabPanel>
       </Paper>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
 
       {/* 确认对话框 */}
       <Dialog
@@ -1028,9 +524,9 @@ export default function QuestionsPage({ params }) {
         onClose={handleCloseDialog}
         onSubmit={handleSubmitQuestion}
         initialData={editingQuestion}
-        chunks={chunks}
         tags={tags}
         mode={editMode}
+        projectId={projectId}
       />
     </Container>
   );

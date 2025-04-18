@@ -8,7 +8,7 @@ export default function ChunkViewDialog({ open, chunk, onClose }) {
   const { t } = useTranslation();
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{t('textSplit.chunkDetails', { chunkId: chunk?.id })}</DialogTitle>
+      <DialogTitle>{t('textSplit.chunkDetails', { chunkId: chunk?.name })}</DialogTitle>
       <DialogContent dividers>
         {chunk ? (
           <Box sx={{ maxHeight: '60vh', overflow: 'auto' }}>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { main } from '@/lib/db/fileToDb';
 
 // 执行更新脚本
 export async function POST() {
@@ -68,5 +69,14 @@ export async function POST() {
       },
       { status: 500 }
     );
+  }
+}
+
+export async function GET() {
+  try {
+    let count = await main();
+    return NextResponse.json(count);
+  } catch (error) {
+    console.error('检查更新失败:', error);
   }
 }

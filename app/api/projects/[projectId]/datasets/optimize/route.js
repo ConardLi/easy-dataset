@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDataset, updateDataset } from '@/lib/db/datasets';
+import { getDatasetsById, updateDataset } from '@/lib/db/datasets';
 import LLMClient from '@/lib/llm/core/index';
 import getNewAnswerPrompt from '@/lib/llm/prompts/newAnswer';
 import getNewAnswerEnPrompt from '@/lib/llm/prompts/newAnswerEn';
@@ -32,20 +32,13 @@ export async function POST(request, { params }) {
     }
 
     // 获取数据集内容
-    const dataset = await getDataset(projectId, datasetId);
+    const dataset = await getDatasetsById(datasetId, false);
     if (!dataset) {
       return NextResponse.json({ error: 'Dataset does not exist' }, { status: 404 });
     }
 
     // 创建LLM客户端
-    const llmClient = new LLMClient({
-      provider: model.provider,
-      endpoint: model.endpoint,
-      apiKey: model.apiKey,
-      model: model.name,
-      temperature: model.temperature,
-      maxTokens: model.maxTokens
-    });
+    const llmClient = new LLMClient(model);
 
     // 生成优化后的答案和思维链
     const prompt =
@@ -69,7 +62,7 @@ export async function POST(request, { params }) {
       cot: optimizedResult.cot || dataset.cot
     };
 
-    await updateDataset(projectId, datasetId, updatedDataset);
+    await updateDataset(updatedDataset);
 
     // 返回优化后的数据集
     return NextResponse.json({

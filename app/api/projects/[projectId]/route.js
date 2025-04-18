@@ -1,15 +1,13 @@
-import { getProject, updateProject, deleteProject } from '@/lib/db/index';
-
 // 获取项目详情
+import { deleteProject, getProject, updateProject } from '@/lib/db/projects';
+
 export async function GET(request, { params }) {
   try {
     const { projectId } = params;
     const project = await getProject(projectId);
-
     if (!project) {
       return Response.json({ error: '项目不存在' }, { status: 404 });
     }
-
     return Response.json(project);
   } catch (error) {
     console.error('获取项目详情出错:', error);

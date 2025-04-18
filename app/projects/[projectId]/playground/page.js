@@ -10,6 +10,8 @@ import PlaygroundHeader from '@/components/playground/PlaygroundHeader';
 import useModelPlayground from '@/hooks/useModelPlayground';
 import { playgroundStyles } from '@/styles/playground';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai/index';
+import { modelConfigListAtom } from '@/lib/store';
 
 export default function ModelPlayground() {
   const theme = useTheme();
@@ -19,7 +21,6 @@ export default function ModelPlayground() {
   const { t } = useTranslation();
 
   const {
-    availableModels,
     selectedModels,
     loading,
     userInput,
@@ -33,10 +34,16 @@ export default function ModelPlayground() {
     handleRemoveImage,
     handleSendMessage,
     handleClearConversations,
-    handleOutputModeChange,
-    getModelName
+    handleOutputModeChange
   } = useModelPlayground(projectId);
 
+  const availableModels = useAtomValue(modelConfigListAtom);
+
+  // 获取模型名称
+  const getModelName = modelId => {
+    const model = availableModels.find(m => m.id === modelId);
+    return model ? `${model.providerName}: ${model.modelName}` : modelId;
+  };
   return (
     <Box sx={styles.container}>
       <Typography variant="h5" component="h1" gutterBottom>

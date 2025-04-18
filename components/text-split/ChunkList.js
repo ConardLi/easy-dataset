@@ -28,7 +28,7 @@ export default function ChunkList({
   onGenerateQuestions,
   loading = false,
   questionFilter,
-  onQuestionFilterChange
+  setQuestionFilter
 }) {
   const theme = useTheme();
   const [page, setPage] = useState(1);
@@ -51,7 +51,7 @@ export default function ChunkList({
 
   const handleViewChunk = async chunkId => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}`);
+      const response = await fetch(`/api/projects/${projectId}/chunks/${chunkId}`);
       if (!response.ok) {
         throw new Error(t('textSplit.fetchChunksFailed'));
       }
@@ -133,7 +133,7 @@ export default function ChunkList({
         onSelectAll={handleSelectAll}
         onBatchGenerateQuestions={handleBatchGenerateQuestions}
         questionFilter={questionFilter}
-        onQuestionFilterChange={event => onQuestionFilterChange(event.target.value)}
+        setQuestionFilter={event => setQuestionFilter(event.target.value)}
       />
 
       <Grid container spacing={2}>

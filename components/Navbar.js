@@ -29,42 +29,58 @@ import { useTheme } from 'next-themes';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import DataObjectIcon from '@mui/icons-material/DataObject';
+import SyncIcon from '@mui/icons-material/Sync';
 import StorageIcon from '@mui/icons-material/Storage';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import { toast } from 'sonner';
+import axios from 'axios';
+import { useSetAtom } from 'jotai/index';
+import { modelConfigListAtom } from '@/lib/store';
 
-export default function Navbar({ projects = [], currentProject, models = [] }) {
+export default function Navbar({ projects = [], currentProject }) {
   const [selectedProject, setSelectedProject] = useState(currentProject || '');
   const { t } = useTranslation();
-  const [selectedModel, setSelectedModel] = useState(() => {
-    // 从 localStorage 获取上次选择的模型
-    const savedModel = localStorage.getItem('selectedModel');
-    // 如果保存的模型在当前模型列表中存在，则使用它
-    if (savedModel && models.some(m => m.id === savedModel)) {
-      return savedModel;
-    }
-    // 否则使用第一个可用的模型
-    return models[0]?.id || '';
-  });
   const pathname = usePathname();
   const theme = useMuiTheme();
   const { resolvedTheme, setTheme } = useTheme();
-
+  const setConfigList = useSetAtom(modelConfigListAtom);
   // 只在项目详情页显示模块选项卡
   const isProjectDetail = pathname.includes('/projects/') && pathname.split('/').length > 3;
 
   const handleProjectChange = event => {
     const newProjectId = event.target.value;
     setSelectedProject(newProjectId);
+    axios
+      .get(`/api/projects/${newProjectId}/model-config`)
+      .then(response => {
+        setConfigList(response.data);
+      })
+      .catch(error => {
+        toast.error('获取模型列表失败');
+      });
     // 跳转到新选择的项目页面
     window.location.href = `/projects/${newProjectId}/text-split`;
   };
 
-  const handleModelChange = event => {
-    if (!event || !event.target) return;
-    const newModel = event.target.value;
-    setSelectedModel(newModel);
-    // 将选择保存到 localStorage
-    localStorage.setItem('selectedModel', newModel);
+  const handleSyncOldData = () => {
+    async function fetchData() {
+      const response = await fetch('/api/update');
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      return response.json();
+    }
+
+    toast.promise(fetchData(), {
+      loading: '数据同步中',
+      success: data => {
+        if (data === 0) return '暂无数据需要同步';
+        if (data > 0) return `${data}条数据同步成功`;
+      },
+      error: () => {
+        toast.error('数据同步失败');
+      }
+    });
   };
 
   const toggleTheme = () => {
@@ -238,9 +254,27 @@ export default function Navbar({ projects = [], currentProject, models = [] }) {
           style={{ position: 'absolute', right: '20px' }}
         >
           {/* 模型选择 */}
-          {location.pathname.includes('/projects/') && (
-            <ModelSelect models={models} selectedModel={selectedModel} onChange={handleModelChange} />
-          )}
+          {location.pathname.includes('/projects/') && <ModelSelect />}
+
+          {/* 同步文件格式数据 */}
+          <Tooltip title={t('common.syncOldData')}>
+            <IconButton
+              size="small"
+              onClick={handleSyncOldData}
+              sx={{
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
+                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
+                p: 1,
+                borderRadius: 1.5,
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
+                }
+              }}
+              style={{ right: '-15px' }}
+            >
+              <SyncIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
 
           {/* 数据集广场链接 - 改为图标按钮样式 */}
           <Tooltip title={t('datasetSquare.title')}>

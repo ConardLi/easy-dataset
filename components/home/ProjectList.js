@@ -132,13 +132,13 @@ export default function ProjectList({ projects, onCreateProject }) {
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <Chip
                           size="small"
-                          label={`${project.questionsCount || 0} ${t('projects.questions')}`}
+                          label={`${project._count.Questions || 0} ${t('projects.questions')}`}
                           color="primary"
                           variant="outlined"
                         />
                         <Chip
                           size="small"
-                          label={`${project.datasetsCount || 0} ${t('projects.datasets')}`}
+                          label={`${project._count.Datasets || 0} ${t('projects.datasets')}`}
                           color="secondary"
                           variant="outlined"
                         />
@@ -159,7 +159,7 @@ export default function ProjectList({ projects, onCreateProject }) {
                       }}
                     >
                       <Typography variant="caption" color="text.secondary">
-                        {t('projects.lastUpdated')}: {project.lastUpdated}
+                        {t('projects.lastUpdated')}: {new Date(project.updateAt).toLocaleDateString('zh-CN')}
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Typography

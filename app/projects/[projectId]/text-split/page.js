@@ -24,7 +24,6 @@ import DomainAnalysis from '@/components/text-split/DomainAnalysis';
 import request from '@/lib/util/request';
 import { processInParallel } from '@/lib/util/async';
 import useTaskSettings from '@/hooks/useTaskSettings';
-import { finished } from 'stream';
 
 export default function TextSplitPage({ params }) {
   const { t } = useTranslation();
@@ -60,7 +59,7 @@ export default function TextSplitPage({ params }) {
   const fetchChunks = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/projects/${projectId}/split`);
+      const response = await fetch(`/api/projects/${projectId}/split?filter=${questionFilter}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -69,17 +68,6 @@ export default function TextSplitPage({ params }) {
 
       const data = await response.json();
       setChunks(data.chunks || []);
-
-      // Apply filter when setting showChunks
-      const filteredChunks = (data.chunks || []).filter(chunk => {
-        if (questionFilter === 'generated') {
-          return chunk.questions && chunk.questions.length > 0;
-        } else if (questionFilter === 'ungenerated') {
-          return !chunk.questions || chunk.questions.length === 0;
-        }
-        return true;
-      });
-      setShowChunks(filteredChunks);
 
       // 如果有文件结果，处理详细信息
       if (data.toc) {
@@ -286,7 +274,7 @@ export default function TextSplitPage({ params }) {
         // 获取当前语言环境
         const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
 
-        const response = await request(`/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}/questions`, {
+        const response = await request(`/api/projects/${projectId}/chunks/${chunkId}/questions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -319,16 +307,13 @@ export default function TextSplitPage({ params }) {
             // 获取当前语言环境
             const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
 
-            const response = await request(
-              `/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}/questions`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ model, language: currentLanguage })
-              }
-            );
+            const response = await request(`/api/projects/${projectId}/chunks/${chunkId}/questions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ model, language: currentLanguage })
+            });
 
             if (!response.ok) {
               const errorData = await response.json();
@@ -508,20 +493,9 @@ export default function TextSplitPage({ params }) {
   };
 
   // 处理筛选器变更
-  const handleQuestionFilterChange = value => {
-    setQuestionFilter(value);
-
-    // 应用筛选
-    const filteredChunks = chunks.filter(chunk => {
-      if (value === 'generated') {
-        return chunk.questions && chunk.questions.length > 0;
-      } else if (value === 'ungenerated') {
-        return !chunk.questions || chunk.questions.length === 0;
-      }
-      return true;
-    });
-    setShowChunks(filteredChunks);
-  };
+  useEffect(() => {
+    fetchChunks();
+  }, [questionFilter]);
 
   const handleSelected = array => {
     if (array.length > 0) {
@@ -574,13 +548,13 @@ export default function TextSplitPage({ params }) {
         {activeTab === 0 && (
           <ChunkList
             projectId={projectId}
-            chunks={showChunks}
+            chunks={chunks}
             onDelete={handleDeleteChunk}
             onEdit={handleEditChunk}
             onGenerateQuestions={handleGenerateQuestions}
             loading={loading}
             questionFilter={questionFilter}
-            onQuestionFilterChange={handleQuestionFilterChange}
+            setQuestionFilter={setQuestionFilter}
           />
         )}
 

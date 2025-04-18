@@ -230,7 +230,7 @@ const DatasetList = ({
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2" color="text.secondary">
-                    {new Date(dataset.createdAt).toLocaleString('zh-CN')}
+                    {new Date(dataset.createAt).toLocaleString('zh-CN')}
                   </Typography>
                 </TableCell>
                 <TableCell>

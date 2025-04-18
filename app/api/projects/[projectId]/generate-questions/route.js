@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getProjectChunks } from '@/lib/text-splitter';
-import { getTextChunk } from '@/lib/db/texts';
 import LLMClient from '@/lib/llm/core/index';
 import getQuestionPrompt from '@/lib/llm/prompts/question';
 import getQuestionEnPrompt from '@/lib/llm/prompts/questionEn';
-import { addQuestionsForChunk } from '@/lib/db/questions';
 import { getTaskConfig } from '@/lib/db/projects';
+import { saveQuestions } from '@/lib/db/questions';
+import { getChunkById } from '@/lib/db/chunks';
 
 const { extractJsonFromLLMOutput } = require('@/lib/llm/common/util');
 
@@ -35,7 +35,7 @@ export async function POST(request, { params }) {
       // 获取指定的文本块
       chunks = await Promise.all(
         chunkIds.map(async chunkId => {
-          const chunk = await getTextChunk(projectId, chunkId);
+          const chunk = await getChunkById(chunkId);
           if (chunk) {
             return {
               id: chunk.id,
@@ -53,14 +53,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'No valid text blocks found' }, { status: 404 });
     }
 
-    const llmClient = new LLMClient({
-      provider: model.provider,
-      endpoint: model.endpoint,
-      apiKey: model.apiKey,
-      model: model.name,
-      temperature: model.temperature,
-      maxTokens: model.maxTokens
-    });
+    const llmClient = new LLMClient(model);
 
     const results = [];
     const errors = [];
@@ -85,8 +78,7 @@ export async function POST(request, { params }) {
 
         if (questions && Array.isArray(questions)) {
           // 保存问题到数据库
-          await addQuestionsForChunk(projectId, chunk.id, questions);
-
+          await saveQuestions(projectId, questions, chunk.id);
           results.push({
             chunkId: chunk.id,
             success: true,

@@ -6,6 +6,8 @@ import getLabelEnPrompt from '@/lib/llm/prompts/labelEn';
 import { deleteFile } from '@/lib/db/texts';
 import { getProject, updateProject } from '@/lib/db/projects';
 import { saveTags, getTags } from '@/lib/db/tags';
+import { deleteChunkAndFile } from '@/lib/db/chunks';
+
 const { extractJsonFromLLMOutput } = require('@/lib/llm/common/util');
 
 // 处理文本分割请求
@@ -36,14 +38,7 @@ export async function POST(request, { params }) {
     const result = await splitProjectFile(projectId, fileName);
 
     const { toc } = result;
-    const llmClient = new LLMClient({
-      provider: model.provider,
-      endpoint: model.endpoint,
-      apiKey: model.apiKey,
-      model: model.name,
-      temperature: model.temperature,
-      maxTokens: model.maxTokens
-    });
+    const llmClient = new LLMClient(model);
     // 生成领域树
     console.log(projectId, fileName, 'Text split completed, starting to build domain tree');
     const promptFunc = language === 'en' ? getLabelEnPrompt : getLabelPrompt;
@@ -53,8 +48,8 @@ export async function POST(request, { params }) {
 
     if (!response || !tags) {
       // 删除前面生成的文件
-      await deleteFile(projectId, fileName);
-      const uploadedFiles = project.uploadedFiles || [];
+      await deleteChunkAndFile(projectId, fileName);
+      const uploadedFiles = JSON.parse(project.uploadedFiles) || [];
       const updatedFiles = uploadedFiles.filter(f => f !== fileName);
       await updateProject(projectId, {
         ...project,
@@ -79,14 +74,15 @@ export async function POST(request, { params }) {
 export async function GET(request, { params }) {
   try {
     const { projectId } = params;
-
+    const { searchParams } = new URL(request.url);
+    const filter = searchParams.get('filter');
     // 验证项目ID
     if (!projectId) {
       return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
     }
 
     // 获取文本块详细信息
-    const result = await getProjectChunks(projectId);
+    const result = await getProjectChunks(projectId, filter);
 
     const tags = await getTags(projectId);
 

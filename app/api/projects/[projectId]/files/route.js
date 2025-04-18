@@ -4,6 +4,7 @@ import { getProject, updateProject } from '@/lib/db/projects';
 import path from 'path';
 import { getProjectRoot, ensureDir } from '@/lib/db/base';
 import { promises as fs } from 'fs';
+import { deleteChunkAndFile } from '@/lib/db/chunks';
 
 // Replace the deprecated config export with the new export syntax
 export const dynamic = 'force-dynamic';
@@ -53,10 +54,10 @@ export async function DELETE(request, { params }) {
     }
 
     // 删除文件及相关数据
-    const result = await deleteFile(projectId, fileName);
+    const result = await deleteChunkAndFile(projectId, fileName);
 
     // 更新项目配置，移除已删除的文件
-    const uploadedFiles = project.uploadedFiles || [];
+    const uploadedFiles = JSON.parse(project.uploadedFiles) || [];
     const updatedFiles = uploadedFiles.filter(f => f !== fileName);
 
     await updateProject(projectId, {
@@ -128,7 +129,7 @@ export async function POST(request, { params }) {
     await fs.writeFile(filePath, fileBuffer);
 
     // 更新项目配置，添加上传的文件记录
-    const uploadedFiles = project.uploadedFiles || [];
+    const uploadedFiles = JSON.parse(project.uploadedFiles) || [];
     if (!uploadedFiles.includes(fileName)) {
       uploadedFiles.push(fileName);
 

@@ -12,112 +12,61 @@ import {
   Pagination,
   Divider,
   Paper,
-  Alert,
-  Snackbar,
   CircularProgress
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import EditIcon from '@mui/icons-material/Edit';
+import { useGenerateDataset } from '@/hooks/useGenerateDataset';
 
 export default function QuestionListView({
   questions = [],
-  chunks = [],
+  currentPage,
+  totalQuestions = 0,
+  handlePageChange,
   selectedQuestions = [],
   onSelectQuestion,
   onDeleteQuestion,
-  onGenerateDataset,
   projectId,
-  onEditQuestion
+  onEditQuestion,
+  refreshQuestions
 }) {
   const { t } = useTranslation();
-  // 分页状态
-  const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(12);
-
-  // 批量操作显示提示
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
-
   // 处理状态
   const [processingQuestions, setProcessingQuestions] = useState({});
+  const { generateSingleDataset } = useGenerateDataset();
 
   // 获取文本块的标题
-  const getChunkTitle = chunkId => {
-    const chunk = chunks.find(c => c.id === chunkId);
-    if (!chunk) return t('chunks.defaultTitle', { id: chunkId });
-
-    // 尝试从内容中提取标题
-    const content = chunk.content || '';
+  const getChunkTitle = content => {
     const firstLine = content.split('\n')[0].trim();
     if (firstLine.startsWith('# ')) {
       return firstLine.substring(2);
     } else if (firstLine.length > 0) {
       return firstLine.length > 200 ? firstLine.substring(0, 200) + '...' : firstLine;
     }
-
-    return t('chunks.defaultTitle', { id: chunkId });
+    return t('chunks.defaultTitle');
   };
 
   // 检查问题是否被选中
-  const isQuestionSelected = (questionId, chunkId) => {
-    const questionKey = JSON.stringify({ question: questionId, chunkId });
-    return selectedQuestions.includes(questionKey);
-  };
-
-  // 处理分页变化
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
+  const isQuestionSelected = questionId => {
+    return selectedQuestions.includes(questionId);
   };
 
   // 处理生成数据集
-  const handleGenerateDataset = async (questionId, chunkId) => {
-    // 如果没有提供回调函数，则显示提示
-    if (!onGenerateDataset) {
-      setSnackbarMessage(t('datasets.generateNotImplemented'));
-      setSnackbarSeverity('warning');
-      setSnackbarOpen(true);
-      return;
-    }
-    const questionKey = JSON.stringify({ question: questionId, chunkId });
-
+  const handleGenerateDataset = async (questionId, questionInfo) => {
     // 设置处理状态
     setProcessingQuestions(prev => ({
       ...prev,
-      [questionKey]: true
+      [questionId]: true
     }));
-
-    try {
-      // 调用回调函数生成数据集
-      const result = await onGenerateDataset(questionId, chunkId);
-      // 显示成功提示
-      setSnackbarMessage(t('datasets.generateSuccess', { question: result.question }));
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-    } catch (error) {
-      // 显示错误提示
-      setSnackbarMessage(t('datasets.generateFailed', { error: error.message || t('common.unknownError') }));
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    } finally {
-      // 清除处理状态
-      setProcessingQuestions(prev => {
-        const newState = { ...prev };
-        delete newState[questionKey];
-        return newState;
-      });
-    }
+    await generateSingleDataset({ projectId, questionId, questionInfo });
+    // 重置处理状态
+    setProcessingQuestions(prev => ({
+      ...prev,
+      [questionId]: false
+    }));
+    refreshQuestions();
   };
-
-  // 使用传入的问题列表
-  const filteredQuestions = questions;
-
-  // 计算当前页的问题
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentQuestions = filteredQuestions.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
 
   return (
     <Box style={{ padding: '20px' }}>
@@ -152,10 +101,9 @@ export default function QuestionListView({
 
         <Divider />
 
-        {currentQuestions.map((question, index) => {
-          const isSelected = isQuestionSelected(question.question, question.chunkId);
-          const questionKey = JSON.stringify({ question: question.question, chunkId: question.chunkId });
-
+        {questions.map((question, index) => {
+          const isSelected = isQuestionSelected(question.id);
+          const questionKey = question.id;
           return (
             <Box key={questionKey}>
               <Box
@@ -213,9 +161,9 @@ export default function QuestionListView({
                 </Box>
 
                 <Box sx={{ width: 150, mr: 2, display: { xs: 'none', md: 'block' } }}>
-                  <Tooltip title={getChunkTitle(question.chunkId)}>
+                  <Tooltip title={getChunkTitle(question.chunk.content)}>
                     <Chip
-                      label={question.chunkId}
+                      label={question.chunk.name}
                       size="small"
                       variant="outlined"
                       color="info"
@@ -235,6 +183,7 @@ export default function QuestionListView({
                       color="primary"
                       onClick={() =>
                         onEditQuestion({
+                          id: question.id,
                           question: question.question,
                           chunkId: question.chunkId,
                           label: question.label || 'other'
@@ -249,7 +198,7 @@ export default function QuestionListView({
                     <IconButton
                       size="small"
                       color="primary"
-                      onClick={() => handleGenerateDataset(question.question, question.chunkId)}
+                      onClick={() => handleGenerateDataset(question.id, question.question)}
                       disabled={processingQuestions[questionKey]}
                     >
                       {processingQuestions[questionKey] ? (
@@ -263,7 +212,7 @@ export default function QuestionListView({
                     <IconButton
                       size="small"
                       color="error"
-                      onClick={() => onDeleteQuestion(question.question, question.chunkId)}
+                      onClick={() => onDeleteQuestion(question.id)}
                       disabled={processingQuestions[questionKey]}
                     >
                       <DeleteIcon fontSize="small" />
@@ -271,18 +220,18 @@ export default function QuestionListView({
                   </Tooltip>
                 </Box>
               </Box>
-              {index < currentQuestions.length - 1 && <Divider />}
+              {index < questions.length - 1 && <Divider />}
             </Box>
           );
         })}
       </Paper>
 
       {/* 分页 */}
-      {totalPages > 1 && (
+      {totalQuestions > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
           <Pagination
-            count={totalPages}
-            page={page}
+            count={totalQuestions}
+            page={currentPage}
             onChange={handlePageChange}
             color="primary"
             showFirstButton
@@ -292,18 +241,6 @@ export default function QuestionListView({
           />
         </Box>
       )}
-
-      {/* 操作提示 */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

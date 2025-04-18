@@ -34,6 +34,8 @@
     "saveBasicInfo": "Save Basic Info",
     "saveSuccess": "Save Successful",
     "saveFailed": "Save Failed",
+    "deleteSuccess": "Delete Successful",
+    "deleteFailed": "Delete Failed",
     "fetchTasksFailed": "Failed to fetch task settings",
     "saveTasksFailed": "Failed to save task settings",
     "textSplitSettings": "Text Split Settings",
@@ -127,6 +129,7 @@
     "confirmDeleteQuestion": "Are you sure you want to delete this question? This action cannot be undone.",
     "deleteSuccess": "Delete successful",
     "visitGitHub": "Visit GitHub Repository",
+    "syncOldData": "Sync Old Data",
     "copy": "Copy",
     "copied": "Copied"
   },

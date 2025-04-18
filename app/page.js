@@ -46,7 +46,7 @@ export default function Home() {
 
   return (
     <main style={{ overflow: 'hidden', position: 'relative' }}>
-      <Navbar projects={projects} models={[]} />
+      <Navbar projects={projects} />
 
       <HeroSection onCreateProject={() => setCreateDialogOpen(true)} />
 

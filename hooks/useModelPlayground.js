@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAtomValue } from 'jotai/index';
+import { modelConfigListAtom } from '@/lib/store';
 
 export default function useModelPlayground(projectId) {
   // 状态管理
-  const [availableModels, setAvailableModels] = useState([]);
   const [selectedModels, setSelectedModels] = useState([]);
   const [loading, setLoading] = useState({});
   const [userInput, setUserInput] = useState('');
@@ -13,26 +14,7 @@ export default function useModelPlayground(projectId) {
   const [outputMode, setOutputMode] = useState('normal'); // 'normal' 或 'streaming'
   const [uploadedImage, setUploadedImage] = useState(null); // 存储上传的图片Base64
 
-  // 获取项目的模型配置
-  useEffect(() => {
-    async function fetchModels() {
-      try {
-        const response = await fetch(`/api/projects/${projectId}/models`);
-        if (!response.ok) {
-          throw new Error('获取模型列表失败');
-        }
-        const models = await response.json();
-        setAvailableModels(models);
-      } catch (error) {
-        console.error('获取模型失败:', error);
-        setError('无法加载模型，请检查设置');
-      }
-    }
-
-    if (projectId) {
-      fetchModels();
-    }
-  }, [projectId]);
+  const availableModels = useAtomValue(modelConfigListAtom);
 
   // 初始化会话状态
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { saveFile, getProject, saveTextChunk } from '@/lib/db/index';
 import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
+import { getChunkByProjectId } from '@/lib/db/chunks';
+import { getProject } from '@/lib/db/projects';
 
 // 用于处理文本分割的函数
 function splitTextContent(text, minChars = 1500, maxChars = 2000) {
@@ -158,22 +158,13 @@ export async function POST(request, { params }) {
 export async function GET(request, { params }) {
   try {
     const { projectId } = params;
-
     // 获取项目信息
     const project = await getProject(projectId);
     if (!project) {
       return NextResponse.json({ error: 'Project does not exist' }, { status: 404 });
     }
-
     // 获取所有文本片段
-    const chunkIds = await getTextChunkIds(projectId);
-    const chunks = [];
-
-    for (const chunkId of chunkIds) {
-      const chunk = await getTextChunk(projectId, chunkId);
-      chunks.push(chunk);
-    }
-
+    const chunks = await getChunkByProjectId(projectId);
     return NextResponse.json(chunks);
   } catch (error) {
     console.error('Failed to get text chunks:', error);

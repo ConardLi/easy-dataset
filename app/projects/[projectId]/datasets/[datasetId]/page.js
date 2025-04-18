@@ -139,7 +139,9 @@ const OptimizeDialog = ({ open, onClose, onConfirm, loading }) => {
 export default function DatasetDetailsPage({ params }) {
   const { projectId, datasetId } = params;
   const router = useRouter();
-  const [dataset, setDataset] = useState(null);
+  // 获取数据集列表（用于导航）
+  const [datasets, setDatasets] = useState([]);
+  const [currentDataset, setCurrentDataset] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editingAnswer, setEditingAnswer] = useState(false);
   const [editingCot, setEditingCot] = useState(false);
@@ -158,8 +160,7 @@ export default function DatasetDetailsPage({ params }) {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewChunk, setViewChunk] = useState(null);
   const theme = useTheme();
-  // 获取数据集列表（用于导航）
-  const [datasets, setDatasets] = useState([]);
+
   const { t } = useTranslation();
 
   // 从本地存储获取模型参数
@@ -195,14 +196,11 @@ export default function DatasetDetailsPage({ params }) {
       if (!response.ok) throw new Error(t('datasets.fetchFailed'));
       const data = await response.json();
       setDatasets(data);
-
       // 找到当前数据集
       const currentDataset = data.find(d => d.id === datasetId);
-      if (currentDataset) {
-        setDataset(currentDataset);
-        setAnswerValue(currentDataset.answer);
-        setCotValue(currentDataset.cot || '');
-      }
+      setCurrentDataset(currentDataset);
+      setCotValue(currentDataset.cot);
+      setAnswerValue(currentDataset.answer);
     } catch (error) {
       setSnackbar({
         open: true,
@@ -231,7 +229,7 @@ export default function DatasetDetailsPage({ params }) {
         throw new Error(t('common.failed'));
       }
 
-      setDataset(prev => ({ ...prev, confirmed: true }));
+      setCurrentDataset(prev => ({ ...prev, confirmed: true }));
 
       setSnackbar({
         open: true,
@@ -288,7 +286,7 @@ export default function DatasetDetailsPage({ params }) {
       }
 
       const data = await response.json();
-      setDataset(prev => ({ ...prev, [field]: value }));
+      setCurrentDataset(prev => ({ ...prev, [field]: value }));
 
       setSnackbar({
         open: true,
@@ -372,7 +370,7 @@ export default function DatasetDetailsPage({ params }) {
       setViewDialogOpen(true);
       setViewChunk(null);
 
-      const response = await fetch(`/api/projects/${projectId}/chunks/${encodeURIComponent(chunkId)}`);
+      const response = await fetch(`/api/projects/${projectId}/chunks/${chunkId}`);
 
       if (!response.ok) {
         throw new Error(t('textSplit.fetchChunkFailed'));
@@ -433,9 +431,7 @@ export default function DatasetDetailsPage({ params }) {
       const data = await response.json();
 
       // 更新数据集
-      setDataset(data.dataset);
-      setAnswerValue(data.dataset.answer);
-      setCotValue(data.dataset.cot || '');
+      setCurrentDataset(data.dataset);
 
       setSnackbar({
         open: true,
@@ -466,7 +462,7 @@ export default function DatasetDetailsPage({ params }) {
     );
   }
 
-  if (!dataset) {
+  if (!currentDataset) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Alert severity="error">{t('datasets.noData')}</Alert>
@@ -504,13 +500,13 @@ export default function DatasetDetailsPage({ params }) {
             <Button
               variant="contained"
               color="primary"
-              disabled={confirming || dataset.confirmed}
+              disabled={confirming || currentDataset.confirmed}
               onClick={handleConfirm}
               sx={{ mr: 1 }}
             >
               {confirming ? (
                 <CircularProgress size={24} />
-              ) : dataset.confirmed ? (
+              ) : currentDataset.confirmed ? (
                 t('datasets.confirmed')
               ) : (
                 t('datasets.confirmSave')
@@ -530,7 +526,7 @@ export default function DatasetDetailsPage({ params }) {
             {t('datasets.question')}
           </Typography>
           <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-            {dataset.question}
+            {currentDataset.question}
           </Typography>
         </Box>
 
@@ -543,7 +539,7 @@ export default function DatasetDetailsPage({ params }) {
           onSave={() => handleSave('answer', answerValue)}
           onCancel={() => {
             setEditingAnswer(false);
-            setAnswerValue(dataset.answer);
+            setAnswerValue(currentDataset.answer);
           }}
           onOptimize={handleOpenOptimizeDialog}
         />
@@ -557,7 +553,7 @@ export default function DatasetDetailsPage({ params }) {
           onSave={() => handleSave('cot', cotValue)}
           onCancel={() => {
             setEditingCot(false);
-            setCotValue(dataset.cot || '');
+            setCotValue(currentDataset.cot || '');
           }}
         />
 
@@ -566,24 +562,28 @@ export default function DatasetDetailsPage({ params }) {
             {t('datasets.metadata')}
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Chip label={`${t('datasets.model')}: ${dataset.model}`} variant="outlined" />
-            {dataset.questionLabel && (
-              <Chip label={`${t('common.label')}: ${dataset.questionLabel}`} color="primary" variant="outlined" />
+            <Chip label={`${t('datasets.model')}: ${currentDataset.model}`} variant="outlined" />
+            {currentDataset.questionLabel && (
+              <Chip
+                label={`${t('common.label')}: ${currentDataset.questionLabel}`}
+                color="primary"
+                variant="outlined"
+              />
             )}
             <Chip
-              label={`${t('datasets.createdAt')}: ${new Date(dataset.createdAt).toLocaleString('zh-CN')}`}
+              label={`${t('datasets.createdAt')}: ${new Date(currentDataset.createAt).toLocaleString('zh-CN')}`}
               variant="outlined"
             />
             <Tooltip title={t('textSplit.viewChunk')}>
               <Chip
-                label={`${t('datasets.chunkId')}: ${dataset.chunkId.substring(0, 12)}...`}
+                label={`${t('datasets.chunkId')}: ${currentDataset.chunk.name}`}
                 variant="outlined"
                 color="info"
-                onClick={() => handleViewChunk(dataset.chunkId)}
+                onClick={() => handleViewChunk(currentDataset.chunkId)}
                 sx={{ cursor: 'pointer' }}
               />
             </Tooltip>
-            {dataset.confirmed && (
+            {currentDataset.confirmed && (
               <Chip
                 label={t('datasets.confirmed')}
                 sx={{

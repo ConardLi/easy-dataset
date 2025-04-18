@@ -44,7 +44,7 @@ const EditChunkDialog = ({ open, chunk, onClose, onSave }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{t('textSplit.editChunk', { chunkId: chunk?.id })}</DialogTitle>
+      <DialogTitle>{t('textSplit.editChunk', { chunkId: chunk?.name })}</DialogTitle>
       <DialogContent dividers>
         <TextField
           fullWidth
@@ -172,7 +172,7 @@ export default function ChunkCard({
                     color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark
                   }}
                 >
-                  {chunk.id}
+                  {chunk.name}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Chip
@@ -187,7 +187,7 @@ export default function ChunkCard({
                     }}
                   />
                   <Chip
-                    label={`${chunk.length || 0} ${t('textSplit.characters')}`}
+                    label={`${chunk.size || 0} ${t('textSplit.characters')}`}
                     size="small"
                     color="secondary"
                     variant="outlined"
@@ -282,7 +282,7 @@ export default function ChunkCard({
             </IconButton>
           </Tooltip>
 
-          <Tooltip title={t('textSplit.editChunk')}>
+          <Tooltip title={t('textSplit.editChunk', { chunkId: chunk.name })}>
             <IconButton
               size="small"
               color="warning"

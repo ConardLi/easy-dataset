@@ -34,7 +34,7 @@ export default function ModelSelector({ models, selectedModels, onChange }) {
   // 获取模型名称
   const getModelName = modelId => {
     const model = models.find(m => m.id === modelId);
-    return model ? `${model.provider}: ${model.name}` : modelId;
+    return model ? `${model.providerName}: ${model.modelName}` : modelId;
   };
   const { t } = useTranslation();
 
@@ -59,10 +59,10 @@ export default function ModelSelector({ models, selectedModels, onChange }) {
       >
         {models
           .filter(m => {
-            if (m.provider === 'Ollama') {
-              return m.name && m.endpoint;
+            if (m.providerId.toLowerCase() === 'ollama') {
+              return m.modelName && m.endpoint;
             } else {
-              return m.name && m.endpoint && m.apiKey;
+              return m.modelName && m.endpoint && m.apiKey;
             }
           })
           .map(model => (
@@ -72,7 +72,7 @@ export default function ModelSelector({ models, selectedModels, onChange }) {
               disabled={selectedModels.length >= 3 && !selectedModels.includes(model.id)}
             >
               <Checkbox checked={selectedModels.indexOf(model.id) > -1} />
-              <ListItemText primary={`${model.provider}: ${model.name}`} />
+              <ListItemText primary={`${model.providerName}: ${model.modelName}`} />
             </MenuItem>
           ))}
       </Select>

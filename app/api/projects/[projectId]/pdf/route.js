@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { deleteFile } from '@/lib/db/texts';
 import PdfProcessor from '@/lib/pdf-processing/core';
-import { getProject, updateProject } from '@/lib/db/index';
+import { deleteChunkAndFile } from '@/lib/db/chunks';
+import { getProject, updateProject } from '@/lib/db/projects';
 
 // Replace the deprecated config export with the new export syntax
 export const dynamic = 'force-dynamic';
@@ -47,10 +47,10 @@ export async function GET(request, { params }) {
     });
 
     //准换完成后删除pdf文件
-    deleteFile(projectId, fileName);
+    deleteChunkAndFile(projectId, fileName);
 
     // 更新项目配置，移除已删除的文件
-    const uploadedFiles = project.uploadedFiles || [];
+    const uploadedFiles = JSON.parse(project.uploadedFiles) || [];
     const updatedFiles = uploadedFiles.filter(f => f !== fileName);
     await updateProject(projectId, {
       ...project,

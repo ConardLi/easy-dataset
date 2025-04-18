@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Projects {
+  id               String        @id @default(uuid())
+  name             String
+  description      String
+  reuseConfigFrom  String
+  uploadedFiles    String
+  globalPrompt     String        @default("")
+  questionPrompt   String        @default("")
+  answerPrompt     String        @default("")
+  labelPrompt      String        @default("")
+  domainTreePrompt String        @default("")
+  createAt         DateTime      @default(now())
+  updateAt         DateTime      @updatedAt
+  Questions        Questions[]
+  Datasets         Datasets[]
+  Chunks           Chunks[]
+  ModelConfig      ModelConfig[]
+}
+
+model Chunks {
+  id        String      @id @default(uuid())
+  name      String
+  project   Projects    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  fileName  String
+  content   String
+  summary   String
+  size      Int
+  createAt  DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+  Questions Questions[]
+  Datasets  Datasets[]
+
+  @@index([projectId])
+}
+
+model Questions {
+  id        String   @id @default(uuid())
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  chunk     Chunks   @relation(fields: [chunkId], references: [id])
+  chunkId   String
+  question  String
+  label     String
+  answered  Boolean  @default(false)
+  createAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model Datasets {
+  id            String   @id @default(uuid())
+  project       Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String
+  question      String
+  answer        String
+  chunk         Chunks   @relation(fields: [chunkId], references: [id])
+  chunkId       String
+  model         String
+  questionLabel String
+  cot           String
+  confirmed     Boolean  @default(false)
+  createAt      DateTime @default(now())
+  updateAt      DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model LlmProviders {
+  id        String      @id
+  name      String
+  apiUrl    String
+  createAt  DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+  LlmModels LlmModels[]
+}
+
+model LlmModels {
+  id         String       @id @default(uuid())
+  modelId    String
+  modelName  String
+  provider   LlmProviders @relation(fields: [providerId], references: [id])
+  providerId String
+  createAt   DateTime     @default(now())
+  updateAt   DateTime     @updatedAt
+}
+
+model ModelConfig {
+  id           String   @id @default(uuid())
+  project      Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  providerId   String
+  providerName String
+  endpoint     String
+  apiKey       String
+  modelId      String
+  modelName    String
+  type         String
+  temperature  Float
+  maxTokens    Int
+  topP         Float
+  topK         Float
+  status       Int
+  createAt     DateTime @default(now())
+  updateAt     DateTime @updatedAt
+}
