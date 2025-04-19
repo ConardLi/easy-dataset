@@ -128,7 +128,9 @@
     "deleteSuccess": "删除成功",
     "visitGitHub": "访问GitHub仓库",
     "copy": "复制",
-    "copied": "已复制"
+    "copied": "已复制",
+    "enabled": "已启用",
+    "disabled": "已禁用"
   },
   "home": {
     "title": "Easy Dataset",
@@ -370,7 +372,9 @@
     "generateSuccess": "成功生成数据集：{{question}}",
     "generateFailed": "生成数据集失败：{{error}}",
     "noTagsAndQuestions": "暂无标签和问题",
-    "answerCount": "{{count}} 个答案"
+    "answerCount": "{{count}} 个答案",
+    "enableShortcuts": "翻页快捷键",
+    "shortcutsHelp": "按 ← 向前，按 → 向后，按 y 确认，按 d 删除"
   },
   "update": {
     "newVersion": "新版本",

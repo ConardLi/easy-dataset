@@ -370,7 +370,9 @@
     "generateSuccess": "Successfully generated dataset for: {{question}}",
     "generateFailed": "Failed to generate dataset: {{error}}",
     "noTagsAndQuestions": "No tags and questions available",
-    "answerCount": "{{count}} Answers"
+    "answerCount": "{{count}} Answers",
+    "enableShortcuts": "Page shortcut key",
+    "shortcutsHelp": "Press ← forward, press → backward, press y to confirm, press d to delete"
   },
   "update": {
     "newVersion": "New Version",

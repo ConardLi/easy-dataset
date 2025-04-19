@@ -161,6 +161,10 @@ export default function DatasetDetailsPage({ params }) {
   // 获取数据集列表（用于导航）
   const [datasets, setDatasets] = useState([]);
   const { t } = useTranslation();
+  const [shortcutsEnabled, setShortcutsEnabled] = useState(() => {
+    const storedValue = localStorage.getItem('shortcutsEnabled');
+    return storedValue !== null ? storedValue === 'true' : false;
+  });
 
   // 从本地存储获取模型参数
   const getModelFromLocalStorage = () => {
@@ -456,6 +460,42 @@ export default function DatasetDetailsPage({ params }) {
     }
   };
 
+  // 快捷键状态变化
+  useEffect(() => {
+    localStorage.setItem('shortcutsEnabled', shortcutsEnabled);
+  }, [shortcutsEnabled]);
+
+  // 监听键盘事件
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!shortcutsEnabled) return;
+      switch (event.key) {
+        case 'ArrowLeft': // 上一个
+          handleNavigate('prev');
+          break;
+        case 'ArrowRight': // 下一个
+          handleNavigate('next');
+          break;
+        case 'y': // 确认
+        case 'Y':
+          if (!confirming && !dataset?.confirmed) {
+            handleConfirm();
+          }
+          break;
+        case 'd': // 删除
+        case 'D':
+          handleDelete();
+          break;
+        default:
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [shortcutsEnabled, confirming, dataset]);
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -492,6 +532,21 @@ export default function DatasetDetailsPage({ params }) {
                 percentage: Math.round((datasets.filter(d => d.confirmed).length / datasets.length) * 100)
               })}
             </Typography>
+          </Box>
+          {/* 快捷键启用选项 */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="body1">{t('datasets.enableShortcuts')}</Typography>
+            <Tooltip title={t('datasets.shortcutsHelp')}>
+              <IconButton size="small" color="info">
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>?</Typography>
+              </IconButton>
+            </Tooltip>
+            <Button
+              variant={shortcutsEnabled ? 'contained' : 'outlined'}
+              onClick={() => setShortcutsEnabled((prev) => !prev)}
+            >
+              {shortcutsEnabled ? t('common.enabled') : t('common.disabled')}
+            </Button>
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <IconButton onClick={() => handleNavigate('prev')}>
