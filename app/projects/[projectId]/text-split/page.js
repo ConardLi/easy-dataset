@@ -109,34 +109,38 @@ export default function TextSplitPage({ params }) {
   const handleUploadSuccess = async (fileNames, model,pdfFiles) => {
     console.log(t('textSplit.fileUploadSuccess'), fileNames);
     //上传完处理PDF文件
-    try{
-      setPdfProcessing(true);
-      setError(null);
-      // 重置进度状态
-      setProgress({
-        total: pdfFiles.length,
-        completed: 0,
-        percentage: 0,
-        questionCount: 0
-      });
-      const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
-      for(const file of pdfFiles){
-        const response = await fetch(`/api/projects/${projectId}/pdf?fileName=`+file.name+`&strategy=`+pdfStrategy+`&currentLanguage=`+currentLanguage+`&modelId=`+selectedViosnModel);
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(t('textSplit.pdfProcessingFailed') + errorData.error);
-        }
-        const data = await response.json();
-        // 更新进度状态
-        setProgress(prev => {
-          const completed = prev.completed + 1;
-          const percentage = Math.round((completed / prev.total) * 100);
-          return {
-            ...prev,
-            completed,
-            percentage
-          };
+    try {
+      // 过滤 pdfFiles 列表，只保留那些在当前成功上传的文件列表 (fileNames) 中存在的 PDF 文件
+      const successfullyUploadedPdfs = pdfFiles.filter(pdfFile => fileNames.includes(pdfFile.name));
+      if (successfullyUploadedPdfs.length > 0) {
+        setPdfProcessing(true);
+        setError(null);
+        // 重置进度状态
+        setProgress({
+          total: pdfFiles.length,
+          completed: 0,
+          percentage: 0,
+          questionCount: 0
         });
+        const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
+        for(const file of pdfFiles){
+          const response = await fetch(`/api/projects/${projectId}/pdf?fileName=`+file.name+`&strategy=`+pdfStrategy+`&currentLanguage=`+currentLanguage+`&modelId=`+selectedViosnModel);
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(t('textSplit.pdfProcessingFailed') + errorData.error);
+          }
+          const data = await response.json();
+          // 更新进度状态
+          setProgress(prev => {
+            const completed = prev.completed + 1;
+            const percentage = Math.round((completed / prev.total) * 100);
+            return {
+              ...prev,
+              completed,
+              percentage
+            };
+          });
+        }
       }
     }catch(error){
       console.error(t('textSplit.pdfProcessingFailed'), error);
