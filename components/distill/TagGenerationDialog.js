@@ -152,14 +152,24 @@ export default function TagGenerationDialog({ open, onClose, onGenerated, projec
           <Typography variant="subtitle1" gutterBottom>
             {t('distill.parentTag')}:
           </Typography>
+
           <TextField
             fullWidth
             variant="outlined"
             value={parentTagName}
             onChange={e => setParentTagName(e.target.value)}
             placeholder={t('distill.parentTagPlaceholder')}
-            disabled={loading}
-            helperText={t('distill.parentTagHelp')}
+            disabled={loading || !parentTag}
+            // 如果是顶级标签，设置为只读
+            InputProps={{
+              readOnly: !parentTag
+            }}
+            // 显示适当的帮助文本
+            helperText={
+              !parentTag
+                ? t('distill.rootTopicHelperText', { defaultValue: '使用项目名称作为顶级主题' })
+                : t('distill.parentTagHelp')
+            }
           />
         </Box>
 

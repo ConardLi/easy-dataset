@@ -106,7 +106,7 @@ export async function POST(request, { params }) {
 
     let chunkData = await getChunkById(question.chunkId);
     datasets.chunkName = chunkData.name;
-    datasets.chunkContent = chunkData.content;
+    datasets.chunkContent = ''; // 不再保存原始文本块内容
     datasets.questionId = question.id;
 
     let dataset = await createDataset(datasets);

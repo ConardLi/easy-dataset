@@ -7,10 +7,10 @@ import axios from 'axios';
  */
 class AutoDistillService {
   /**
-   * 执行自动蒸馏任务
+   * 执行自动蒸馆任务
    * @param {Object} config - 配置信息
    * @param {string} config.projectId - 项目ID
-   * @param {string} config.topic - 蒸馏主题
+   * @param {string} config.topic - 蒸馆主题
    * @param {number} config.levels - 标签层级
    * @param {number} config.tagsPerLevel - 每层标签数量
    * @param {number} config.questionsPerTag - 每个标签问题数量
@@ -34,6 +34,9 @@ class AutoDistillService {
       onLog
     } = config;
 
+    // 项目名称存储，用于整个流程共享
+    this.projectName = '';
+
     try {
       // 初始化进度信息
       if (onProgress) {
@@ -46,6 +49,21 @@ class AutoDistillService {
           datasetsTotal: 0,
           datasetsBuilt: 0
         });
+      }
+
+      // 获取项目名称，只需获取一次
+      try {
+        const projectResponse = await axios.get(`/api/projects/${projectId}`);
+        if (projectResponse && projectResponse.data && projectResponse.data.name) {
+          this.projectName = projectResponse.data.name;
+          this.addLog(onLog, `Using project name "${this.projectName}" as the top-level tag`);
+        } else {
+          this.projectName = topic; // 如果无法获取项目名称，则使用主题作为默认值
+          this.addLog(onLog, `Could not find project name, using topic "${topic}" as the top-level tag`);
+        }
+      } catch (error) {
+        this.projectName = topic; // 出错时使用主题作为默认值
+        this.addLog(onLog, `Failed to get project name, using topic "${topic}" instead: ${error.message}`);
       }
 
       // 添加日志
@@ -107,7 +125,7 @@ class AutoDistillService {
    * 构建标签树
    * @param {Object} config - 配置信息
    * @param {string} config.projectId - 项目ID
-   * @param {string} config.topic - 蒸馏主题
+   * @param {string} config.topic - 蒸馆主题
    * @param {number} config.levels - 标签层级
    * @param {number} config.tagsPerLevel - 每层标签数量
    * @param {Object} config.model - 模型信息
@@ -118,6 +136,9 @@ class AutoDistillService {
    */
   async buildTagTree(config) {
     const { projectId, topic, levels, tagsPerLevel, model, language, onProgress, onLog } = config;
+
+    // 使用已经获取的项目名称，如果未获取到，则使用主题
+    const projectName = this.projectName || topic;
 
     // 递归构建标签树
     const buildTagsForLevel = async (parentTag = null, parentTagPath = '', level = 1) => {
@@ -164,11 +185,27 @@ class AutoDistillService {
 
         this.addLog(onLog, `Tag tree level ${level}: Creating ${tagsPerLevel} subtags for "${parentTagName}"...`);
 
+        // 构建标签路径，确保以项目名称开头
+        let tagPathWithProjectName;
+        if (level === 1) {
+          // 如果是第一级，使用项目名称
+          tagPathWithProjectName = projectName;
+        } else {
+          // 如果不是第一级，确保标签路径以项目名称开头
+          if (!parentTagPath) {
+            tagPathWithProjectName = projectName;
+          } else if (!parentTagPath.startsWith(projectName)) {
+            tagPathWithProjectName = `${projectName} > ${parentTagPath}`;
+          } else {
+            tagPathWithProjectName = parentTagPath;
+          }
+        }
+
         try {
           const response = await axios.post(`/api/projects/${projectId}/distill/tags`, {
             parentTag: parentTagName,
             parentTagId: parentTag ? parentTag.id : null,
-            tagPath: parentTagPath || parentTagName,
+            tagPath: tagPathWithProjectName || parentTagName,
             count: needToCreate,
             model,
             language
@@ -199,8 +236,13 @@ class AutoDistillService {
       // 如果不是最后一层，继续递归构建下一层标签
       if (level < levels) {
         for (const tag of currentLevelTags) {
-          // 构建标签路径
-          const tagPath = parentTagPath ? `${parentTagPath} > ${tag.label}` : tag.label;
+          // 构建标签路径，确保以项目名称开头
+          let tagPath;
+          if (parentTagPath) {
+            tagPath = `${parentTagPath} > ${tag.label}`;
+          } else {
+            tagPath = `${projectName} > ${tag.label}`;
+          }
 
           // 递归构建子标签
           await buildTagsForLevel(tag, tagPath, level + 1);
@@ -535,7 +577,17 @@ class AutoDistillService {
    * @param {Array} allTags - 所有标签
    * @returns {string} - 标签路径
    */
+  /**
+   * 获取标签路径，确保始终以项目名称开头
+   * @param {Object} tag - 标签对象
+   * @param {Array} allTags - 所有标签数组
+   * @returns {string} 标签路径
+   */
   getTagPath(tag, allTags) {
+    // 使用已经获取的项目名称
+    const projectName = this.projectName || '';
+
+    // 构建标签路径
     const path = [];
     let currentTag = tag;
 
@@ -546,6 +598,11 @@ class AutoDistillService {
       } else {
         currentTag = null;
       }
+    }
+
+    // 确保路径以项目名称开头
+    if (projectName && path.length > 0 && path[0] !== projectName) {
+      path.unshift(projectName);
     }
 
     return path.join(' > ');

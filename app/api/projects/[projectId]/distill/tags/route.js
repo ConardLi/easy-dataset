@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { distillTagsPrompt } from '@/lib/llm/prompts/distillTags';
 import { distillTagsEnPrompt } from '@/lib/llm/prompts/distillTagsEn';
 import { db } from '@/lib/db';
+import { getProject } from '@/lib/db/projects';
 
 const LLMClient = require('@/lib/llm/core');
 
@@ -37,9 +38,13 @@ export async function POST(request, { params }) {
     // 创建LLM客户端
     const llmClient = new LLMClient(model);
 
+    // 获取项目配置
+    const project = await getProject(projectId);
+    const { globalPrompt } = project || {};
+
     // 生成提示词
     const promptFunc = language === 'en' ? distillTagsEnPrompt : distillTagsPrompt;
-    const prompt = promptFunc(tagPath, parentTag, existingTagNames, count);
+    const prompt = promptFunc(tagPath, parentTag, existingTagNames, count, globalPrompt);
 
     // 调用大模型生成标签
     const { answer } = await llmClient.getResponseWithCOT(prompt);

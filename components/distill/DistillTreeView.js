@@ -38,6 +38,8 @@ const DistillTreeView = forwardRef(function DistillTreeView(
   const [questionToDelete, setQuestionToDelete] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [tagToDelete, setTagToDelete] = useState(null);
+  const [project, setProject] = useState(null);
+  const [projectName, setProjectName] = useState('');
 
   // 使用生成数据集的hook
   const { generateSingleDataset } = useGenerateDataset();
@@ -79,6 +81,21 @@ const DistillTreeView = forwardRef(function DistillTreeView(
     },
     [projectId]
   );
+
+  // 获取项目信息，获取项目名称
+  useEffect(() => {
+    if (projectId) {
+      axios
+        .get(`/api/projects/${projectId}`)
+        .then(response => {
+          setProject(response.data);
+          setProjectName(response.data.name || '');
+        })
+        .catch(error => {
+          console.error('获取项目信息失败:', error);
+        });
+    }
+  }, [projectId]);
 
   // 初始化时获取问题统计信息
   useEffect(() => {
@@ -243,17 +260,36 @@ const DistillTreeView = forwardRef(function DistillTreeView(
       const findPath = (currentTag, path = []) => {
         const newPath = [currentTag.label, ...path];
 
-        if (!currentTag.parentId) return newPath;
+        if (!currentTag.parentId) {
+          // 如果是顶级标签，确保路径以项目名称开始
+          if (projectName && !newPath.includes(projectName)) {
+            return [projectName, ...newPath];
+          }
+          return newPath;
+        }
 
         const parentTag = tags.find(t => t.id === currentTag.parentId);
-        if (!parentTag) return newPath;
+        if (!parentTag) {
+          // 如果没有找到父标签，确保路径以项目名称开始
+          if (projectName && !newPath.includes(projectName)) {
+            return [projectName, ...newPath];
+          }
+          return newPath;
+        }
 
         return findPath(parentTag, newPath);
       };
 
-      return findPath(tag).join(' > ');
+      const path = findPath(tag);
+
+      // 最终检查，确保路径以项目名称开始
+      if (projectName && path.length > 0 && path[0] !== projectName) {
+        path.unshift(projectName);
+      }
+
+      return path.join(' > ');
     },
-    [tags]
+    [tags, projectName]
   );
 
   // 渲染标签树

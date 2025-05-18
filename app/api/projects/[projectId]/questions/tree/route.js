@@ -22,8 +22,6 @@ export async function GET(request, { params }) {
     const tagsOnly = searchParams.get('tagsOnly') === 'true';
     const isDistill = searchParams.get('isDistill') === 'true';
 
-    console.log('[questions/tree] 请求参数:', { projectId, tag, input, tagsOnly, isDistill });
-
     if (tag) {
       // 获取指定标签的问题数据（包含完整字段）
       const questions = await getQuestionsByTag(projectId, tag, input, isDistill);

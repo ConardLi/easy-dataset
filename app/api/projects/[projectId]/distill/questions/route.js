@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { distillQuestionsPrompt } from '@/lib/llm/prompts/distillQuestions';
 import { distillQuestionsEnPrompt } from '@/lib/llm/prompts/distillQuestionsEn';
 import { db } from '@/lib/db';
+import { getProject } from '@/lib/db/projects';
 
 const LLMClient = require('@/lib/llm/core');
 
@@ -40,8 +41,9 @@ export async function POST(request, { params }) {
           projectId,
           fileId: 'distilled',
           fileName: 'distilled.md',
-          content: '此文本块用于存储通过数据蒸馏生成的问题，不与实际文献相关。',
-          summary: '蒸馏生成的问题集合',
+          content:
+            'This text block is used to store questions generated through data distillation and is not related to actual literature.',
+          summary: 'Questions generated through data distillation',
           size: 0
         }
       });
@@ -63,9 +65,13 @@ export async function POST(request, { params }) {
     // 使用前端传过来的模型配置
     const llmClient = new LLMClient(model);
 
+    // 获取项目配置
+    const project = await getProject(projectId);
+    const { globalPrompt } = project || {};
+
     // 生成提示词
     const promptFunc = language === 'en' ? distillQuestionsEnPrompt : distillQuestionsPrompt;
-    const prompt = promptFunc(tagPath, currentTag, count, existingQuestionTexts);
+    const prompt = promptFunc(tagPath, currentTag, count, existingQuestionTexts, globalPrompt);
 
     // 调用大模型生成问题
     const { answer } = await llmClient.getResponseWithCOT(prompt);

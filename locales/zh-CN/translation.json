@@ -25,7 +25,7 @@
     "loadPromptsFailed": "加载提示词配置失败",
     "savePromptsSuccess": "保存提示词配置成功",
     "savePromptsFailed": "保存提示词配置失败",
-    "title": "设置",
+    "title": "项目设置",
     "basicInfo": "基本信息",
     "modelConfig": "模型配置",
     "taskConfig": "任务配置",
@@ -124,6 +124,7 @@
     "deleteConfirm": "确认要删除这个问题吗？"
   },
   "common": {
+    "help": "帮助",
     "jumpTo": "跳转至",
     "unknownError": "未知错误",
     "create": "创建",
@@ -149,6 +150,7 @@
     "backToList": "返回列表",
     "label": "标签",
     "confirmDeleteDescription": "确认删除吗？此操作不可恢复。",
+    "more": "更多",
     "fetchError": "获取数据出错",
     "confirmDeleteQuestion": "确认删除此问题吗？此操作不可恢复。",
     "deleteSuccess": "删除成功",
@@ -404,6 +406,11 @@
     "tokenHelp": "您可以从HuggingFace设置页面获取令牌"
   },
   "datasets": {
+    "loadingDataset": "正在加载数据集详情...",
+    "datasetNotFound": "未找到数据集",
+    "optimizeTitle": "AI 优化",
+    "optimizeAdvice": "优化建议",
+    "optimizePlaceholder": "请输入您对答案的改进建议，AI将根据您的建议优化答案和思维链",
     "generatingDataset": "正在生成数据集",
     "aiOptimizeAdvicePlaceholder": "请输入您对答案的改进建议，AI将根据您的建议优化答案和思维链",
     "aiOptimizeAdvice": "请输入您对答案的改进建议，AI将根据您的建议优化答案和思维链",
@@ -515,6 +522,7 @@
     "title": "文本块",
     "defaultTitle": "默认标题"
   },
+  "documentation": "文档",
   "models": {
     "configNotFound": "未找到模型配置",
     "parseError": "解析模型配置失败",
@@ -635,6 +643,8 @@
     "stageBuildingQuestions": "正在生成问题",
     "stageBuildingDatasets": "正在生成数据集",
     "stageCompleted": "任务已完成",
-    "datasetsProgress": "数据集生成进度"
+    "datasetsProgress": "数据集生成进度",
+    "rootTopicHelperText": "默认以项目名称作为顶级蒸馏主题，如需更改，请到项目设置中更改项目名称。",
+    "addChildTag": "生成子标签"
   }
 }

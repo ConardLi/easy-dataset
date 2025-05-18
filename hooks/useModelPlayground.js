@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useAtomValue } from 'jotai/index';
 import { modelConfigListAtom } from '@/lib/store';
 
-export default function useModelPlayground(projectId) {
+export default function useModelPlayground(projectId, defaultModelId = null) {
   // 状态管理
-  const [selectedModels, setSelectedModels] = useState([]);
+  const [selectedModels, setSelectedModels] = useState(defaultModelId ? [defaultModelId] : []);
   const [loading, setLoading] = useState({});
   const [userInput, setUserInput] = useState('');
   const [conversations, setConversations] = useState({});

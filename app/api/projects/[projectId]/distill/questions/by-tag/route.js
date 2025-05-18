@@ -48,8 +48,9 @@ export async function GET(request, { params }) {
           projectId,
           fileId: 'distilled',
           fileName: 'distilled.md',
-          content: '此文本块用于存储通过数据蒸馏生成的问题，不与实际文献相关。',
-          summary: '蒸馏生成的问题集合',
+          content:
+            'This text block is used to store questions generated through data distillation and is not related to actual literature.',
+          summary: 'Questions generated through data distillation',
           size: 0
         }
       });
@@ -61,8 +62,6 @@ export async function GET(request, { params }) {
         chunkId: distillChunk.id
       }
     });
-
-    console.log('[distill/questions/by-tag] 查询到问题数量:', questions.length);
 
     return NextResponse.json(questions);
   } catch (error) {

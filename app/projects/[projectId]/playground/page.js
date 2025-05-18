@@ -13,10 +13,11 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/index';
 import { modelConfigListAtom } from '@/lib/store';
 
-export default function ModelPlayground() {
+export default function ModelPlayground({ searchParams }) {
   const theme = useTheme();
   const params = useParams();
   const { projectId } = params;
+  const modelId = searchParams?.modelId || null;
   const styles = playgroundStyles(theme);
   const { t } = useTranslation();
 
@@ -35,7 +36,7 @@ export default function ModelPlayground() {
     handleSendMessage,
     handleClearConversations,
     handleOutputModeChange
-  } = useModelPlayground(projectId);
+  } = useModelPlayground(projectId, modelId);
 
   const availableModels = useAtomValue(modelConfigListAtom);
 

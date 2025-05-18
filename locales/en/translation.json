@@ -124,6 +124,7 @@
     "deleteConfirm": "Are you sure you want to delete this question? This action cannot be undone."
   },
   "common": {
+    "help": "Help",
     "jumpTo": "Jump To",
     "unknownError": "Unknown Error",
     "create": "Create",
@@ -150,6 +151,7 @@
     "backToList": "Back to List",
     "label": "Label",
     "confirmDeleteDescription": "Are you sure you want to delete this File? This action cannot be undone.",
+    "more": "More",
     "fetchError": "Fetching data failed",
     "confirmDeleteQuestion": "Are you sure you want to delete this question? This action cannot be undone.",
     "deleteSuccess": "Delete successful",
@@ -401,6 +403,11 @@
     "tokenHelp": "You can get your token from HuggingFace settings page"
   },
   "datasets": {
+    "loadingDataset": "Loading Dataset...",
+    "datasetNotFound": "Dataset Not Found",
+    "optimizeTitle": "AI Optimize",
+    "optimizeAdvice": "Optimize Advice",
+    "optimizePlaceholder": "Please enter your suggestions for improving the answer, and AI will optimize the answer and reasoning chain based on your suggestions",
     "generatingDataset": "Generating Dataset",
     "aiOptimizeAdvicePlaceholder": "Please enter your suggestions for improving the answer, and AI will optimize the answer and reasoning chain based on your suggestions",
     "aiOptimizeAdvice": "Please enter your suggestions for improving the answer, and AI will optimize the answer and reasoning chain based on your suggestions",
@@ -512,6 +519,7 @@
     "title": "Text Chunk",
     "defaultTitle": "Default Title"
   },
+  "documentation": "Documentation",
   "models": {
     "configNotFound": "Model config not found",
     "parseError": "Failed to parse model config",
@@ -570,7 +578,7 @@
     "deleteDirectoryFailed": "Failed to delete project directory"
   },
   "distill": {
-    "title": "Data Distillation",
+    "title": "Distill",
     "generateRootTags": "Generate Root Tags",
     "generateSubTags": "Generate Sub Tags",
     "generateQuestions": "Generate Questions",
@@ -594,6 +602,7 @@
     "selectModelFirst": "Please select a model first",
     "selectModel": "Select Model",
     "generateTagsError": "Failed to generate tags",
+    "generateTags": "Generate Tags",
     "subTags": "sub-tags",
     "questions": "questions",
     "deleteTagConfirmTitle": "Confirm to delete tag?",
@@ -633,6 +642,8 @@
     "stageBuildingQuestions": "Generating Questions",
     "stageBuildingDatasets": "Building Datasets",
     "stageCompleted": "Task Completed",
-    "datasetsProgress": "Datasets Progress"
+    "datasetsProgress": "Datasets Progress",
+    "rootTopicHelperText": "By default, the project name is used as the top-level distillation theme. If you need to change it, please go to the project settings to modify the project name.",
+    "addChildTag": "Add Child Tag"
   }
 }

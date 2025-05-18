@@ -36,11 +36,14 @@ import { ProviderIcon } from '@lobehub/icons';
 import { toast } from 'sonner';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ScienceIcon from '@mui/icons-material/Science';
+import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/lib/store';
 
 export default function ModelSettings({ projectId }) {
   const { t } = useTranslation();
+  const router = useRouter();
   // 模型对话框状态
   const [openModelDialog, setOpenModelDialog] = useState(false);
   const [editingModel, setEditingModel] = useState(null);
@@ -291,18 +294,29 @@ export default function ModelSettings({ projectId }) {
     <Card>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" fontWeight="bold">
-            {t('models.title')}
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenModelDialog()}
-            size="small"
-          >
-            {t('models.add')}
-          </Button>
+          <Typography variant="h6" fontWeight="bold"></Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<ScienceIcon />}
+              onClick={() => router.push(`/projects/${projectId}/playground`)}
+              size="small"
+              sx={{ textTransform: 'none' }}
+            >
+              {t('playground.title')}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={() => handleOpenModelDialog()}
+              size="small"
+              sx={{ textTransform: 'none' }}
+            >
+              {t('models.add')}
+            </Button>
+          </Box>
         </Box>
 
         <Stack spacing={2}>
@@ -368,18 +382,32 @@ export default function ModelSettings({ projectId }) {
                       variant="outlined"
                     />
                   </Tooltip>
-                  <IconButton size="small" onClick={() => handleOpenModelDialog(model)} color="primary">
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+                  <Tooltip title={t('playground.title')}>
+                    <IconButton
+                      size="small"
+                      onClick={() => router.push(`/projects/${projectId}/playground?modelId=${model.id}`)}
+                      color="secondary"
+                    >
+                      <ScienceIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
 
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDeleteModel(model.id)}
-                    disabled={modelConfigList.length <= 1}
-                    color="error"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
+                  <Tooltip title={t('common.edit')}>
+                    <IconButton size="small" onClick={() => handleOpenModelDialog(model)} color="primary">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title={t('common.delete')}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDeleteModel(model.id)}
+                      disabled={modelConfigList.length <= 1}
+                      color="error"
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
               </Box>
             </Paper>

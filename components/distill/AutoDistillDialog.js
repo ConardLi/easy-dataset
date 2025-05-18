@@ -113,11 +113,14 @@ export default function AutoDistillDialog({ open, onClose, onStart, projectId, p
           {/* 左侧：输入区域 */}
           <Box sx={{ flex: 1 }}>
             <TextField
-              fullWidth
-              margin="normal"
               label={t('distill.distillTopic')}
               value={topic}
               onChange={e => setTopic(e.target.value)}
+              fullWidth
+              margin="normal"
+              required
+              disabled
+              helperText={t('distill.rootTopicHelperText')}
             />
 
             <Box sx={{ mt: 3, mb: 2 }}>

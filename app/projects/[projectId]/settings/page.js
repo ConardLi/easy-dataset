@@ -97,10 +97,6 @@ export default function SettingsPage({ params }) {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        {t('settings.title')}
-      </Typography>
-
       <Paper sx={{ mb: 4 }}>
         <Tabs
           value={activeTab}

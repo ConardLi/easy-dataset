@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/lib/store';
-import { Box, Typography, Paper, Container, Button, CircularProgress, Alert, Tabs, Tab, Grid } from '@mui/material';
+import { Box, Typography, Paper, Container, Button, CircularProgress, Alert, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import DistillTreeView from '@/components/distill/DistillTreeView';
@@ -13,6 +13,7 @@ import TagGenerationDialog from '@/components/distill/TagGenerationDialog';
 import QuestionGenerationDialog from '@/components/distill/QuestionGenerationDialog';
 import AutoDistillDialog from '@/components/distill/AutoDistillDialog';
 import AutoDistillProgress from '@/components/distill/AutoDistillProgress';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { autoDistillService } from './autoDistillService';
 import axios from 'axios';
 
@@ -313,10 +314,29 @@ export default function DistillPage() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
       <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h5" component="h1" fontWeight="bold">
-            {t('distill.title')}
-          </Typography>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, paddingLeft: '32px' }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h5" component="h1" fontWeight="bold">
+              {t('distill.title')}
+            </Typography>
+            <Tooltip title={t('common.help')}>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  const helpUrl =
+                    i18n.language === 'en'
+                      ? 'https://docs.easy-dataset.com/ed/en/advanced/images-and-media'
+                      : 'https://docs.easy-dataset.com/jin-jie-shi-yong/images-and-media';
+                  window.open(helpUrl, '_blank');
+                }}
+                sx={{ color: 'text.secondary' }}
+              >
+                <HelpOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Button
               variant="outlined"

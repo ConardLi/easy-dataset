@@ -134,6 +134,7 @@ export default function ChunkList({
         onBatchGenerateQuestions={handleBatchGenerateQuestions}
         questionFilter={questionFilter}
         setQuestionFilter={event => setQuestionFilter(event.target.value)}
+        chunks={chunks}
       />
 
       <Grid container spacing={2}>
