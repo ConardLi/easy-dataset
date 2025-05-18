@@ -51,6 +51,15 @@ export default function TextSplitPage({ params }) {
     questionCount: 0 // 已生成的问题数量
   });
 
+  const [pageProfress, setPageProfress] = useState({
+    strategy: 'default',
+    taskStatus: 'pending',
+    fileIndex: 1,
+    total: 0,
+    completed: 0,
+    percentage: 0
+  });
+
   // 加载文本块数据
   useEffect(() => {
     fetchChunks();
@@ -105,6 +114,7 @@ export default function TextSplitPage({ params }) {
       });
 
       const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
+      let fileIndex = 1;
       for (const file of pdfFiles) {
         // 关键修正：遍历过滤后的列表
         const response = await fetch(
@@ -115,6 +125,45 @@ export default function TextSplitPage({ params }) {
           throw new Error(t('textSplit.pdfProcessingFailed') + errorData.error);
         }
         const data = await response.json();
+        const taskId = data.result;
+        //定时器，循环查询任务状态
+        await new Promise(resolve => {
+          const interval = setInterval(async () => {
+            //查询进度信息
+            const taskResponse = await fetch(`/api/task/${taskId}`);
+            if (!taskResponse.ok) {
+              const errorData = await taskResponse.json();
+              clearInterval(interval);
+              resolve();
+              throw new Error(t('textSplit.pdfProcessingFailed') + errorData.error);
+            }
+            const taskData = await taskResponse.json();
+            //有时候启动任务了，但是等到任务更新进度，就开始查询会导致message为空
+            if (taskData.message) {
+              const message = JSON.parse(taskData.message);
+              // 设置页面进度信息
+              setPageProfress({
+                strategy: message.strategy || 'default',
+                taskStatus: message.taskStatus,
+                fileIndex: fileIndex,
+                total: message.total,
+                completed: message.current,
+                percentage: parseInt(taskData.progress)
+              });
+            }
+            //completed标志任务完成
+            if (taskData.status === 'completed') {
+              clearInterval(interval);
+              resolve();
+            } else if (taskData.status === 'failed') {
+              //failed处理失败，终止当前定时器
+              console.error(t('textSplit.pdfProcessingFailed'), taskData.error);
+              setError({ severity: 'error', message: taskData.error });
+              clearInterval(interval);
+              resolve();
+            }
+          }, 1000);
+        });
         // 更新进度状态
         setProgress(prev => {
           const completed = prev.completed + 1;
@@ -124,6 +173,15 @@ export default function TextSplitPage({ params }) {
             completed,
             percentage
           };
+        });
+        //重置页面处理进度
+        setPageProfress({
+          fileIndex: fileIndex++,
+          strategy: 'default',
+          taskStatus: 'pending',
+          total: 0,
+          completed: 0,
+          percentage: 0
         });
       }
     } catch (error) {
@@ -616,12 +674,13 @@ export default function TextSplitPage({ params }) {
             p: 3,
             borderRadius: 2,
             bgcolor: 'background.paper',
-            minWidth: 300
+            minWidth: 400
           }}
         >
           <CircularProgress size={40} sx={{ mb: 2 }} />
-          <Typography variant="h6">{t('textSplit.pdfProcessing')}</Typography>
-
+          <Typography variant="h6">
+            {t('textSplit.pdfProcessing')}({t(`textSplit.task.${pageProfress.taskStatus}`)})
+          </Typography>
           {progress.total > 1 ? (
             <Box sx={{ width: '100%', mt: 1, mb: 2 }}>
               <Box
@@ -647,6 +706,39 @@ export default function TextSplitPage({ params }) {
             <Typography variant="body2" color="text.secondary">
               {t('textSplit.processingPleaseWait')}
             </Typography>
+          )}
+          {pageProfress.total > 1 ? (
+            <Box sx={{ width: '100%', mt: 1, mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  mb: 0.5
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  {progress.total > 1
+                    ? t('textSplit.pdfPageProcessIndex', {
+                        fileIndex: pageProfress.fileIndex
+                      })
+                    : ''}
+                  {t('textSplit.pdfPageProcessStatus', {
+                    total: pageProfress.total,
+                    completed: pageProfress.completed
+                  })}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {pageProfress.percentage}%
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={pageProfress.percentage}
+                sx={{ height: 8, borderRadius: 4 }}
+              />
+            </Box>
+          ) : (
+            ''
           )}
         </Paper>
       </Backdrop>

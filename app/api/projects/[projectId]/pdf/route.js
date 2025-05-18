@@ -57,7 +57,7 @@ export async function GET(request, { params }) {
     return NextResponse.json({
       projectId,
       project,
-      batch_id: result.data
+      result: result.data
     });
   } catch (error) {
     console.error('PDF处理流程出错:', error);

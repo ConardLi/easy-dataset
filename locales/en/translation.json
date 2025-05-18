@@ -270,6 +270,8 @@
     "generateQuestions": "Generate Questions",
     "charsCount": "Characters",
     "pdfProcessStatus": "Total {{total}} PDF files, {{completed}} have been converted",
+    "pdfPageProcessIndex": "Processing file {{fileIndex}} of ",
+    "pdfPageProcessStatus": "{{completed}} of {{total}} pages converted",
     "pdfProcessing": "Converting PDF file...",
     "pdfProcessingFailed": "PDF file conversion failed!",
     "pdfProcess": "PDF file detected!",
@@ -311,6 +313,14 @@
       "rebuildDesc": "Generate a completely new domain tree based on all document contents",
       "keepOption": "Keep Unchanged",
       "keepDesc": "Keep the current domain tree structure unchanged without any modifications"
+    },
+    "task": {
+      "pending": "Pending",
+      "starting": "Ready to process",
+      "finished": "Completed",
+      "running": "Processing",
+      "waiting-file": "Waiting for file",
+      "done": "Finished"
     }
   },
   "domain": {

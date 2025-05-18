@@ -141,3 +141,18 @@ model ModelConfig {
   createAt     DateTime @default(now())
   updateAt     DateTime @updatedAt
 }
+
+model Task {
+  id           String   @id @default(nanoid())
+  projectId    String
+  name         String
+  status       String   @default("")
+  progress     Float    @default(0)
+  result       String   @default("")
+  error        String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  message      String   @default("")
+  extension    String   @default("")
+}
+
