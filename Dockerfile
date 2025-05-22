@@ -6,8 +6,8 @@ RUN npm install -g pnpm@9
 FROM pnpm-base AS builder
 WORKDIR /app
 
-# 设置Prisma只下载linux-musl-openssl-3.0.x平台的二进制文件
-ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x
+# 添加构建参数，用于识别目标平台
+ARG TARGETPLATFORM
 
 # 安装构建依赖
 RUN apk add --no-cache --virtual .build-deps \
@@ -27,9 +27,19 @@ RUN apk add --no-cache --virtual .build-deps \
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install
 
-# 复制源代码并构建
+# 复制源代码
 COPY . .
-RUN pnpm build
+
+# 根据目标平台设置Prisma二进制目标并构建应用
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        echo "Configuring for ARM64 platform"; \
+        sed -i 's/binaryTargets = \[.*\]/binaryTargets = \["linux-musl-arm64-openssl-3.0.x"\]/' prisma/schema.prisma; \
+        PRISMA_CLI_BINARY_TARGETS="linux-musl-arm64-openssl-3.0.x" pnpm build; \
+    else \
+        echo "Configuring for AMD64 platform (default)"; \
+        sed -i 's/binaryTargets = \[.*\]/binaryTargets = \["linux-musl-openssl-3.0.x"\]/' prisma/schema.prisma; \
+        PRISMA_CLI_BINARY_TARGETS="linux-musl-openssl-3.0.x" pnpm build; \
+    fi
 
 # 构建完成后移除开发依赖，只保留生产依赖
 RUN pnpm prune --prod
