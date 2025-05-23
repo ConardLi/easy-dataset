@@ -673,7 +673,8 @@
       "text-processing": "文献处理",
       "question-generation": "问题生成",
       "answer-generation": "答案生成",
-      "data-distillation": "数据蒸馈"
+      "data-distillation": "数据蒸馈",
+      "pdf-processing": "PDF解析"
     },
     "filters": {
       "status": "任务状态",

@@ -50,6 +50,7 @@ export default function TaskFilters({ statusFilter, setStatusFilter, typeFilter,
           <MenuItem value="question-generation">{t('tasks.types.question-generation')}</MenuItem>
           <MenuItem value="answer-generation">{t('tasks.types.answer-generation')}</MenuItem>
           <MenuItem value="data-distillation">{t('tasks.types.data-distillation')}</MenuItem>
+          <MenuItem value="pdf-processing">{t('tasks.types.pdf-processing')}</MenuItem>
         </Select>
       </FormControl>
 

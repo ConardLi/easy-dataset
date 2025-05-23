@@ -671,7 +671,8 @@
       "text-processing": "Text Processing",
       "question-generation": "Question Generation",
       "answer-generation": "Answer Generation",
-      "data-distillation": "Data Distillation"
+      "data-distillation": "Data Distillation",
+      "pdf-processing": "PDF Processing"
     },
     "filters": {
       "status": "Task Status",
