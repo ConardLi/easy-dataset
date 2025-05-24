@@ -122,7 +122,7 @@ export async function DELETE(request, { params }) {
         project
       });
 
-      const tocPath = path.join(fileInfo.path, '../toc', fileInfo.fileName.replace('.md', '') + '-toc.json');
+      const tocPath = path.join(fileInfo.path, '../toc', fileInfo.fileName.replace(/\.[^/.]+$/, '') + '-toc.json');
       await fs.rm(tocPath, { recursive: true });
     } catch (error) {
       console.error('Error updating domain tree after file deletion:', error);
