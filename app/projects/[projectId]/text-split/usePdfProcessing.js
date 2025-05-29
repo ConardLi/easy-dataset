@@ -2,7 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { selectedModelInfoAtom } from '@/lib/store';
+import { useAtomValue } from 'jotai/index';
+import { toast } from 'sonner';
 import i18n from '@/lib/i18n';
+import axios from 'axios';
 
 /**
  * PDF处理的自定义Hook
@@ -18,6 +22,7 @@ export default function usePdfProcessing(projectId) {
     percentage: 0,
     questionCount: 0
   });
+  const model = useAtomValue(selectedModelInfoAtom);
 
   /**
    * 重置进度状态
@@ -43,46 +48,43 @@ export default function usePdfProcessing(projectId) {
   const handlePdfProcessing = useCallback(
     async (pdfFiles, pdfStrategy, selectedViosnModel, setError) => {
       try {
-        setPdfProcessing(true);
         setError && setError(null);
 
-        // 重置进度：基于新上传的文件数量
-        setProgress({
-          total: pdfFiles.length,
-          completed: 0,
-          percentage: 0,
-          questionCount: 0
-        });
-
         const currentLanguage = i18n.language === 'zh-CN' ? '中文' : 'en';
-        for (const file of pdfFiles) {
-          const response = await fetch(
-            `/api/projects/${projectId}/pdf?fileName=${encodeURIComponent(file.name)}&strategy=${pdfStrategy}&currentLanguage=${currentLanguage}&modelId=${selectedViosnModel}`
-          );
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(t('textSplit.pdfProcessingFailed') + errorData.error);
-          }
-          const data = await response.json();
 
-          // 更新进度状态
-          setProgress(prev => {
-            const completed = prev.completed + 1;
-            const percentage = Math.round((completed / prev.total) * 100);
-            return {
-              ...prev,
-              completed,
-              percentage
-            };
+        //获取到视觉策略要使用的模型
+        const availableModels = JSON.parse(localStorage.getItem('modelConfigList'));
+        const vsionModel = availableModels.find(m => m.id === selectedViosnModel);
+
+        // 为每个PDF文件创建后台任务
+        for (const file of pdfFiles) {
+          debugger;
+          const response = await axios.post(`/api/projects/${projectId}/tasks/list`, {
+            taskType: 'pdf-processing',
+            modelInfo: vsionModel,
+            language: currentLanguage,
+            detail: 'PDF处理任务',
+            note: {
+              // 为节省视觉模型token，pdf处理完成后还是对文本的处理还是使用用户Navbar选中的模型
+              textModel: localStorage.getItem('selectedModelInfo'),  
+              projectId,
+              file: file,
+              strategy: pdfStrategy
+            }
           });
+
+          if (response.data?.code !== 0) {
+            throw new Error(t('textSplit.pdfProcessingFailed') + (response.data?.error || ''));
+          }
+
         }
+
+        //提示后台任务进行中
+        toast.success(t('tasks.createSuccess', { defaultValue: t("textSplit.pdfProcessingToast") }));
+
       } catch (error) {
         console.error(t('textSplit.pdfProcessingFailed'), error);
         setError && setError({ severity: 'error', message: error.message });
-      } finally {
-        setPdfProcessing(false);
-        // 重置进度状态
-        resetProgress();
       }
     },
     [projectId, t, resetProgress]

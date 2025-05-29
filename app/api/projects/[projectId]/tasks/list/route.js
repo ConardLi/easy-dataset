@@ -70,7 +70,7 @@ export async function POST(request, { params }) {
     const data = await request.json();
 
     // 验证必填字段
-    const { taskType, modelInfo, language, detail = '', totalCount = 0 } = data;
+    const { taskType, modelInfo, language, detail = '', totalCount = 0, note } = data;
 
     if (!taskType) {
       return NextResponse.json(
@@ -92,6 +92,7 @@ export async function POST(request, { params }) {
         language: language || 'zh-CN',
         detail: detail || '',
         totalCount,
+        note: note ? JSON.stringify(note) : "",
         completedCount: 0
       }
     });

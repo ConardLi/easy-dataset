@@ -290,6 +290,7 @@
     "pdfProcessingStrategyMinerUHelper": "使用MinerU API解析，请先配置MinerU API Token",
     "pdfProcessingStrategyVision": "自定义视觉模型",
     "pdfProcessingStrategyVisionHelper": "使用自定义视觉模型解析",
+    "pdfProcessingToast":"检测到PDF文件，系统将创建后台任务解析文件",
     "basicPdfParsing": "基础 PDF 解析",
     "basicPdfParsingDesc": "可识别简单的 PDF 文件，包括关键目录结构，速度更快",
     "mineruApiDesc": "可识别复杂 PDF 文件，包括公式、图表（需要配置 MinerU API Key）",
@@ -673,7 +674,8 @@
       "text-processing": "文献处理",
       "question-generation": "问题生成",
       "answer-generation": "答案生成",
-      "data-distillation": "数据蒸馈"
+      "data-distillation": "数据蒸馈",
+      "pdf-processing": "PDF解析"
     },
     "filters": {
       "status": "任务状态",

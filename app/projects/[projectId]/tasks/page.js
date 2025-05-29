@@ -30,7 +30,8 @@ const TASK_TYPES = {
   'text-processing': '文献处理',
   'question-generation': '问题生成',
   'answer-generation': '答案生成',
-  'data-distillation': '数据蒸馏'
+  'data-distillation': '数据蒸馏',
+  'pdf-processing': 'PDF解析'
 };
 
 export default function TasksPage({ params }) {

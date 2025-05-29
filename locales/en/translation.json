@@ -288,6 +288,7 @@
     "pdfProcessingStrategyMinerUHelper": "Use MinerU API for parsing. Please configure the MinerU API Token first",
     "pdfProcessingStrategyVision": "Custom Vision Model",
     "pdfProcessingStrategyVisionHelper": "Use a custom vision model for parsing",
+    "pdfProcessingToast": "PDF file detected. The system will create a background task to parse the file",
     "basicPdfParsing": "Basic PDF Parsing",
     "basicPdfParsingDesc": "Capable of identifying the key outlines of simple PDF files with high speed",
     "mineruApiDesc": "Capable of identifying complex PDF files, including formulas and charts (Requires configuration of MinerU API Key)",
@@ -673,7 +674,8 @@
       "text-processing": "Text Processing",
       "question-generation": "Question Generation",
       "answer-generation": "Answer Generation",
-      "data-distillation": "Data Distillation"
+      "data-distillation": "Data Distillation",
+      "pdf-processing": "PDF Processing"
     },
     "filters": {
       "status": "Task Status",
