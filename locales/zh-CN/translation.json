@@ -202,6 +202,7 @@
     "openDirectory": "打开项目目录"
   },
   "textSplit": {
+    "fileList": "文献列表",
     "autoGenerateQuestions": "自动提取问题",
     "autoGenerateQuestionsTip": "创建后台批量处理任务：自动查询待生成问题的文本块并提取问题",
     "exportChunks": "导出文本块",
@@ -778,5 +779,25 @@
     "batchGenerationSuccess": "成功为 {{count}} 个文件生成GA对",
     "selectAllFiles": "全选",
     "deselectAllFiles": "取消全选"
+  },
+  "batchEdit": {
+    "title": "批量编辑文本块",
+    "batchEdit": "批量编辑",
+    "batchEditTooltip": "批量编辑选中的文本块",
+    "position": "添加位置",
+    "atBeginning": "在开头添加",
+    "atEnd": "在结尾添加",
+    "contentToAdd": "要添加的内容",
+    "contentPlaceholder": "请输入要添加到文本块的内容...",
+    "contentRequired": "请输入要添加的内容",
+    "contentHelp": "此内容将被添加到所有选中的文本块中",
+    "preview": "预览效果",
+    "allChunksSelected": "已选择全部 {{count}} 个文本块",
+    "selectedChunks": "已选择 {{selected}} / {{total}} 个文本块",
+    "processing": "处理中...",
+    "applyToChunks": "应用到 {{count}} 个文本块",
+    "editSuccess": "成功编辑了 {{count}} 个文本块",
+    "editFailed": "批量编辑失败",
+    "previewNote": "以上是第一个选中文本块的预览效果，所有选中的文本块都将进行相同的修改"
   }
 }

@@ -14,6 +14,7 @@ export default function ChunkListHeader({
   selectedChunks,
   onSelectAll,
   onBatchGenerateQuestions,
+  onBatchEditChunks,
   questionFilter,
   setQuestionFilter,
   chunks = [], // 添加chunks参数，用于导出文本块
@@ -30,7 +31,7 @@ export default function ChunkListHeader({
 
     try {
       // 调用创建任务接口
-      const response = await axios.post(`/api/projects/${projectId}/tasks`, {
+      const response = await axios.post(`/api/projects/${projectId}/tasks/list`, {
         taskType: 'question-generation',
         modelInfo: selectedModel,
         language: i18n.language,
@@ -83,11 +84,6 @@ export default function ChunkListHeader({
     URL.revokeObjectURL(url);
   };
 
-  // 检查是否选择了模型
-  const isModelSelected = selectedModel && selectedModel.id;
-  // 提示信息
-  const noModelSelectedMsg = t('textSplit.selectModelFirst', { defaultValue: '请先在右上角选择模型' });
-
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '30px' }}>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -109,42 +105,45 @@ export default function ChunkListHeader({
           <MenuItem value="ungenerated">{t('textSplit.ungeneratedQuestions')}</MenuItem>
         </Select>
 
-        <Tooltip title={!isModelSelected ? noModelSelectedMsg : ''}>
-          <span>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<QuizIcon />}
-              disabled={selectedChunks.length === 0 || !isModelSelected}
-              onClick={onBatchGenerateQuestions}
-              sx={{ mr: 1 }}
-            >
-              {t('textSplit.batchGenerateQuestions')}
-            </Button>
-          </span>
+        <Tooltip title={t('batchEdit.batchEditTooltip', { defaultValue: '批量编辑选中的文本块' })}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<AutoFixHighIcon />}
+            disabled={selectedChunks.length === 0}
+            onClick={onBatchEditChunks}
+            sx={{ mr: 1 }}
+          >
+            {t('batchEdit.batchEdit', { defaultValue: '批量编辑' })}
+          </Button>
         </Tooltip>
 
-        <Tooltip
-          title={
-            !isModelSelected
-              ? noModelSelectedMsg
-              : t('textSplit.autoGenerateQuestionsTip', {
-                  defaultValue: '创建后台批量处理任务：自动查询待生成问题的文本块并提取问题'
-                })
-          }
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<QuizIcon />}
+          disabled={selectedChunks.length === 0}
+          onClick={onBatchGenerateQuestions}
+          sx={{ mr: 1 }}
         >
-          <span>
-            <Button
-              variant="outlined"
-              color="secondary"
-              startIcon={<AutoFixHighIcon />}
-              onClick={() => handleCreateAutoQuestionTask()}
-              disabled={!projectId || !isModelSelected}
-              sx={{ mr: 1 }}
-            >
-              {t('textSplit.autoGenerateQuestions')}
-            </Button>
-          </span>
+          {t('textSplit.batchGenerateQuestions')}
+        </Button>
+
+        <Tooltip
+          title={t('textSplit.autoGenerateQuestionsTip', {
+            defaultValue: '创建后台批量处理任务：自动查询待生成问题的文本块并提取问题'
+          })}
+        >
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<AutoFixHighIcon />}
+            onClick={() => handleCreateAutoQuestionTask()}
+            disabled={!projectId || !selectedModel?.id}
+            sx={{ mr: 1 }}
+          >
+            {t('textSplit.autoGenerateQuestions')}
+          </Button>
         </Tooltip>
 
         <Button

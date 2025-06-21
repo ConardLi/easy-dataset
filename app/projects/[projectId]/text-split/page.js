@@ -3,8 +3,29 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Container, Box, Tabs, Tab, Alert, AlertTitle } from '@mui/material';
+import {
+  Container,
+  Box,
+  Tabs,
+  Tab,
+  Alert,
+  AlertTitle,
+  IconButton,
+  Collapse,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Typography,
+  Paper
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import CloseIcon from '@mui/icons-material/Close';
 import FileUploader from '@/components/text-split/FileUploader';
+import FileList from '@/components/text-split/components/FileList';
+import DeleteConfirmDialog from '@/components/text-split/components/DeleteConfirmDialog';
 import LoadingBackdrop from '@/components/text-split/LoadingBackdrop';
 import PdfSettings from '@/components/text-split/PdfSettings';
 import ChunkList from '@/components/text-split/ChunkList';
@@ -20,6 +41,7 @@ import { toast } from 'sonner';
 
 export default function TextSplitPage({ params }) {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { projectId } = params;
   const [activeTab, setActiveTab] = useState(0);
   const { taskSettings } = useTaskSettings(projectId);
@@ -28,10 +50,72 @@ export default function TextSplitPage({ params }) {
   const [selectedViosnModel, setSelectedViosnModel] = useState('');
   const selectedModelInfo = useAtomValue(selectedModelInfoAtom);
   const { taskFileProcessing, task } = useFileProcessingStatus();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [uploadedFiles, setUploadedFiles] = useState({ data: [], total: 0 });
+
+  // 上传区域的展开/折叠状态
+  const [uploaderExpanded, setUploaderExpanded] = useState(true);
+
+  // 文献列表(FileList)展示对话框状态
+  const [fileListDialogOpen, setFileListDialogOpen] = useState(false);
 
   // 使用自定义hooks
   const { chunks, tocData, loading, fetchChunks, handleDeleteChunk, handleEditChunk, updateChunks, setLoading } =
     useChunks(projectId, questionFilter);
+
+  // 获取文件列表
+  const fetchUploadedFiles = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/projects/${projectId}/files?page=${currentPage}&size=10`);
+      setUploadedFiles(response.data);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      toast.error(error.message || '获取文件列表失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 删除文件确认对话框状态
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
+
+  // 打开删除确认对话框
+  const openDeleteConfirm = (fileId, fileName) => {
+    setFileToDelete({ fileId, fileName });
+    setDeleteConfirmOpen(true);
+  };
+
+  // 关闭删除确认对话框
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmOpen(false);
+    setFileToDelete(null);
+  };
+
+  // 确认删除文件
+  const confirmDeleteFile = async () => {
+    if (!fileToDelete) return;
+
+    try {
+      setLoading(true);
+      closeDeleteConfirm();
+
+      await axios.delete(`/api/projects/${projectId}/files/${fileToDelete.fileId}`);
+      await fetchUploadedFiles();
+      fetchChunks();
+
+      toast.success(
+        t('textSplit.deleteSuccess', { fileName: fileToDelete.fileName }) || `删除 ${fileToDelete.fileName} 成功`
+      );
+    } catch (error) {
+      console.error('删除文件出错:', error);
+      toast.error(error.message || '删除文件失败');
+    } finally {
+      setLoading(false);
+      setFileToDelete(null);
+    }
+  };
 
   const {
     processing,
@@ -44,10 +128,11 @@ export default function TextSplitPage({ params }) {
   // 当前页面使用的进度状态
   const progress = processing ? questionProgress : pdfProgress;
 
-  // 加载文本块数据
+  // 加载文本块数据和文件列表
   useEffect(() => {
     fetchChunks('all');
-  }, [fetchChunks, taskFileProcessing]);
+    fetchUploadedFiles();
+  }, [fetchChunks, taskFileProcessing, currentPage]);
 
   /**
    * 对上传后的文件进行处理
@@ -90,40 +175,74 @@ export default function TextSplitPage({ params }) {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8, position: 'relative' }}>
       {/* 文件上传组件 */}
-      <FileUploader
-        projectId={projectId}
-        onUploadSuccess={handleUploadSuccess}
-        onFileDeleted={fetchChunks}
-        setPageLoading={setLoading}
-        sendToPages={handleSelected}
-        setPdfStrategy={setPdfStrategy}
-        pdfStrategy={pdfStrategy}
-        selectedViosnModel={selectedViosnModel}
-        setSelectedViosnModel={setSelectedViosnModel}
-        taskFileProcessing={taskFileProcessing}
-        fileTask={task}
+
+      <Box
+        sx={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', zIndex: 1, display: 'flex' }}
       >
-        <PdfSettings
-          pdfStrategy={pdfStrategy}
+        <IconButton
+          onClick={() => setUploaderExpanded(!uploaderExpanded)}
+          sx={{
+            bgcolor: 'background.paper',
+            boxShadow: 1,
+            mr: uploaderExpanded ? 1 : 0 // 展开时按钮之间留点间距
+          }}
+          size="small"
+        >
+          {uploaderExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </IconButton>
+
+        {/* 文献列表扩展按钮，仅在上部区域展开时显示 */}
+        {uploaderExpanded && (
+          <IconButton
+            color="primary"
+            onClick={() => setFileListDialogOpen(true)}
+            sx={{ bgcolor: 'background.paper', boxShadow: 1 }}
+            size="small"
+            title={t('textSplit.expandFileList') || '扩展文献列表'}
+          >
+            <FullscreenIcon />
+          </IconButton>
+        )}
+      </Box>
+
+      <Collapse in={uploaderExpanded}>
+        <FileUploader
+          projectId={projectId}
+          onUploadSuccess={handleUploadSuccess}
+          onFileDeleted={fetchChunks}
+          setPageLoading={setLoading}
+          sendToPages={handleSelected}
           setPdfStrategy={setPdfStrategy}
+          pdfStrategy={pdfStrategy}
           selectedViosnModel={selectedViosnModel}
           setSelectedViosnModel={setSelectedViosnModel}
-        />
-      </FileUploader>
+          taskFileProcessing={taskFileProcessing}
+          fileTask={task}
+        >
+          <PdfSettings
+            pdfStrategy={pdfStrategy}
+            setPdfStrategy={setPdfStrategy}
+            selectedViosnModel={selectedViosnModel}
+            setSelectedViosnModel={setSelectedViosnModel}
+          />
+        </FileUploader>
+      </Collapse>
 
       {/* 标签页 */}
       <Box sx={{ width: '100%', mb: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={(event, newValue) => {
-            setActiveTab(newValue);
-          }}
-          variant="fullWidth"
-          sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
-        >
-          <Tab label={t('textSplit.tabs.smartSplit')} />
-          <Tab label={t('textSplit.tabs.domainAnalysis')} />
-        </Tabs>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Tabs
+            value={activeTab}
+            onChange={(event, newValue) => {
+              setActiveTab(newValue);
+            }}
+            variant="fullWidth"
+            sx={{ borderBottom: 1, borderColor: 'divider', flexGrow: 1 }}
+          >
+            <Tab label={t('textSplit.tabs.smartSplit')} />
+            <Tab label={t('textSplit.tabs.domainAnalysis')} />
+          </Tabs>
+        </Box>
 
         {/* 智能分割标签内容 */}
         {activeTab === 0 && (
@@ -152,6 +271,48 @@ export default function TextSplitPage({ params }) {
 
       {/* 文件处理进度蒙版 */}
       <LoadingBackdrop open={fileProcessing} title={t('textSplit.pdfProcessing')} progress={progress} />
+
+      {/* 文件删除确认对话框 */}
+      <DeleteConfirmDialog
+        open={deleteConfirmOpen}
+        fileName={fileToDelete?.fileName}
+        onClose={closeDeleteConfirm}
+        onConfirm={confirmDeleteFile}
+      />
+
+      {/* 文献列表对话框 */}
+      <Dialog
+        open={fileListDialogOpen}
+        onClose={() => setFileListDialogOpen(false)}
+        maxWidth="lg"
+        fullWidth
+        sx={{ '& .MuiDialog-paper': { bgcolor: 'background.default' } }}
+      >
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3, py: 1 }}>
+          <Typography variant="h6">{t('textSplit.fileList')}</Typography>
+          <IconButton edge="end" color="inherit" onClick={() => setFileListDialogOpen(false)} aria-label="close">
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 3 }}>
+          {/* 此处复用 FileUploader 组件中的 FileList 部分 */}
+          <Box sx={{ minHeight: '80vh' }}>
+            {/* 文件列表内容 */}
+            <FileList
+              theme={theme}
+              files={uploadedFiles}
+              loading={loading}
+              setPageLoading={setLoading}
+              sendToFileUploader={array => handleSelected(array)}
+              onDeleteFile={(fileId, fileName) => openDeleteConfirm(fileId, fileName)}
+              projectId={projectId}
+              currentPage={currentPage}
+              onPageChange={page => setCurrentPage(page)}
+              isFullscreen={true} // 在对话框中移除高度限制
+            />
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 }

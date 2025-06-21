@@ -200,6 +200,7 @@
     "deleteConfirmTitle": "Confirm Delete"
   },
   "textSplit": {
+    "fileList": "File List",
     "autoGenerateQuestions": "Auto Generate",
     "autoGenerateQuestionsTip": "Create background batch processing tasks: automatically query text blocks pending question generation and extract questions.",
     "exportChunks": "Export Chunks",
@@ -778,5 +779,25 @@
     "batchGenerationSuccess": "Successfully generated GA pairs for {{count}} files",
     "selectAllFiles": "Select All",
     "deselectAllFiles": "Deselect All"
+  },
+  "batchEdit": {
+    "title": "Batch Edit Text Chunks",
+    "batchEdit": "Batch Edit",
+    "batchEditTooltip": "Batch edit selected text chunks",
+    "position": "Add Position",
+    "atBeginning": "Add at Beginning",
+    "atEnd": "Add at End",
+    "contentToAdd": "Content to Add",
+    "contentPlaceholder": "Enter content to add to text chunks...",
+    "contentRequired": "Please enter content to add",
+    "contentHelp": "This content will be added to all selected text chunks",
+    "preview": "Preview",
+    "allChunksSelected": "All {{count}} text chunks selected",
+    "selectedChunks": "{{selected}} / {{total}} text chunks selected",
+    "processing": "Processing...",
+    "applyToChunks": "Apply to {{count}} chunks",
+    "editSuccess": "Successfully edited {{count}} text chunks",
+    "editFailed": "Batch edit failed",
+    "previewNote": "The above is a preview of the first selected text chunk. All selected text chunks will undergo the same modification"
   }
 }

@@ -47,7 +47,8 @@ export default function FileList({
   projectId,
   setPageLoading,
   currentPage = 1,
-  onPageChange
+  onPageChange,
+  isFullscreen = false // 新增参数，用于控制是否处于全屏状态
 }) {
   const { t } = useTranslation();
 
@@ -434,7 +435,13 @@ export default function FileList({
         </Box>
       ) : (
         <>
-          <List sx={{ maxHeight: '200px', overflow: 'auto', width: '100%' }}>
+          <List
+            sx={{
+              maxHeight: isFullscreen ? 'none' : '200px', // 根据 isFullscreen 控制最大高度
+              overflow: 'auto',
+              width: '100%'
+            }}
+          >
             {files?.data?.map((file, index) => (
               <Box key={index}>
                 <ListItem
