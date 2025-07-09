@@ -374,6 +374,15 @@ export default function TaskSettings({ projectId }) {
             <Grid item xs={12}>
               <TextField
                 fullWidth
+                label={t('settings.minerULocalUrl')}
+                name="minerULocalUrl"
+                value={taskSettings.minerULocalUrl}
+                onChange={handleSettingChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
                 label={t('settings.visionConcurrencyLimit')}
                 name="visionConcurrencyLimit"
                 value={taskSettings.visionConcurrencyLimit ? taskSettings.visionConcurrencyLimit : 5}

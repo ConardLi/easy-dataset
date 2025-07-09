@@ -21,6 +21,7 @@ import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 import LaunchOutlinedIcon from '@mui/icons-material/LaunchOutlined';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import ChangeCircleOutlinedIcon from '@mui/icons-material/ChangeCircleOutlined';
 
 const StyledCard = styled(Card)(({ theme, disabled }) => ({
   cursor: disabled ? 'not-allowed' : 'pointer',
@@ -102,6 +103,8 @@ export default function PdfProcessingDialog({
   //检查配置中是否启用MinerU
   const isMinerUEnabled = taskSettings && taskSettings.minerUToken ? true : false;
 
+  const isMinerULocalEnabled = taskSettings && taskSettings.minerULocalUrl ? true : false;
+
   //检查配置中是否启用Vision策略
   const isVisionEnabled = visionModels.length > 0 ? true : false;
 
@@ -150,6 +153,14 @@ export default function PdfProcessingDialog({
             disabled={!isMinerUEnabled}
             onClick={() => handleOptionClick('mineru')}
             selected={value === 'mineru'}
+          />
+          <OptionCard
+            icon={<ChangeCircleOutlinedIcon fontSize="large" />}
+            title="MinerU Local"
+            description={isMinerULocalEnabled ? t('textSplit.mineruLocalDesc') : t('textSplit.mineruLocalDisabled')}
+            disabled={!isMinerULocalEnabled}
+            onClick={() => handleOptionClick('mineru-local')}
+            selected={value === 'mineru-local'}
           />
           <OptionCard
             icon={<LaunchOutlinedIcon fontSize="large" />}
