@@ -84,7 +84,7 @@ export async function POST(request, { params }) {
     const data = await request.json();
 
     // 验证必填字段
-    const { taskType, modelInfo, language, detail = '', totalCount = 0, note } = data;
+    const { taskType, modelInfo, language, detail = '', totalCount = 0, note, params: taskParams } = data;
 
     if (!taskType) {
       return NextResponse.json(
@@ -96,13 +96,16 @@ export async function POST(request, { params }) {
       );
     }
 
+    // 优先使用 params 字段，以支持更复杂的任务参数
+    const infoToStore = taskParams ? JSON.stringify(taskParams) : JSON.stringify(modelInfo);
+
     // 创建新任务
     const newTask = await db.task.create({
       data: {
         projectId,
         taskType,
         status: 0, // 初始状态: 处理中
-        modelInfo: typeof modelInfo === 'string' ? modelInfo : JSON.stringify(modelInfo),
+        modelInfo: infoToStore,
         language: language || 'zh-CN',
         detail: detail || '',
         totalCount,

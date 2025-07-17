@@ -34,16 +34,17 @@ With Easy Dataset, you can transform domain knowledge into structured datasets, 
 
 ## Features
 
-- **Intelligent Document Processing**: Supports intelligent recognition and processing of multiple formats including PDF, Markdown, DOCX, etc.
-- **Intelligent Text Splitting**: Supports multiple intelligent text splitting algorithms and customizable visual segmentation
-- **Intelligent Question Generation**: Extracts relevant questions from each text segment
-- **Domain Labels**: Intelligently builds global domain labels for datasets, with global understanding capabilities
-- **Answer Generation**: Uses LLM API to generate comprehensive answers and Chain of Thought (COT)
-- **Flexible Editing**: Edit questions, answers, and datasets at any stage of the process
-- **Multiple Export Formats**: Export datasets in various formats (Alpaca, ShareGPT) and file types (JSON, JSONL)
-- **Wide Model Support**: Compatible with all LLM APIs that follow the OpenAI format
-- **User-Friendly Interface**: Intuitive UI designed for both technical and non-technical users
-- **Custom System Prompts**: Add custom system prompts to guide model responses
+- **Global Model Configuration**: Configure LLM providers and models once in a global setting, and use them across all projects.
+- **Advanced Document Processing**: Supports various formats like PDF, Markdown, DOCX, TXT, and provides multiple intelligent text splitting strategies.
+- **Multi-Level Question Generation**: Goes beyond simple Q&A. Generate questions with different granularities:
+  - **Local**: Extracts fine-grained facts from single text chunks.
+  - **Contextual**: Creates complex questions by associating information from adjacent text chunks.
+  - **Global**: Poses high-level, analytical questions based on the document's overall structure (TOC).
+- **"Smart Mix" Strategy**: One-click generation of a comprehensive dataset. Simply set the total size and desired proportion of local, contextual, and global questions.
+- **Context-Aware Answer Generation**: Automatically provides the correct scope of context (a single chunk, neighboring chunks, or the full document) to the LLM when generating answers, ensuring logical consistency and quality.
+- **Flexible Data Management**: Easily view, edit, and manage questions and datasets.
+- **Multiple Export Formats**: Export your high-quality datasets in various formats (Alpaca, ShareGPT) and file types (JSON, JSONL) to seamlessly integrate with popular training frameworks like LLaMA Factory.
+- **User-Friendly Interface**: An intuitive UI designed for both technical and non-technical users.
 
 ## Quick Demo
 
@@ -188,74 +189,41 @@ docker run -d \
 
 4. Open a browser and visit `http://localhost:1717`
 
-## How to Use
+## Recommended Workflow
 
-### Create a Project
+Here’s the recommended workflow to efficiently create a high-quality, multi-level dataset with Easy Dataset:
 
-<table>
-    <tr>
-        <td><img src="./public/imgs/1.png"></td>
-        <td><img src="./public/imgs/2.png"></td>
-    </tr>
-</table>
+### Step 1: Global Model Configuration
 
-1. Click the "Create Project" button on the homepage;
-2. Enter a project name and description;
-3. Configure your preferred LLM API settings
+1.  **Navigate to Global Settings**: Click the settings icon (⚙️) in the top-right corner of the navigation bar to go to the global model settings page.
+2.  **Add Your LLM**: Add and configure your preferred Large Language Model(s). You only need to do this once, and these models will be available for all your projects.
 
-### Process Documents
+### Step 2: Create a Project and Upload Documents
 
-<table>
-    <tr>
-        <td><img src="./public/imgs/3.png"></td>
-        <td><img src="./public/imgs/4.png"></td>
-    </tr>
-</table>
+1.  **Create a New Project**: Go back to the homepage and create a new project.
+2.  **Upload Your Knowledge Base**: Navigate to the "Texts" section and upload your domain-specific documents (e.g., PDFs, Markdown files). The system will automatically process and split them into manageable text chunks.
 
-1. Upload your files in the "Text Split" section (supports PDF, Markdown, txt, DOCX);
-2. View and adjust the automatically split text segments;
-3. View and adjust the global domain tree
+### Step 3: Generate Multi-Level Questions with One Click
 
-### Generate Questions
+1.  **Go to Question Management**: Navigate to the "Questions" page.
+2.  **Initiate Generation**: Click the "Generate Questions" button.
+3.  **Use "Smart Mix" Strategy**: In the dialog, keep the default "Smart Mix" strategy.
+4.  **Set Total Size & Profile**: Enter the total number of questions you want (e.g., 1000) and select a preset profile that matches your goal (e.g., "Deep Analysis Model"). You can also customize the proportions.
+5.  **Start the Task**: Click "Start". The system will now automatically generate a mix of global, contextual, and local questions in the background.
 
-<table>
-    <tr>
-        <td><img src="./public/imgs/5.png"></td>
-        <td><img src="./public/imgs/6.png"></td>
-    </tr>
-</table>
+### Step 4: Generate Context-Aware Answers
 
-2. Batch construct questions based on text blocks;
-3. View and edit the generated questions;
-4. Organize questions using the label tree
+1.  **Go to Question Management**: Once the question generation task is complete, stay on the "Questions" page.
+2.  **Select Questions**: Select all the newly generated questions.
+3.  **Batch Generate Datasets**: Click the "Batch Generate Datasets" button.
+4.  **Context-Aware Generation**: The system will automatically detect the type of each question (global, contextual, or local) and provide the correct scope of context to the LLM to generate a high-quality, logically consistent answer.
 
-### Create Datasets
+### Step 5: Review and Export
 
-<table>
-    <tr>
-        <td><img src="./public/imgs/7.png"></td>
-        <td><img src="./public/imgs/8.png"></td>
-    </tr>
-</table>
+1.  **Manage Your Dataset**: Navigate to the "Datasets" page to review, filter, and edit the generated question-answer pairs.
+2.  **Export for Fine-Tuning**: Use the "Export" feature to get your dataset in formats like Alpaca or ShareGPT, ready for fine-tuning with frameworks like LLaMA Factory.
 
-1. Batch construct datasets based on questions;
-2. Generate answers using the configured LLM;
-3. View, edit, and optimize the generated answers
-
-### Export Datasets
-
-<table>
-    <tr>
-        <td><img src="./public/imgs/9.png"></td>
-        <td><img src="./public/imgs/10.png"></td>
-    </tr>
-</table>
-
-1. Click the "Export" button in the Datasets section;
-2. Choose your preferred format (Alpaca or ShareGPT);
-3. Select the file format (JSON or JSONL);
-4. Add custom system prompts as needed;
-5. Export your dataset
+<!--- DEVELOPER_NOTE: The old screenshots for the workflow have been removed. Please add new screenshots that reflect the new UI and workflow, especially for the global model settings and the new 'Generate Questions' dialog. --->
 
 ## Documentation
 

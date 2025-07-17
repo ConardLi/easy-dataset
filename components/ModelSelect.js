@@ -43,14 +43,13 @@ const getModelIcon = modelName => {
 export default function ModelSelect({
   size = 'small',
   minWidth = 50,
-  projectId,
   minHeight = 36,
   required = false,
   onError
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const models = useAtomValue(modelConfigListAtom);
+  const [models, setModels] = useAtom(modelConfigListAtom);
   const [selectedModelInfo, setSelectedModelInfo] = useAtom(selectedModelInfoAtom);
   // 确保始终使用字符串值初始化 selectedModel，避免从非受控变为受控
   const [selectedModel, setSelectedModel] = useState(() => {
@@ -62,34 +61,34 @@ export default function ModelSelect({
     return '';
   });
   const [error, setError] = useState(false);
+  useEffect(() => {
+    // Fetch global models on mount
+    axios.get('/api/models')
+      .then(response => {
+        setModels(response.data.data);
+      })
+      .catch(error => {
+        console.error("Failed to fetch global models", error);
+      });
+  }, [setModels]);
+
   const handleModelChange = event => {
     if (!event || !event.target) return;
     const newModelId = event.target.value;
 
-    // 清除错误状态
     if (error) {
       setError(false);
       if (onError) onError(false);
     }
 
-    // 找到选中的模型对象
     const selectedModelObj = models.find(model => model.id === newModelId);
     if (selectedModelObj) {
       setSelectedModel(newModelId);
-      // 将完整的模型信息存储到 localStorage
       setSelectedModelInfo(selectedModelObj);
-      updateDefaultModel(newModelId);
     } else {
       setSelectedModelInfo({
         id: newModelId
       });
-    }
-  };
-
-  const updateDefaultModel = async id => {
-    const res = await axios.put(`/api/projects/${projectId}`, { projectId, defaultModelConfigId: id });
-    if (res.status === 200) {
-      console.log('更新成功');
     }
   };
 

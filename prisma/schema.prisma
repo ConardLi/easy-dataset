@@ -24,7 +24,6 @@ model Projects {
   Questions            Questions[]
   Datasets             Datasets[]
   Chunks               Chunks[]
-  ModelConfig          ModelConfig[]
   UploadFiles          UploadFiles[]
   Tags                 Tags[]
   Task                 Task[]
@@ -83,6 +82,7 @@ model Questions {
   question  String
   label     String
   answered  Boolean  @default(false)
+  metadata  String? // JSON string to store metadata like context chunk IDs or file ID
   createAt  DateTime @default(now())
   updateAt  DateTime @updatedAt
 
@@ -102,6 +102,8 @@ model Datasets {
   questionLabel String
   cot           String
   confirmed     Boolean  @default(false)
+  traceabilityScore Float?
+  validationStatus String? // e.g., 'unverified', 'verified', 'suspicious'
   createAt      DateTime @default(now())
   updateAt      DateTime @updatedAt
 
@@ -129,8 +131,6 @@ model LlmModels {
 
 model ModelConfig {
   id           String   @id @default(nanoid())
-  project      Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId    String
   providerId   String
   providerName String
   endpoint     String

@@ -7,14 +7,12 @@ import { useTranslation } from 'react-i18next';
 
 // 导入设置组件
 import BasicSettings from '@/components/settings/BasicSettings';
-import ModelSettings from '@/components/settings/ModelSettings';
 import TaskSettings from '@/components/settings/TaskSettings';
 import PromptSettings from './components/PromptSettings';
 
 // 定义 TAB 枚举
 const TABS = {
   BASIC: 'basic',
-  MODEL: 'model',
   TASK: 'task',
   PROMPTS: 'prompts'
 };
@@ -107,15 +105,12 @@ export default function SettingsPage({ params }) {
           aria-label={t('settings.tabsAriaLabel')}
         >
           <Tab value={TABS.BASIC} label={t('settings.basicInfo')} />
-          <Tab value={TABS.MODEL} label={t('settings.modelConfig')} />
           <Tab value={TABS.TASK} label={t('settings.taskConfig')} />
           <Tab value={TABS.PROMPTS} label={t('settings.promptConfig')} />
         </Tabs>
       </Paper>
 
       {activeTab === TABS.BASIC && <BasicSettings projectId={projectId} />}
-
-      {activeTab === TABS.MODEL && <ModelSettings projectId={projectId} />}
 
       {activeTab === TABS.TASK && <TaskSettings projectId={projectId} />}
 

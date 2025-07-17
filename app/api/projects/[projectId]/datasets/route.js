@@ -57,8 +57,9 @@ export async function GET(request, { params }) {
     const field = searchParams.get('field') || 'question';
     // 获取思维链筛选参数
     const hasCot = searchParams.get('hasCot') || 'all';
+    const validation = searchParams.get('validation') || 'all';
     if (selectedAll) {
-      let data = await getDatasetsIds(projectId, confirmed, searchParams.get('input'), field, hasCot);
+      let data = await getDatasetsIds(projectId, confirmed, searchParams.get('input'), field, hasCot, validation);
       return NextResponse.json(data);
     }
 
@@ -69,8 +70,9 @@ export async function GET(request, { params }) {
       parseInt(searchParams.get('size')),
       confirmed,
       searchParams.get('input'),
-      field, // 传递搜索字段参数
-      hasCot // 传递思维链筛选参数
+      field,
+      hasCot,
+      validation
     );
 
     return NextResponse.json(datasets);
