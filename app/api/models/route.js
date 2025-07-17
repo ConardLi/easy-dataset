@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getModels, createModel } from '@/lib/db/llm-models';
+import { getAllModelConfigs, createModelConfig } from '@/lib/db/model-config';
 import logger from '@/lib/util/logger';
 
 // GET all models
 export async function GET() {
   try {
-    const models = await getModels();
+    const models = await getAllModelConfigs();
     return NextResponse.json({ code: 0, data: models });
   } catch (error) {
     logger.error('Failed to fetch models:', error);
@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const newModel = await createModel(body);
+    const newModel = await createModelConfig(body);
     return NextResponse.json({ code: 0, data: newModel }, { status: 201 });
   } catch (error) {
     logger.error('Failed to create model:', error);
