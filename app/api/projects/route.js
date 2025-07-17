@@ -1,5 +1,4 @@
 import { createProject, getProjects, isExistByName } from '@/lib/db/projects';
-import { createInitModelConfig, getModelConfigByProjectId } from '@/lib/db/model-config';
 
 export async function POST(request) {
   try {
@@ -15,19 +14,6 @@ export async function POST(request) {
     }
     // 创建项目
     const newProject = await createProject(projectData);
-    // 如果指定了要复用的项目配置
-    if (projectData.reuseConfigFrom) {
-      let data = await getModelConfigByProjectId(projectData.reuseConfigFrom);
-
-      let newData = data.map(item => {
-        delete item.id;
-        return {
-          ...item,
-          projectId: newProject.id
-        };
-      });
-      await createInitModelConfig(newData);
-    }
     return Response.json(newProject, { status: 201 });
   } catch (error) {
     console.error('创建项目出错:', String(error));

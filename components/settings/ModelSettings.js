@@ -41,7 +41,7 @@ import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/lib/store';
 
-export default function ModelSettings({ projectId }) {
+export default function ModelSettings({ projectId, isGlobal = false }) {
   const { t } = useTranslation();
   const router = useRouter();
   // 模型对话框状态
@@ -92,8 +92,9 @@ export default function ModelSettings({ projectId }) {
 
   // 获取模型配置列表
   const getModelConfigList = () => {
+    const url = isGlobal ? '/api/models' : `/api/projects/${projectId}/model-config`;
     axios
-      .get(`/api/projects/${projectId}/model-config`)
+      .get(url)
       .then(response => {
         setModelConfigList(response.data.data);
         setLoading(false);
@@ -223,11 +224,23 @@ export default function ModelSettings({ projectId }) {
 
   // 保存模型
   const handleSaveModel = () => {
-    axios
-      .post(`/api/projects/${projectId}/model-config`, modelConfigForm)
+    const isEditing = modelConfigForm.id;
+    const url = isGlobal
+      ? (isEditing ? `/api/models/${modelConfigForm.id}` : '/api/models')
+      : `/api/projects/${projectId}/model-config`;
+    const method = isEditing && isGlobal ? 'put' : 'post';
+
+    const dataToSave = { ...modelConfigForm };
+    if (isGlobal) {
+      delete dataToSave.projectId;
+    } else {
+      dataToSave.projectId = projectId;
+    }
+
+    axios[method](url, dataToSave)
       .then(response => {
-        if (selectedModelInfo && selectedModelInfo.id === response.data.id) {
-          setSelectedModelInfo(response.data);
+        if (selectedModelInfo && selectedModelInfo.id === response.data.data.id) {
+          setSelectedModelInfo(response.data.data);
         }
         toast.success(t('settings.saveSuccess'), { duration: 3000 });
         getModelConfigList();
@@ -241,8 +254,9 @@ export default function ModelSettings({ projectId }) {
 
   // 删除模型
   const handleDeleteModel = id => {
+    const url = isGlobal ? `/api/models/${id}` : `/api/projects/${projectId}/model-config/${id}`;
     axios
-      .delete(`/api/projects/${projectId}/model-config/${id}`)
+      .delete(url)
       .then(response => {
         toast.success(t('settings.deleteSuccess'), { duration: 3000 });
         getModelConfigList();

@@ -150,6 +150,7 @@ export default function DatasetsPage({ params }) {
   const [selectedIds, setselectedIds] = useState([]);
   const [filterConfirmed, setFilterConfirmed] = useState('all');
   const [filterHasCot, setFilterHasCot] = useState('all');
+  const [filterValidation, setFilterValidation] = useState('all');
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const { t } = useTranslation();
   // 删除进度状态
@@ -174,7 +175,7 @@ export default function DatasetsPage({ params }) {
     try {
       setLoading(true);
       const response = await axios.get(
-        `/api/projects/${projectId}/datasets?page=${page}&size=${rowsPerPage}&status=${filterConfirmed}&input=${searchQuery}&field=${searchField}&hasCot=${filterHasCot}`
+        `/api/projects/${projectId}/datasets?page=${page}&size=${rowsPerPage}&status=${filterConfirmed}&input=${searchQuery}&field=${searchField}&hasCot=${filterHasCot}&validation=${filterValidation}`
       );
       setDatasets(response.data);
     } catch (error) {
@@ -545,12 +546,31 @@ export default function DatasetsPage({ params }) {
               <MenuItem value="no">{t('datasets.filterNoCot')}</MenuItem>
             </Select>
           </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              {t('datasets.filterValidationStatus')}
+            </Typography>
+            <Select
+              value={filterValidation}
+              onChange={e => setFilterValidation(e.target.value)}
+              fullWidth
+              size="small"
+              sx={{ mt: 1 }}
+            >
+              <MenuItem value="all">{t('datasets.filterAll')}</MenuItem>
+              <MenuItem value="verified">{t('datasets.statusVerified')}</MenuItem>
+              <MenuItem value="partially_verified">{t('datasets.statusPartiallyVerified')}</MenuItem>
+              <MenuItem value="suspicious">{t('datasets.statusSuspicious')}</MenuItem>
+              <MenuItem value="unverified">{t('datasets.statusUnverified')}</MenuItem>
+            </Select>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => {
               setFilterConfirmed('all');
               setFilterHasCot('all');
+              setFilterValidation('all');
               getDatasetsList();
             }}
           >

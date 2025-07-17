@@ -37,6 +37,7 @@ import QuestionTreeView from '@/components/questions/QuestionTreeView';
 import TabPanel from '@/components/text-split/components/TabPanel';
 import useTaskSettings from '@/hooks/useTaskSettings';
 import QuestionEditDialog from './components/QuestionEditDialog';
+import QuestionGenerationDialog from './components/QuestionGenerationDialog';
 import { useQuestionEdit } from './hooks/useQuestionEdit';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -123,6 +124,7 @@ export default function QuestionsPage({ params }) {
     content: '',
     confirmAction: null
   });
+  const [generationDialogOpen, setGenerationDialogOpen] = useState(false);
 
   // 获取所有数据
   useEffect(() => {
@@ -398,6 +400,34 @@ export default function QuestionsPage({ params }) {
     }
   };
 
+  // 处理开始生成问题
+  const handleGenerateQuestions = async (generationParams) => {
+    try {
+      if (!model) {
+        toast.error(t('questions.selectModelFirst', { defaultValue: '请先选择模型' }));
+        return;
+      }
+
+      const response = await axios.post(`/api/projects/${projectId}/tasks`, {
+        taskType: 'question-generation',
+        params: {
+          model: model,
+          ...generationParams
+        },
+        language: i18n.language
+      });
+
+      if (response.data?.code === 0) {
+        toast.success(t('tasks.createSuccessQuestions', { defaultValue: '问题生成任务已创建，请稍后刷新查看。' }));
+      } else {
+        toast.error(t('tasks.createFailed', { defaultValue: '创建后台任务失败' }));
+      }
+    } catch (error) {
+       console.error('创建任务失败:', error);
+      toast.error(t('tasks.createFailed', { defaultValue: '创建后台任务失败' }) + ': ' + error.message);
+    }
+  };
+
   // 确认批量删除问题
   const confirmBatchDeleteQuestions = () => {
     if (selectedQuestions.length === 0) {
@@ -535,6 +565,14 @@ export default function QuestionsPage({ params }) {
 
           <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreateDialog}>
             {t('questions.createQuestion')}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AutoFixHighIcon />}
+            onClick={() => setGenerationDialogOpen(true)}
+          >
+            {t('questions.generateQuestionsTitle')}
           </Button>
           <Button
             variant="contained"
@@ -713,6 +751,13 @@ export default function QuestionsPage({ params }) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <QuestionGenerationDialog
+        open={generationDialogOpen}
+        onClose={() => setGenerationDialogOpen(false)}
+        onSubmit={handleGenerateQuestions}
+        model={model}
+      />
 
       <QuestionEditDialog
         open={editDialogOpen}

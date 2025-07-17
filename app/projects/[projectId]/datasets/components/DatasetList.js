@@ -23,6 +23,10 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
+import FlakyOutlinedIcon from '@mui/icons-material/FlakyOutlined';
 import { useTranslation } from 'react-i18next';
 
 // 数据集列表组件
@@ -110,6 +114,28 @@ const DatasetList = ({
                 }}
               >
                 {t('datasets.domainTag')}
+              </TableCell>
+              <TableCell
+                sx={{
+                  backgroundColor: bgColor,
+                  color: color,
+                  fontWeight: 'bold',
+                  padding: '16px 8px',
+                  borderBottom: `2px solid ${theme.palette.divider}`
+                }}
+              >
+                {t('datasets.validationStatus')}
+              </TableCell>
+              <TableCell
+                sx={{
+                  backgroundColor: bgColor,
+                  color: color,
+                  fontWeight: 'bold',
+                  padding: '16px 8px',
+                  borderBottom: `2px solid ${theme.palette.divider}`
+                }}
+              >
+                {t('datasets.traceability')}
               </TableCell>
               <TableCell
                 sx={{
@@ -241,6 +267,16 @@ const DatasetList = ({
                       {t('datasets.noTag')}
                     </Typography>
                   )}
+                </TableCell>
+                <TableCell>
+                  {renderValidationStatus(dataset.validationStatus)}
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    {dataset.traceabilityScore !== null && dataset.traceabilityScore !== undefined
+                      ? `${(dataset.traceabilityScore * 100).toFixed(0)}%`
+                      : 'N/A'}
+                  </Typography>
                 </TableCell>
                 <TableCell>
                   <Chip
