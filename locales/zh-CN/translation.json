@@ -816,5 +816,38 @@
     "editSuccess": "成功编辑了 {{count}} 个文本块",
     "editFailed": "批量编辑失败",
     "previewNote": "以上是第一个选中文本块的预览效果，所有选中的文本块都将进行相同的修改"
+  },
+  "errors": {
+    "projectIdRequired": "项目ID不能为空",
+    "getDatasetsFailed": "获取数据集失败",
+    "getTagStatsFailed": "获取标签统计失败",
+    "deleteFileFailed": "删除文件出错",
+    "recordNotFound": "当前记录不存在",
+    "mineruTokenNotFound": "未找到token配置，请检查任务设置中是否配置了MinerU token",
+    "mineruLocalUrlNotFound": "未找到MinerU本地URL配置，请检查任务设置中是否配置了MinerU本地URL"
+  },
+  "sampleData": {
+    "questionContent": "问题内容",
+    "answerContent": "答案内容",
+    "cotContent": "思维链过程内容",
+    "domainLabel": "领域标签",
+    "textChunk": "文本块"
+  },
+  "exportDialog": {
+    "balancedExport": "平衡导出",
+    "balancedExportTitle": "平衡导出设置",
+    "balancedExportDescription": "根据领域标签配置每个类别的数据量，实现数据集的平衡导出",
+    "quickSettings": "快速设置",
+    "setAllTo50": "全部设为50",
+    "setAllTo100": "全部设为100",
+    "setAllTo200": "全部设为200", 
+    "customAmount": "自定义数量",
+    "tagName": "标签名称",
+    "availableCount": "可用数量",
+    "exportCount": "导出数量",
+    "settings": "设置",
+    "totalExportCount": "总导出数量",
+    "tagCount": "标签数量",
+    "export": "导出"
   }
 }

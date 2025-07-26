@@ -152,6 +152,7 @@ const ExportDatasetDialog = ({ open, onClose, onExport, projectId }) => {
             handleAlpacaFieldTypeChange={handleAlpacaFieldTypeChange}
             handleCustomInstructionChange={handleCustomInstructionChange}
             handleExport={handleExport}
+            projectId={projectId}
           />
         )}
 

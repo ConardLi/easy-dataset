@@ -11,9 +11,22 @@ const useDatasetExport = projectId => {
   const exportDatasets = async exportOptions => {
     try {
       let apiUrl = `/api/projects/${projectId}/datasets/export`;
+      const params = [];
+
       if (exportOptions.confirmedOnly) {
-        apiUrl += `?status=confirmed`;
+        params.push(`status=confirmed`);
       }
+
+      // 检查是否是平衡导出模式
+      if (exportOptions.balanceMode && exportOptions.balanceConfig) {
+        params.push(`balanceMode=true`);
+        params.push(`balanceConfig=${encodeURIComponent(JSON.stringify(exportOptions.balanceConfig))}`);
+      }
+
+      if (params.length > 0) {
+        apiUrl += `?${params.join('&')}`;
+      }
+
       const response = await axios.get(apiUrl);
       let dataToExport = response.data;
 
@@ -140,7 +153,9 @@ const useDatasetExport = projectId => {
       const a = document.createElement('a');
       a.href = url;
       const formatSuffix = exportOptions.formatType === 'alpaca' ? 'alpaca' : 'sharegpt';
-      a.download = `datasets-${projectId}-${formatSuffix}-${new Date().toISOString().slice(0, 10)}.${fileExtension}`;
+      const balanceSuffix = exportOptions.balanceMode ? '-balanced' : '';
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.download = `datasets-${projectId}-${formatSuffix}${balanceSuffix}-${dateStr}.${fileExtension}`;
 
       // 触发下载
       document.body.appendChild(a);
@@ -158,7 +173,18 @@ const useDatasetExport = projectId => {
     }
   };
 
-  return { exportDatasets };
+  // 导出平衡数据集
+  const exportBalancedDataset = async exportOptions => {
+    const balancedOptions = {
+      ...exportOptions,
+      balanceMode: true,
+      balanceConfig: exportOptions.balanceConfig
+    };
+    return await exportDatasets(balancedOptions);
+  };
+
+  return { exportDatasets, exportBalancedDataset };
 };
 
 export default useDatasetExport;
+export { useDatasetExport };

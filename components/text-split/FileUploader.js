@@ -63,10 +63,9 @@ export default function FileUploader({
 
     if (event.target.value === 'mineru') {
       toast.success(t('textSplit.mineruSelected'));
-    }else if(event.target.value === 'mineru-local'){
+    } else if (event.target.value === 'mineru-local') {
       toast.success(t('textSplit.mineruLocalSelected'));
-    } 
-    else if (event.target.value === 'vision') {
+    } else if (event.target.value === 'vision') {
       const model = visionModels.find(item => item.id === modelId);
       toast.success(
         t('textSplit.customVisionModelSelected', {
@@ -264,7 +263,7 @@ export default function FileUploader({
 
       toast.success(t('textSplit.deleteSuccess', { fileName: fileToDelete.fileName }));
     } catch (error) {
-      console.error('删除文件出错:', error);
+      console.error('Error deleting file:', error);
       toast.error(error.message);
     } finally {
       setLoading(false);
