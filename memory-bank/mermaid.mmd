@@ -1,0 +1,9 @@
+flowchart TD
+    A[easy-dataset UI] -- Upload PDF --> B(File Processing Task);
+    B -- strategy: 'mineru-local' --> C{processFileProcessingTask};
+    C -- PDF file --> D[processPdf];
+    D -- POST /file_parse --> E[mineru-api];
+    E -- md_content --> D;
+    D -- absolute path to .md --> C;
+    C -- .md file --> F[splitProjectFile];
+    F -- text chunks --> G(Display in UI);
