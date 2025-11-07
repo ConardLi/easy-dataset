@@ -61,39 +61,74 @@ export default function ProjectLayout({ children, params }) {
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh'
-        }}
-      >
-        <CircularProgress />
-        <Typography sx={{ mt: 2 }}>加载项目数据...</Typography>
-      </Box>
+      <main style={{ 
+        overflow: 'hidden', 
+        position: 'relative', 
+        background: 'transparent',
+        minHeight: '100vh'
+      }}>
+        <Navbar projects={projects} currentProject={projectId} />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 'calc(100vh - 64px)',
+            background: 'transparent'
+          }}
+        >
+          <CircularProgress size={40} thickness={4} />
+          <Typography sx={{ mt: 2, color: 'text.secondary' }}>加载项目数据...</Typography>
+        </Box>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh'
-        }}
-      >
-        <Typography color="error">
-          {t('projects.fetchFailed')}: {error}
-        </Typography>
-        <Button variant="contained" onClick={() => router.push('/')} sx={{ mt: 2 }}>
-          {t('projects.backToHome')}
-        </Button>
-      </Box>
+      <main style={{ 
+        overflow: 'hidden', 
+        position: 'relative', 
+        background: 'transparent',
+        minHeight: '100vh'
+      }}>
+        <Navbar projects={projects} currentProject={projectId} />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 'calc(100vh - 64px)',
+            background: 'transparent',
+            px: 2
+          }}
+        >
+          <Typography color="error" variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+            {t('projects.fetchFailed')}: {error}
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => router.push('/')} 
+            sx={{ 
+              mt: 2,
+              px: 4,
+              py: 1.5,
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%)',
+              fontWeight: 600,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 24px rgba(99, 102, 241, 0.4)'
+              },
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {t('projects.backToHome')}
+          </Button>
+        </Box>
+      </main>
     );
   }
 

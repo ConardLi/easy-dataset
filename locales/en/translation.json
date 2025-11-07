@@ -274,8 +274,14 @@
     "detailInfo": "Detail Info"
   },
   "home": {
-    "title": "Easy Dataset",
+    "title": "GKGAI Dataset Generation",
     "subtitle": "A powerful tool for creating fine-tuning datasets for Large Language Models",
+    "badge": "AI-Powered Dataset Generation Platform",
+    "features": {
+      "smartChunking": "Smart Chunking",
+      "autoQA": "Auto Q&A Generation",
+      "oneClickExport": "One-Click Export"
+    },
     "createProject": "Create Project",
     "searchDataset": "Search Public Datasets"
   },
@@ -305,7 +311,10 @@
     "deleteSuccess": "Project deleted successfully",
     "deleteFailed": "Failed to delete project",
     "backToHome": "Back to Home",
-    "deleteConfirmTitle": "Confirm Delete"
+    "deleteConfirmTitle": "Confirm Delete",
+    "title": "My Projects",
+    "subtitle": "Manage and view all your projects",
+    "noProjectsDesc": "Start creating your first project and experience powerful dataset generation features"
   },
   "textSplit": {
     "dragToUpload": "Drag files to upload",
@@ -371,6 +380,12 @@
     "tabs": {
       "smartSplit": "Smart Split",
       "domainAnalysis": "Domain Analysis"
+    },
+    "stats": {
+      "files": "Uploaded Files",
+      "chunks": "Text Chunks",
+      "processed": "Processed",
+      "totalWords": "Total Words"
     },
     "loading": "Loading...",
     "fetchingDocuments": "Fetching document data",
@@ -880,6 +895,8 @@
     "refresh": "Refresh Models"
   },
   "stats": {
+    "title": "Data Overview",
+    "subtitle": "Monitor your project data in real-time",
     "ongoingProjects": "Ongoing Projects",
     "questionCount": "Question Count",
     "generatedDatasets": "Generated Datasets",

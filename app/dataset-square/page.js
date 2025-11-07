@@ -1,16 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Container, Typography, Paper, Divider, useTheme, alpha } from '@mui/material';
+import { Box, Container, Typography, Paper, useTheme, alpha, useMediaQuery } from '@mui/material';
 import StorageIcon from '@mui/icons-material/Storage';
 import Navbar from '@/components/Navbar';
 import { DatasetSearchBar } from '@/components/dataset-square/DatasetSearchBar';
 import { DatasetSiteList } from '@/components/dataset-square/DatasetSiteList';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 
 export default function DatasetSquarePage() {
   const [projects, setProjects] = useState([]);
   const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { t } = useTranslation();
 
   // 获取项目列表和模型列表
@@ -32,168 +35,263 @@ export default function DatasetSquarePage() {
   }, []);
 
   return (
-    <main>
+    <main style={{ 
+      overflow: 'hidden', 
+      position: 'relative', 
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
       {/* 导航栏 */}
       <Navbar projects={projects} />
 
-      {/* 头部区域 */}
+      {/* 头部区域 - 参考首页HeroSection风格 */}
       <Box
         sx={{
-          pt: 10,
-          pb: 8,
-          background:
-            theme.palette.mode === 'dark'
-              ? `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.6)} 0%, ${alpha(theme.palette.background.default, 0.9)} 100%)`
-              : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)} 0%, ${alpha(theme.palette.primary.light, 0.7)} 100%)`,
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           position: 'relative',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          pt: { xs: 8, md: 12 },
+          pb: { xs: 8, md: 10 },
+          overflow: 'hidden',
+          minHeight: { xs: '60vh', md: '75vh' },
+          display: 'flex',
+          alignItems: 'center',
+          background: isDark
+            ? 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%), #0A0E27'
+            : 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.05) 0%, transparent 50%), #FAFBFC'
         }}
       >
-        {/* 背景装饰 */}
+        {/* 科技风格网格背景 */}
         <Box
           sx={{
             position: 'absolute',
-            top: -100,
-            left: -100,
-            width: 300,
-            height: 300,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha(theme.palette.secondary.main, 0.2)} 0%, transparent 70%)`,
-            filter: 'blur(40px)',
+            inset: 0,
+            backgroundImage: isDark
+              ? `linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)`
+              : `linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px',
+            opacity: 0.4,
             zIndex: 0
           }}
         />
+
+        {/* 动态光效圆圈 */}
         <Box
+          component={motion.div}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+            x: [0, 100, 0],
+            y: [0, 50, 0]
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
           sx={{
             position: 'absolute',
-            bottom: -80,
-            right: -80,
-            width: 350,
-            height: 350,
+            width: '600px',
+            height: '600px',
             borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha(theme.palette.primary.light, 0.15)} 0%, transparent 70%)`,
-            filter: 'blur(30px)',
-            zIndex: 0
+            background: isDark
+              ? 'radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
+            top: '-200px',
+            right: '-150px',
+            zIndex: 0,
+            filter: 'blur(60px)'
           }}
         />
+
         <Box
+          component={motion.div}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+            x: [0, -80, 0],
+            y: [0, -40, 0]
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
           sx={{
             position: 'absolute',
-            top: '40%',
-            right: '10%',
-            width: 100,
-            height: 100,
+            width: '500px',
+            height: '500px',
             borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha(theme.palette.secondary.light, 0.15)} 0%, transparent 70%)`,
-            filter: 'blur(20px)',
-            zIndex: 0
+            background: isDark
+              ? 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+            bottom: '-150px',
+            left: '-100px',
+            zIndex: 0,
+            filter: 'blur(60px)'
           }}
         />
 
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
-            <StorageIcon
-              sx={{
-                fontSize: 48,
-                mr: 2.5,
-                color: theme.palette.mode === 'dark' ? theme.palette.secondary.light : 'white',
-                filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.2))'
-              }}
-            />
-            <Typography
-              variant="h2"
-              component="h1"
-              sx={{
-                fontWeight: 800,
-                color: 'white',
-                textShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                mb: 0,
-                letterSpacing: '-0.5px',
-                background:
-                  theme.palette.mode === 'dark'
-                    ? 'linear-gradient(90deg, #ffffff 0%, #e0e0e0 100%)'
-                    : 'linear-gradient(90deg, #ffffff 30%, #f5f5f5 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textFillColor: 'transparent'
-              }}
-            >
-              {t('datasetSquare.title')}
-            </Typography>
-          </Box>
-          <Typography
-            variant="h5"
-            align="center"
-            sx={{
-              maxWidth: 800,
-              mx: 'auto',
-              mb: 6,
-              color: theme.palette.mode === 'dark' ? alpha('#FFFFFF', 0.9) : '#FFFFFF',
-              fontWeight: 400,
-              lineHeight: 1.6,
-              textShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}
-          >
-            {t('datasetSquare.subtitle')}
-          </Typography>
-
-          {/* 搜索栏组件 */}
           <Box
             sx={{
-              maxWidth: 800,
+              textAlign: 'center',
+              maxWidth: '900px',
               mx: 'auto',
-              position: 'relative',
-              zIndex: 10
+              position: 'relative'
             }}
           >
-            <Paper
-              elevation={6}
+            {/* 主标题区域 */}
+            <Box
+              component={motion.div}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              sx={{ mb: 4 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
+                <StorageIcon
+                  sx={{
+                    fontSize: { xs: 40, md: 56 },
+                    mr: 2,
+                    color: theme.palette.primary.main,
+                    filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
+                  }}
+                />
+                <Typography
+                  variant={isMobile ? 'h2' : 'h1'}
+                  component="h1"
+                  sx={{
+                    fontSize: { xs: '2.5rem', md: '4rem', lg: '4.5rem' },
+                    fontWeight: 800,
+                    letterSpacing: { xs: '-0.02em', md: '-0.03em' },
+                    lineHeight: 1.1,
+                    background: theme.palette.gradient.primary,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    position: 'relative',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: '-10px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '100px',
+                      height: '4px',
+                      background: theme.palette.gradient.primary,
+                      borderRadius: '2px',
+                      opacity: 0.5
+                    }
+                  }}
+                >
+                  {t('datasetSquare.title')}
+                </Typography>
+              </Box>
+
+              <Typography
+                variant={isMobile ? 'body1' : 'h5'}
+                component="p"
+                sx={{
+                  maxWidth: '700px',
+                  mx: 'auto',
+                  mt: 4,
+                  mb: 2,
+                  lineHeight: 1.8,
+                  fontSize: { xs: '1rem', md: '1.25rem' },
+                  fontWeight: 400,
+                  color: theme.palette.text.secondary,
+                  opacity: 0.9
+                }}
+              >
+                {t('datasetSquare.subtitle')}
+              </Typography>
+            </Box>
+
+            {/* 搜索栏组件 */}
+            <Box
+              component={motion.div}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
               sx={{
-                width: '100%',
-                p: 2.5,
-                borderRadius: 3,
-                background: 'transparent',
-                backdropFilter: 'blur(10px)',
-                boxShadow:
-                  theme.palette.mode === 'dark' ? '0 10px 40px rgba(0,0,0,0.3)' : '0 10px 40px rgba(0,0,0,0.15)',
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                transform: 'translateY(0)',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow:
-                    theme.palette.mode === 'dark' ? '0 15px 50px rgba(0,0,0,0.4)' : '0 15px 50px rgba(0,0,0,0.2)'
-                },
-                overflow: 'visible' // 确保不裁剪子元素
+                maxWidth: 800,
+                mx: 'auto',
+                position: 'relative',
+                zIndex: 10,
+                mt: 4
               }}
             >
-              <DatasetSearchBar />
-            </Paper>
+              <Paper
+                elevation={0}
+                sx={{
+                  width: '100%',
+                  p: 2.5,
+                  borderRadius: '16px',
+                  background: isDark
+                    ? 'rgba(15, 23, 42, 0.8)'
+                    : '#FFFFFF',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: isDark
+                    ? '1px solid rgba(99, 102, 241, 0.2)'
+                    : '1px solid rgba(226, 232, 240, 1)',
+                  boxShadow: isDark
+                    ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                    : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    borderColor: isDark ? 'rgba(99, 102, 241, 0.4)' : 'rgba(99, 102, 241, 0.3)',
+                    boxShadow: isDark
+                      ? '0 12px 40px rgba(99, 102, 241, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.2)'
+                      : '0 8px 32px rgba(99, 102, 241, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.2)'
+                  },
+                  overflow: 'visible'
+                }}
+              >
+                <DatasetSearchBar />
+              </Paper>
+            </Box>
           </Box>
         </Container>
       </Box>
 
       {/* 内容区域 */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        {/* 数据集网站列表组件 */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 2, sm: 4 },
-            borderRadius: 3,
-            bgcolor:
-              theme.palette.mode === 'dark'
-                ? alpha(theme.palette.background.paper, 0.6)
-                : theme.palette.background.paper,
-            backdropFilter: 'blur(8px)',
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.2)' : '0 4px 20px rgba(0,0,0,0.05)'
-          }}
+      <Container
+        maxWidth="xl"
+        sx={{
+          mt: { xs: -4, md: -6 },
+          mb: { xs: 6, md: 8 },
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <DatasetSiteList />
-        </Paper>
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 3, sm: 4, md: 5 },
+              borderRadius: '20px',
+              background: isDark
+                ? 'rgba(15, 23, 42, 0.8)'
+                : '#FFFFFF',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)'
+            }}
+          >
+            <DatasetSiteList />
+          </Paper>
+        </motion.div>
       </Container>
     </main>
   );

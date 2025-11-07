@@ -1,8 +1,8 @@
-# Easy Dataset Agent 指南
+# GKGAI Dataset Generation Agent 指南
 
 ## 项目概述
 
-Easy Dataset 是一个专为大型语言模型（LLM）微调数据集创建而设计的应用程序。它提供完整的workflow，从文档处理到数据集导出，支持多种文件格式和AI模型。
+GKGAI Dataset Generation 是一个专为大型语言模型（LLM）微调数据集创建而设计的应用程序。它提供完整的workflow，从文档处理到数据集导出，支持多种文件格式和AI模型。
 
 ## 技术栈
 

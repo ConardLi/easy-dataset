@@ -113,7 +113,7 @@
   "description": "一个用于创建大模型微调数据集的应用程序",
   "build": {
     "appId": "com.easydataset.app",
-    "productName": "Easy Dataset",
+    "productName": "GKGAI Dataset Generation",
     "files": [
       ".next/**/*",
       "!.next/cache/**/*",

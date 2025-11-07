@@ -300,8 +300,10 @@ export default function ModelSettings({ projectId }) {
   return (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" fontWeight="bold"></Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" fontWeight="bold">
+            {t('settings.modelConfig')}
+          </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button
               variant="outlined"
@@ -326,99 +328,119 @@ export default function ModelSettings({ projectId }) {
           </Box>
         </Box>
 
-        <Stack spacing={2}>
-          {modelConfigList.map(model => (
-            <Paper
-              key={model.id}
-              elevation={1}
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                transition: 'all 0.2s',
-                '&:hover': {
-                  boxShadow: 3,
-                  transform: 'translateY(-2px)'
-                }
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <ProviderIcon key={model.providerId} provider={model.providerId} size={32} type={'color'} />
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {model.modelName ? model.modelName : t('models.unselectedModel')}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="primary" // 改为主色调
-                      sx={{
-                        fontWeight: 'medium', // 加粗
-                        bgcolor: 'primary.50', // 添加背景色
-                        px: 1, // 水平内边距
-                        py: 0.2, // 垂直内边距
-                        borderRadius: 1, // 圆角
-                        display: 'inline-block' // 行内块元素
-                      }}
-                    >
-                      {model.providerName}
-                    </Typography>
+        {(!modelConfigList || modelConfigList.length === 0) && (
+          <Box
+            sx={{
+              border: '1px dashed',
+              borderColor: 'divider',
+              borderRadius: 2,
+              p: 4,
+              textAlign: 'center',
+              bgcolor: 'background.default',
+              mb: 1
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              {t('models.unselectedModel')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {t('models.typeTips')}
+            </Typography>
+            <Button variant="contained" onClick={() => handleOpenModelDialog()} startIcon={<AddIcon />}>
+              {t('models.add')}
+            </Button>
+          </Box>
+        )}
+
+        {!!modelConfigList?.length && (
+          <Stack spacing={1.5}>
+            {modelConfigList.map(model => (
+              <Paper
+                key={model.id}
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    boxShadow: 2,
+                    borderColor: 'primary.light',
+                    transform: 'translateY(-1px)'
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                    <ProviderIcon key={model.providerId} provider={model.providerId} size={32} type={'color'} />
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {model.modelName ? model.modelName : t('models.unselectedModel')}
+                      </Typography>
+                      <Chip
+                        label={model.providerName}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                        sx={{ mt: 0.5, maxWidth: 200 }}
+                      />
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                    <Tooltip title={getModelStatusInfo(model).text}>
+                      <Chip
+                        icon={getModelStatusInfo(model).icon}
+                        label={`${formatEndpoint(model)}${
+                          model.providerId.toLowerCase() !== 'ollama' && !model.apiKey
+                            ? ' (' + t('models.unconfiguredAPIKey') + ')'
+                            : ''
+                        }`}
+                        size="small"
+                        color={getModelStatusInfo(model).color}
+                        variant="outlined"
+                        sx={{ maxWidth: 360 }}
+                      />
+                    </Tooltip>
+                    <Tooltip title={t('models.typeTips')}>
+                      <Chip
+                        label={t(`models.${model.type || 'text'}`)}
+                        size="small"
+                        color={model.type === 'vision' ? 'secondary' : 'info'}
+                        variant="outlined"
+                      />
+                    </Tooltip>
+                    <Tooltip title={t('playground.title')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => router.push(`/projects/${projectId}/playground?modelId=${model.id}`)}
+                        color="secondary"
+                      >
+                        <ScienceIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('common.edit')}>
+                      <IconButton size="small" onClick={() => handleOpenModelDialog(model)} color="primary">
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('common.delete')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteModel(model.id)}
+                        disabled={modelConfigList.length <= 1}
+                        color="error"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                 </Box>
-
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title={getModelStatusInfo(model).text}>
-                    <Chip
-                      icon={getModelStatusInfo(model).icon}
-                      label={`${formatEndpoint(model)}${
-                        model.providerId.toLowerCase() !== 'ollama' && !model.apiKey
-                          ? ' (' + t('models.unconfiguredAPIKey') + ')'
-                          : ''
-                      }`}
-                      size="small"
-                      color={getModelStatusInfo(model).color}
-                      variant="outlined"
-                    />
-                  </Tooltip>
-                  <Tooltip title={t('models.typeTips')}>
-                    <Chip
-                      sx={{ marginLeft: '5px' }}
-                      label={t(`models.${model.type || 'text'}`)}
-                      size="small"
-                      color={model.type === 'vision' ? 'secondary' : 'info'}
-                      variant="outlined"
-                    />
-                  </Tooltip>
-                  <Tooltip title={t('playground.title')}>
-                    <IconButton
-                      size="small"
-                      onClick={() => router.push(`/projects/${projectId}/playground?modelId=${model.id}`)}
-                      color="secondary"
-                    >
-                      <ScienceIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title={t('common.edit')}>
-                    <IconButton size="small" onClick={() => handleOpenModelDialog(model)} color="primary">
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title={t('common.delete')}>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteModel(model.id)}
-                      disabled={modelConfigList.length <= 1}
-                      color="error"
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Box>
-            </Paper>
-          ))}
-        </Stack>
+              </Paper>
+            ))}
+          </Stack>
+        )}
       </CardContent>
 
       {/* 模型表单对话框 */}

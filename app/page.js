@@ -72,21 +72,26 @@ export default function Home() {
   const theme = useTheme();
 
   return (
-    <main style={{ overflow: 'hidden', position: 'relative' }}>
+    <main style={{ 
+      overflow: 'hidden', 
+      position: 'relative', 
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
       <Navbar projects={projects} />
 
       <HeroSection onCreateProject={() => setCreateDialogOpen(true)} />
 
       <Container
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{
-          mt: { xs: 6, md: 8 },
-          mb: { xs: 4, md: 6 },
+          mt: { xs: -4, md: -6 },
+          mb: { xs: 6, md: 8 },
           position: 'relative',
-          zIndex: 1
+          zIndex: 2
         }}
       >
-        {/* <StatsCard projects={projects} /> */}
+        <StatsCard projects={projects} />
 
         {loading && (
           <Box

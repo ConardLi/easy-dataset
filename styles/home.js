@@ -8,20 +8,10 @@ export const styles = {
     transition: 'all 0.3s ease-in-out'
   },
   heroBackground: theme => ({
-    background:
-      theme.palette.mode === 'dark'
-        ? 'linear-gradient(135deg, rgba(42, 92, 170, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%)'
-        : 'linear-gradient(135deg, rgba(42, 92, 170, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%)',
+    // Use global single-color background; keep transparent here for consistency
+    background: 'transparent',
     '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'url("/imgs/grid-pattern.png") repeat',
-      opacity: theme.palette.mode === 'dark' ? 0.05 : 0.03,
-      zIndex: 0
+      display: 'none'
     }
   }),
   decorativeCircle: {
@@ -29,7 +19,7 @@ export const styles = {
     width: '800px',
     height: '800px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(42, 92, 170, 0) 70%)',
+    background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(42, 92, 170, 0) 70%)',
     top: '-300px',
     right: '-200px',
     zIndex: 0,
@@ -45,7 +35,7 @@ export const styles = {
     width: '500px',
     height: '500px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(42, 92, 170, 0.1) 0%, rgba(139, 92, 246, 0) 70%)',
+    background: 'radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(139, 92, 246, 0) 70%)',
     bottom: '-200px',
     left: '-100px',
     zIndex: 0,

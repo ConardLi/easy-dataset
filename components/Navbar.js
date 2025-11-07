@@ -27,7 +27,6 @@ import TaskIcon from './TaskIcon';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 // 图标
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
@@ -52,7 +51,7 @@ import { modelConfigListAtom, selectedModelInfoAtom } from '@/lib/store';
 
 export default function Navbar({ projects = [], currentProject }) {
   const [selectedProject, setSelectedProject] = useState(currentProject || '');
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const pathname = usePathname();
   const theme = useMuiTheme();
   const { resolvedTheme, setTheme } = useTheme();
@@ -146,14 +145,25 @@ export default function Navbar({ projects = [], currentProject }) {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
+  const isDark = theme.palette.mode === 'dark';
+
   return (
     <AppBar
-      position="static"
+      position="sticky"
       elevation={0}
-      color={theme.palette.mode === 'dark' ? 'transparent' : 'primary'}
+      color="transparent"
       sx={{
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'primary.main'
+        borderBottom: isDark
+          ? '1px solid rgba(99, 102, 241, 0.2)'
+          : '1px solid rgba(226, 232, 240, 1)',
+        background: isDark
+          ? 'rgba(15, 23, 42, 0.8)'
+          : 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: isDark
+          ? '0 4px 24px rgba(0, 0, 0, 0.2)'
+          : '0 4px 24px rgba(15, 23, 42, 0.05)'
       }}
       style={{ borderRadius: 0, zIndex: 99000 }}
     >
@@ -163,7 +173,8 @@ export default function Navbar({ projects = [], currentProject }) {
           minHeight: '56px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          px: { xs: 2, md: 3 }
         }}
         style={{ zIndex: 99000 }}
       >
@@ -181,59 +192,91 @@ export default function Navbar({ projects = [], currentProject }) {
               window.location.href = '/';
             }}
           >
-            <Box
-              component="img"
-              src="/imgs/logo.svg"
-              alt="Easy Dataset Logo"
-              sx={{
-                width: 28,
-                height: 28,
-                mr: 1.5
-              }}
-            />
+            {/* logo removed per rebrand */}
             <Typography
               variant="h6"
               component="div"
               sx={{
-                fontWeight: 600,
-                letterSpacing: '-0.5px'
+                fontWeight: 700,
+                letterSpacing: '-0.5px',
+                background: theme.palette.gradient.primary,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textFillColor: 'transparent'
               }}
               style={{ fontSize: '1.1rem' }}
-              className={theme.palette.mode === 'dark' ? 'gradient-text' : ''}
-              color={theme.palette.mode === 'dark' ? 'inherit' : 'white'}
             >
-              Easy DataSet
+              HKGAI Dataset Generation
             </Typography>
           </Box>
 
           {isProjectDetail && (
-            <FormControl size="small" sx={{ minWidth: 100 }}>
+            <FormControl size="small" sx={{ minWidth: 120, ml: 2 }}>
               <Select
                 value={selectedProject}
                 onChange={handleProjectChange}
                 displayEmpty
                 variant="outlined"
                 sx={{
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                  borderRadius: '8px',
-                  color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
+                  bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+                  borderRadius: '12px',
+                  color: theme.palette.text.primary,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
                   '& .MuiSelect-icon': {
-                    color: theme.palette.mode === 'dark' ? 'inherit' : 'white'
+                    color: theme.palette.primary.main
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'transparent'
+                    borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(226, 232, 240, 1)'
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'transparent'
+                    borderColor: theme.palette.primary.main
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main'
+                    borderColor: theme.palette.primary.main,
+                    borderWidth: '2px'
+                  },
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 1)',
+                    boxShadow: isDark
+                      ? '0 4px 12px rgba(99, 102, 241, 0.2)'
+                      : '0 4px 12px rgba(99, 102, 241, 0.1)'
                   }
                 }}
                 MenuProps={{
                   PaperProps: {
-                    elevation: 2,
-                    sx: { mt: 1, borderRadius: 2 }
+                    elevation: 0,
+                    sx: {
+                      mt: 1.5,
+                      borderRadius: '16px',
+                      background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                      border: isDark
+                        ? '1px solid rgba(99, 102, 241, 0.2)'
+                        : '1px solid rgba(226, 232, 240, 1)',
+                      boxShadow: isDark
+                        ? '0 8px 32px rgba(0, 0, 0, 0.4)'
+                        : '0 8px 32px rgba(15, 23, 42, 0.1)',
+                      '& .MuiMenuItem-root': {
+                        borderRadius: '8px',
+                        mx: 0.5,
+                        my: 0.25,
+                        '&:hover': {
+                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                        },
+                        '&.Mui-selected': {
+                          bgcolor: theme.palette.gradient.primary,
+                          color: '#FFFFFF',
+                          '&:hover': {
+                            bgcolor: theme.palette.gradient.primary,
+                            opacity: 0.9
+                          }
+                        }
+                      }
+                    }
                   }
                 }}
               >
@@ -268,26 +311,36 @@ export default function Navbar({ projects = [], currentProject }) {
               textColor="inherit"
               indicatorColor="secondary"
               sx={{
+                '& .MuiTabs-indicator': {
+                  display: 'none'
+                },
                 '& .MuiTab-root': {
                   minWidth: 100,
-                  fontSize: '0.85rem',
-                  transition: 'all 0.2s',
-                  color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                  opacity: theme.palette.mode === 'dark' ? 0.7 : 0.8,
-                  padding: '6px 16px',
-                  minHeight: '48px',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  transition: 'all 0.3s ease',
+                  color: theme.palette.text.secondary,
+                  padding: '8px 16px',
+                  minHeight: '40px',
+                  borderRadius: '12px',
+                  mx: 0.5,
                   '&:hover': {
-                    color: theme.palette.mode === 'dark' ? theme.palette.secondary.main : 'white',
-                    opacity: 1
+                    color: theme.palette.primary.main,
+                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)',
+                    transform: 'translateY(-2px)'
                   }
                 },
                 '& .Mui-selected': {
-                  color: theme.palette.mode === 'dark' ? theme.palette.secondary.main : 'white',
-                  opacity: 1,
-                  fontWeight: 600
-                },
-                '& .MuiTabs-indicator': {
-                  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : 'white'
+                  color: '#FFFFFF',
+                  bgcolor: theme.palette.gradient.primary,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.3)',
+                  '&:hover': {
+                    bgcolor: theme.palette.gradient.primary,
+                    opacity: 0.9
+                  }
                 }
               }}
             >
@@ -358,9 +411,38 @@ export default function Navbar({ projects = [], currentProject }) {
           open={isSourceMenuOpen}
           onClose={handleSourceMenuClose}
           PaperProps={{
-            elevation: 2,
-            sx: { mt: 1.5, borderRadius: 2, minWidth: 180 },
-            onMouseLeave: handleSourceMenuMouseLeave
+            elevation: 0,
+            sx: {
+              mt: 1.5,
+              borderRadius: '16px',
+              minWidth: 180,
+              background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
+                : '0 8px 32px rgba(15, 23, 42, 0.1)',
+              onMouseLeave: handleSourceMenuMouseLeave,
+              '& .MuiMenuItem-root': {
+                borderRadius: '8px',
+                mx: 0.5,
+                my: 0.25,
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                },
+                '&.Mui-selected': {
+                  bgcolor: theme.palette.gradient.primary,
+                  color: '#FFFFFF',
+                  '&:hover': {
+                    bgcolor: theme.palette.gradient.primary,
+                    opacity: 0.9
+                  }
+                }
+              }
+            }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
@@ -400,9 +482,38 @@ export default function Navbar({ projects = [], currentProject }) {
           open={isDatasetMenuOpen}
           onClose={handleDatasetMenuClose}
           PaperProps={{
-            elevation: 2,
-            sx: { mt: 1.5, borderRadius: 2, minWidth: 200 },
-            onMouseLeave: handleDatasetMenuMouseLeave
+            elevation: 0,
+            sx: {
+              mt: 1.5,
+              borderRadius: '16px',
+              minWidth: 200,
+              background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
+                : '0 8px 32px rgba(15, 23, 42, 0.1)',
+              onMouseLeave: handleDatasetMenuMouseLeave,
+              '& .MuiMenuItem-root': {
+                borderRadius: '8px',
+                mx: 0.5,
+                my: 0.25,
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                },
+                '&.Mui-selected': {
+                  bgcolor: theme.palette.gradient.primary,
+                  color: '#FFFFFF',
+                  '&:hover': {
+                    bgcolor: theme.palette.gradient.primary,
+                    opacity: 0.9
+                  }
+                }
+              }
+            }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
@@ -454,9 +565,38 @@ export default function Navbar({ projects = [], currentProject }) {
           open={isMoreMenuOpen}
           onClose={handleMoreMenuClose}
           PaperProps={{
-            elevation: 2,
-            sx: { mt: 1.5, borderRadius: 2, minWidth: 180 },
-            onMouseLeave: handleMenuMouseLeave
+            elevation: 0,
+            sx: {
+              mt: 1.5,
+              borderRadius: '16px',
+              minWidth: 180,
+              background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
+                : '0 8px 32px rgba(15, 23, 42, 0.1)',
+              onMouseLeave: handleMenuMouseLeave,
+              '& .MuiMenuItem-root': {
+                borderRadius: '8px',
+                mx: 0.5,
+                my: 0.25,
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                },
+                '&.Mui-selected': {
+                  bgcolor: theme.palette.gradient.primary,
+                  color: '#FFFFFF',
+                  '&:hover': {
+                    bgcolor: theme.palette.gradient.primary,
+                    opacity: 0.9
+                  }
+                }
+              }
+            }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
@@ -505,9 +645,9 @@ export default function Navbar({ projects = [], currentProject }) {
         {/* 右侧操作区 - 使用Flex布局 */}
         <Box sx={{ display: 'flex', flexGrow: 0, alignItems: 'center', gap: 1.5 }}>
           {/* 模型选择 */}
-          {location.pathname.includes('/projects/') && <ModelSelect projectId={selectedProject} />}
+          {isProjectDetail && <ModelSelect projectId={selectedProject} />}
           {/* 任务图标 - 仅在项目页面显示 */}
-          {location.pathname.includes('/projects/') && <TaskIcon theme={theme} projectId={selectedProject} />}
+          {isProjectDetail && <TaskIcon theme={theme} projectId={selectedProject} />}
 
           {/* 语言切换器 */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -519,12 +659,21 @@ export default function Navbar({ projects = [], currentProject }) {
               onClick={toggleTheme}
               size="small"
               sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
+                bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+                color: theme.palette.text.primary,
                 p: 1,
-                borderRadius: 1.5,
+                borderRadius: '12px',
+                border: isDark
+                  ? '1px solid rgba(99, 102, 241, 0.2)'
+                  : '1px solid rgba(226, 232, 240, 1)',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
+                  bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 1)',
+                  borderColor: theme.palette.primary.main,
+                  boxShadow: isDark
+                    ? '0 4px 12px rgba(99, 102, 241, 0.3)'
+                    : '0 4px 12px rgba(99, 102, 241, 0.15)',
+                  transform: 'translateY(-2px)'
                 }
               }}
             >
@@ -536,49 +685,7 @@ export default function Navbar({ projects = [], currentProject }) {
             </IconButton>
           </Tooltip>
 
-          {/* 文档链接 */}
-          <Tooltip title={t('documentation')}>
-            <IconButton
-              href={
-                i18n.language === 'zh-CN' ? 'https://docs.easy-dataset.com/' : 'https://docs.easy-dataset.com/ed/en'
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              size="small"
-              sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                p: 1,
-                borderRadius: 1.5,
-                '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
-                },
-                mr: 1,
-                marginRight: 0
-              }}
-            >
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-
-          {/* GitHub链接 */}
-          <Tooltip title={t('common.visitGitHub')}>
-            <IconButton
-              onClick={() => window.open('https://github.com/ConardLi/easy-dataset', '_blank')}
-              size="small"
-              sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                p: 1,
-                borderRadius: 1.5,
-                '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
-                }
-              }}
-            >
-              <GitHubIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          
 
           {/* 更新检查器 */}
           <UpdateChecker />

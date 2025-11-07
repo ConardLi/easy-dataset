@@ -5,10 +5,13 @@ import { Toaster } from 'sonner';
 import { Provider } from 'jotai';
 
 export const metadata = {
-  title: 'Easy Dataset',
+  title: 'GKGAI Dataset Generation',
   description: '一个强大的 LLM 数据集生成工具',
   icons: {
-    icon: '/imgs/logo.ico' // 更新为正确的文件名
+    icon: [
+      { url: '/logo.svg', type: 'image/svg+xml' },
+      { url: '/imgs/logo.ico' }
+    ]
   }
 };
 
@@ -19,7 +22,9 @@ export default function RootLayout({ children }) {
         <Provider>
           <ThemeRegistry>
             <I18nProvider>
-              {children}
+              <div className="page-shell">
+                {children}
+              </div>
               <Toaster richColors position="top-center" />
             </I18nProvider>
           </ThemeRegistry>

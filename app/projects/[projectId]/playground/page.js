@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Paper, Alert } from '@mui/material';
+import { Box, Typography, Paper, Alert, Container, useMediaQuery } from '@mui/material';
 import { useParams } from 'next/navigation';
 import { useTheme } from '@mui/material/styles';
 import ChatArea from '@/components/playground/ChatArea';
@@ -12,6 +12,8 @@ import { playgroundStyles } from '@/styles/playground';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/index';
 import { modelConfigListAtom } from '@/lib/store';
+import { motion } from 'framer-motion';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 export default function ModelPlayground({ searchParams }) {
   const theme = useTheme();
@@ -45,19 +47,131 @@ export default function ModelPlayground({ searchParams }) {
     const model = availableModels.find(m => m.id === modelId);
     return model ? `${model.providerName}: ${model.modelName}` : modelId;
   };
+  const isDark = theme.palette.mode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
-    <Box sx={styles.container}>
-      <Typography variant="h5" component="h1" gutterBottom>
-        {t('playground.title')}
-      </Typography>
+    <main style={{ 
+      overflow: 'hidden', 
+      position: 'relative', 
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
+      {/* Hero Section - 参考首页风格 */}
+      <Box
+        sx={{
+          position: 'relative',
+          pt: { xs: 6, md: 8 },
+          pb: { xs: 4, md: 6 },
+          overflow: 'hidden',
+          background: isDark
+            ? 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%), #0A0E27'
+            : 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.05) 0%, transparent 50%), #FAFBFC'
+        }}
+      >
+        {/* 科技风格网格背景 */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: isDark
+              ? `linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)`
+              : `linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px',
+            opacity: 0.4,
+            zIndex: 0
+          }}
+        />
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
+          <Box
+            component={motion.div}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: 2
+            }}
+          >
+            <SmartToyIcon
+              sx={{
+                fontSize: { xs: 32, md: 40 },
+                mr: 2,
+                color: theme.palette.primary.main,
+                filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
+              }}
+            />
+            <Typography
+              variant={isMobile ? 'h3' : 'h2'}
+              component="h1"
+              sx={{
+                fontSize: { xs: '1.75rem', md: '2.5rem' },
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+                background: theme.palette.gradient.primary,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              {t('playground.title')}
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
 
-      <Paper elevation={2} sx={styles.mainPaper}>
+      {/* 内容区域 */}
+      <Container
+        maxWidth="xl"
+        sx={{
+          mt: { xs: -4, md: -6 },
+          mb: { xs: 6, md: 8 },
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 3,
+                borderRadius: '12px',
+                background: isDark ? 'rgba(211, 47, 47, 0.1)' : 'rgba(211, 47, 47, 0.05)',
+                border: `1px solid ${isDark ? 'rgba(211, 47, 47, 0.3)' : 'rgba(211, 47, 47, 0.2)'}`
+              }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          <Paper 
+            elevation={0}
+            sx={{
+              ...styles.mainPaper,
+              borderRadius: '20px',
+              background: isDark
+                ? 'rgba(15, 23, 42, 0.8)'
+                : '#FFFFFF',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)'
+            }}
+          >
         <PlaygroundHeader
           availableModels={availableModels}
           selectedModels={selectedModels}
@@ -84,9 +198,11 @@ export default function ModelPlayground({ searchParams }) {
           uploadedImage={uploadedImage}
           handleImageUpload={handleImageUpload}
           handleRemoveImage={handleRemoveImage}
-          availableModels={availableModels}
-        />
-      </Paper>
-    </Box>
+            availableModels={availableModels}
+          />
+        </Paper>
+        </motion.div>
+      </Container>
+    </main>
   );
 }

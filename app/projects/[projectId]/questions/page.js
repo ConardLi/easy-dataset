@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, Box, Paper, Tabs, Tab, CircularProgress, Divider, LinearProgress } from '@mui/material';
+import { Container, Typography, Box, Paper, Tabs, Tab, CircularProgress, Divider, LinearProgress, useTheme, useMediaQuery } from '@mui/material';
+import { motion } from 'framer-motion';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 
 import QuestionListView from '@/components/questions/QuestionListView';
 import QuestionTreeView from '@/components/questions/QuestionTreeView';
@@ -175,18 +177,116 @@ export default function QuestionsPage({ params }) {
     }
   };
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <main style={{ 
+        overflow: 'hidden', 
+        position: 'relative', 
+        background: theme.palette.background.default,
+        minHeight: '100vh'
+      }}>
+        <Container maxWidth="xl" sx={{ 
+          mt: 4, 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '60vh' 
+        }}>
+          <CircularProgress size={40} thickness={4} />
+        </Container>
+      </main>
     );
   }
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 8 }}>
+    <main style={{ 
+      overflow: 'hidden', 
+      position: 'relative', 
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
+      {/* Hero Section - 参考首页风格 */}
+      <Box
+        sx={{
+          position: 'relative',
+          pt: { xs: 6, md: 8 },
+          pb: { xs: 4, md: 6 },
+          overflow: 'hidden',
+          background: isDark
+            ? 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%), #0A0E27'
+            : 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.05) 0%, transparent 50%), #FAFBFC'
+        }}
+      >
+        {/* 科技风格网格背景 */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: isDark
+              ? `linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)`
+              : `linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px',
+            opacity: 0.4,
+            zIndex: 0
+          }}
+        />
+
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
+          <Box
+            component={motion.div}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: 2
+            }}
+          >
+            <QuestionAnswerIcon
+              sx={{
+                fontSize: { xs: 32, md: 40 },
+                mr: 2,
+                color: theme.palette.primary.main,
+                filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
+              }}
+            />
+            <Typography
+              variant={isMobile ? 'h3' : 'h2'}
+              component="h1"
+              sx={{
+                fontSize: { xs: '1.75rem', md: '2.5rem' },
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+                background: theme.palette.gradient.primary,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              {t('questions.title') || '问题管理'}
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* 内容区域 */}
+      <Container
+        maxWidth="xl"
+        sx={{
+          mt: { xs: -4, md: -6 },
+          mb: { xs: 6, md: 8 },
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
       {/* 处理中的进度显示 - 全局蒙版样式 */}
       {processing && (
         <Box
@@ -257,33 +357,71 @@ export default function QuestionsPage({ params }) {
         </Box>
       )}
 
-      <QuestionsPageHeader
-        questionsTotal={questions.total}
-        selectedQuestionsCount={selectedQuestions.length}
-        onBatchDeleteQuestions={() => handleBatchDeleteQuestions(selectedQuestions, setSelectedQuestions)}
-        onOpenCreateDialog={handleOpenCreateDialog}
-        onOpenCreateTemplateDialog={handleOpenCreateTemplateDialog}
-        onBatchGenerateAnswers={() => handleBatchGenerateAnswers(selectedQuestions)}
-        onAutoGenerateDatasets={handleAutoGenerateDatasets}
-        onAutoGenerateMultiTurnDatasets={handleAutoGenerateMultiTurnDatasets}
-        onAutoGenerateImageDatasets={handleAutoGenerateImageDatasets}
-      />
-
-      <Paper sx={{ mb: 4 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
-          variant="fullWidth"
-          indicatorColor="primary"
-          sx={{
-            borderBottom: 1,
-            borderColor: 'divider'
-          }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Tab label={t('questions.listView')} />
-          <Tab label={t('questions.template.management')} />
-          <Tab label={t('questions.treeView')} />
-        </Tabs>
+          <QuestionsPageHeader
+            questionsTotal={questions.total}
+            selectedQuestionsCount={selectedQuestions.length}
+            onBatchDeleteQuestions={() => handleBatchDeleteQuestions(selectedQuestions, setSelectedQuestions)}
+            onOpenCreateDialog={handleOpenCreateDialog}
+            onOpenCreateTemplateDialog={handleOpenCreateTemplateDialog}
+            onBatchGenerateAnswers={() => handleBatchGenerateAnswers(selectedQuestions)}
+            onAutoGenerateDatasets={handleAutoGenerateDatasets}
+            onAutoGenerateMultiTurnDatasets={handleAutoGenerateMultiTurnDatasets}
+            onAutoGenerateImageDatasets={handleAutoGenerateImageDatasets}
+          />
+
+          <Paper
+            elevation={0}
+            sx={{
+              mb: 4,
+              borderRadius: '20px',
+              background: isDark
+                ? 'rgba(15, 23, 42, 0.8)'
+                : '#FFFFFF',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              boxShadow: isDark
+                ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)',
+              overflow: 'hidden'
+            }}
+          >
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              variant="fullWidth"
+              sx={{
+                '& .MuiTabs-indicator': {
+                  display: 'none'
+                },
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  borderRadius: '12px',
+                  minHeight: 44,
+                  transition: 'all 0.3s ease',
+                  '&.Mui-selected': {
+                    color: '#FFFFFF',
+                    bgcolor: theme.palette.gradient.primary,
+                    boxShadow: isDark
+                      ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                      : '0 4px 16px rgba(99, 102, 241, 0.3)'
+                  }
+                }
+              }}
+            >
+              <Tab label={t('questions.listView')} />
+              <Tab label={t('questions.template.management')} />
+              <Tab label={t('questions.treeView')} />
+            </Tabs>
 
         <QuestionsFilter
           selectedQuestionsCount={selectedQuestions.length}
@@ -361,12 +499,14 @@ export default function QuestionsPage({ params }) {
         projectId={projectId}
       />
 
-      <TemplateFormDialog
-        open={templateDialogOpen}
-        onClose={handleCloseTemplateDialog}
-        onSubmit={handleSubmitTemplate}
-        template={editingTemplate}
-      />
-    </Container>
+          <TemplateFormDialog
+            open={templateDialogOpen}
+            onClose={handleCloseTemplateDialog}
+            onSubmit={handleSubmitTemplate}
+            template={editingTemplate}
+          />
+        </motion.div>
+      </Container>
+    </main>
   );
 }

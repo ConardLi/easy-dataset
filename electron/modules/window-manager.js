@@ -26,7 +26,7 @@ function createWindow(isDev, port) {
   });
 
   // 设置窗口标题
-  mainWindow.setTitle(`Easy Dataset v${getAppVersion()}`);
+  mainWindow.setTitle(`GKGAI Dataset Generation v${getAppVersion()}`);
   const loadingPath = url.format({
     pathname: path.join(__dirname, '..', 'loading.html'),
     protocol: 'file:',
