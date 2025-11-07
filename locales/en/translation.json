@@ -635,6 +635,7 @@
     "tokenHelp": "You can get your token from HuggingFace settings page"
   },
   "datasets": {
+    "title": "Datasets Management",
     "loadingDataset": "Loading Dataset...",
     "datasetNotFound": "Dataset Not Found",
     "optimizeTitle": "AI Optimize",

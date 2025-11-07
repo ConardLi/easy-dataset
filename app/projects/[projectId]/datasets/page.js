@@ -505,7 +505,7 @@ export default function DatasetsPage({ params }) {
                 backgroundClip: 'text'
               }}
             >
-              {t('datasets.title') || '数据集管理'}
+              {t('datasets.title', { defaultValue: '数据集管理' })}
             </Typography>
           </Box>
         </Container>

@@ -467,7 +467,8 @@ export default function Navbar({ projects = [], currentProject }) {
                 },
                 '& .Mui-selected': {
                   color: '#FFFFFF',
-                  bgcolor: theme.palette.gradient.primary,
+                  background: theme.palette.gradient.primary,
+                  backgroundColor: theme.palette.primary.main,
                   boxShadow: isDark
                     ? '0 6px 20px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(99, 102, 241, 0.2)'
                     : '0 6px 20px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.15)',
@@ -476,7 +477,8 @@ export default function Navbar({ projects = [], currentProject }) {
                     width: '80%'
                   },
                   '&:hover': {
-                    bgcolor: theme.palette.gradient.primary,
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
                     opacity: 0.95,
                     transform: 'translateY(-2px)',
                     boxShadow: isDark
@@ -607,14 +609,16 @@ export default function Navbar({ projects = [], currentProject }) {
                     : '0 2px 8px rgba(99, 102, 241, 0.18)'
                 },
                 '&.Mui-selected': {
-                  bgcolor: theme.palette.gradient.primary,
+                  background: theme.palette.gradient.primary,
+                  backgroundColor: theme.palette.primary.main,
                   color: '#FFFFFF',
                   fontWeight: 700,
                   boxShadow: isDark
                     ? '0 4px 16px rgba(99, 102, 241, 0.4)'
                     : '0 4px 16px rgba(99, 102, 241, 0.35)',
                   '&:hover': {
-                    bgcolor: theme.palette.gradient.primary,
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
                     opacity: 0.95,
                     transform: 'translateX(4px) scale(1.02)'
                   },
@@ -730,14 +734,16 @@ export default function Navbar({ projects = [], currentProject }) {
                     : '0 2px 8px rgba(99, 102, 241, 0.18)'
                 },
                 '&.Mui-selected': {
-                  bgcolor: theme.palette.gradient.primary,
+                  background: theme.palette.gradient.primary,
+                  backgroundColor: theme.palette.primary.main,
                   color: '#FFFFFF',
                   fontWeight: 700,
                   boxShadow: isDark
                     ? '0 4px 16px rgba(99, 102, 241, 0.4)'
                     : '0 4px 16px rgba(99, 102, 241, 0.35)',
                   '&:hover': {
-                    bgcolor: theme.palette.gradient.primary,
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
                     opacity: 0.95,
                     transform: 'translateX(4px) scale(1.02)'
                   },
@@ -865,14 +871,16 @@ export default function Navbar({ projects = [], currentProject }) {
                     : '0 2px 8px rgba(99, 102, 241, 0.18)'
                 },
                 '&.Mui-selected': {
-                  bgcolor: theme.palette.gradient.primary,
+                  background: theme.palette.gradient.primary,
+                  backgroundColor: theme.palette.primary.main,
                   color: '#FFFFFF',
                   fontWeight: 700,
                   boxShadow: isDark
                     ? '0 4px 16px rgba(99, 102, 241, 0.4)'
                     : '0 4px 16px rgba(99, 102, 241, 0.35)',
                   '&:hover': {
-                    bgcolor: theme.palette.gradient.primary,
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
                     opacity: 0.95,
                     transform: 'translateX(4px) scale(1.02)'
                   },

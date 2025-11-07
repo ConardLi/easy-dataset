@@ -11,7 +11,6 @@
   "scripts": {
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
-    "db:template": "node prisma/generate-template.js",
     "dev": "prisma db push && next dev -p 1717",
     "build": "prisma db push && next build",
     "start": "next start -p 1717",
@@ -21,10 +20,10 @@
     "electron-pack": "electron-builder --dir",
     "electron-dist": "electron-builder",
     "clean-dist": "rm -rf dist",
-    "electron-build": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder -mwl",
-    "electron-build-mac": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --mac",
-    "electron-build-win": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --win",
-    "electron-build-linux": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --linux",
+    "electron-build": "pnpm clean-dist && prisma db push && next build && electron-builder -mwl",
+    "electron-build-mac": "pnpm clean-dist && prisma db push && next build && electron-builder --mac",
+    "electron-build-win": "pnpm clean-dist && prisma db push && next build && electron-builder --win",
+    "electron-build-linux": "pnpm clean-dist && prisma db push && next build && electron-builder --linux",
     "docker": "docker build -t easy-dataset .",
     "prettier": "npx prettier --write .",
     "migrate-api-keys": "node scripts/migrate-api-keys-to-env.js",
@@ -134,8 +133,6 @@
     ],
     "extraResources": [
       "prisma/schema.prisma",
-      "prisma/template.sqlite",
-      "prisma/sql.json",
       "node_modules/.prisma/**/*",
       "node_modules/@prisma/client/**/*"
     ],

@@ -212,6 +212,72 @@ const getTheme = mode => {
             textFillColor: 'transparent',
             fontWeight: 700
           },
+          // Global markdown body theming to match dark/light backgrounds
+          '.markdown-body': {
+            backgroundColor: 'transparent !important',
+            color: isDark ? textDarkPrimary : textLightPrimary,
+            fontFamily: 'inherit',
+            fontSize: '0.9375rem',
+            lineHeight: 1.7,
+            '& h1, & h2, & h3, & h4, & h5, & h6': {
+              color: isDark ? textDarkPrimary : textLightPrimary,
+              fontWeight: 700,
+              marginTop: '1.5em',
+              marginBottom: '0.75em',
+              borderBottom: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              paddingBottom: '0.5em'
+            },
+            '& p, & li, & ul, & ol': {
+              color: isDark ? '#E2E8F0' : textLightSecondary
+            },
+            '& code': {
+              backgroundColor: isDark
+                ? 'rgba(99, 102, 241, 0.15)'
+                : 'rgba(99, 102, 241, 0.1)',
+              color: isDark ? '#E0E7FF' : primaryBlue,
+              padding: '0.2em 0.4em',
+              borderRadius: 4,
+              fontSize: '0.875em',
+              fontFamily: '"JetBrains Mono", monospace'
+            },
+            '& pre': {
+              backgroundColor: isDark ? 'rgba(15, 23, 42, 1)' : '#FFFFFF',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              borderRadius: 8,
+              padding: '1em',
+              overflow: 'auto'
+            },
+            '& blockquote': {
+              borderLeft: `4px solid ${isDark ? 'rgba(99, 102, 241, 0.5)' : primaryBlue}`,
+              paddingLeft: '1em',
+              marginLeft: 0,
+              color: isDark ? '#CBD5E1' : textLightSecondary,
+              fontStyle: 'italic'
+            },
+            '& table': {
+              borderCollapse: 'collapse',
+              width: '100%',
+              marginBottom: '1em'
+            },
+            '& table th, & table td': {
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              padding: '0.5em',
+              color: isDark ? '#E2E8F0' : textLightSecondary
+            },
+            '& hr': {
+              border: 'none',
+              borderTop: isDark
+                ? '1px solid rgba(99, 102, 241, 0.2)'
+                : '1px solid rgba(226, 232, 240, 1)',
+              margin: '2em 0'
+            }
+          },
           // 科技风格发光效果
           '.tech-glow': {
             boxShadow: isDark
@@ -229,6 +295,54 @@ const getTheme = mode => {
                 ? `0 0 20px rgba(99, 102, 241, 0.3)`
                 : `0 0 12px rgba(99, 102, 241, 0.2)`
             }
+          }
+          ,
+          // Neon/Aurora global utilities
+          '@keyframes hueRotate': {
+            '0%': { filter: 'hue-rotate(0deg)' },
+            '100%': { filter: 'hue-rotate(360deg)' }
+          },
+          '@keyframes floatY': {
+            '0%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-6px)' },
+            '100%': { transform: 'translateY(0)' }
+          },
+          '.neon-card': {
+            position: 'relative',
+            backgroundColor: isDark ? 'rgba(15,23,42,0.8)' : '#FFFFFF',
+            borderRadius: 20,
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: isDark
+              ? '1px solid rgba(99,102,241,0.25)'
+              : '1px solid rgba(226,232,240,1)',
+            boxShadow: isDark
+              ? '0 10px 40px rgba(0,0,0,0.35)'
+              : '0 10px 40px rgba(15,23,42,0.08)'
+          },
+          '.neon-border-animated': {
+            position: 'relative',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 20,
+              padding: 1,
+              background: `linear-gradient(135deg, ${isDark ? '#6366F1' : '#818CF8'}, ${accentCyan})`,
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+              pointerEvents: 'none',
+              opacity: isDark ? 0.28 : 0.18,
+              animation: 'hueRotate 14s linear infinite'
+            }
+          },
+          '.aurora-layer': {
+            position: 'absolute',
+            borderRadius: '50%',
+            filter: 'blur(80px)',
+            opacity: isDark ? 0.18 : 0.12,
+            animation: 'floatY 7s ease-in-out infinite'
           }
         }
       },
@@ -379,6 +493,40 @@ const getTheme = mode => {
               boxShadow: isDark
                 ? `0 2px 8px rgba(99, 102, 241, 0.2)`
                 : `0 1px 4px rgba(99, 102, 241, 0.15)`
+            },
+            '&.MuiChip-colorPrimary': {
+              color: '#FFFFFF',
+              borderColor: 'transparent',
+              background: gradientPrimary,
+              boxShadow: isDark
+                ? '0 4px 16px rgba(99, 102, 241, 0.35)'
+                : '0 2px 8px rgba(99, 102, 241, 0.2)',
+              '&:hover': {
+                background: gradientPrimary,
+                opacity: 0.95,
+                boxShadow: isDark
+                  ? '0 6px 20px rgba(99, 102, 241, 0.45)'
+                  : '0 4px 12px rgba(99, 102, 241, 0.25)'
+              },
+              '& .MuiChip-icon': {
+                color: '#FFFFFF'
+              },
+              '& .MuiChip-deleteIcon': {
+                color: '#FFFFFF',
+                '&:hover': {
+                  opacity: 0.85
+                }
+              }
+            },
+            '&.MuiChip-outlinedPrimary': {
+              color: primaryBlue,
+              borderColor: primaryBlue,
+              backgroundColor: isDark
+                ? 'rgba(99, 102, 241, 0.12)'
+                : 'rgba(99, 102, 241, 0.08)'
+            },
+            '&.MuiChip-sizeSmall .MuiChip-label': {
+              fontWeight: 600
             }
           }
         }
@@ -428,6 +576,70 @@ const getTheme = mode => {
             '&.Mui-selected': {
               fontWeight: 700,
               color: isDark ? textDarkPrimary : primaryBlue
+            }
+          }
+        }
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            color: isDark ? textDarkPrimary : '#0F172A',
+            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',
+            border: isDark
+              ? '1px solid rgba(99, 102, 241, 0.2)'
+              : '1px solid rgba(15, 23, 42, 0.10)',
+            borderRadius: 12,
+            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: isDark ? 'none' : '0 1px 2px rgba(15,23,42,0.06)',
+            '&:hover': {
+              backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#F8FAFC',
+              borderColor: primaryBlue,
+              boxShadow: isDark
+                ? '0 4px 14px rgba(99,102,241,0.35)'
+                : '0 4px 14px rgba(15,23,42,0.10), 0 0 0 3px rgba(99,102,241,0.12)',
+              transform: 'translateY(-1px)'
+            }
+          }
+        }
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.06)' : '#FFFFFF',
+            borderRadius: 12,
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: isDark ? 'rgba(99, 102, 241, 0.22)' : 'rgba(15, 23, 42, 0.12)',
+              borderWidth: 1.5
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: primaryBlue
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: primaryBlue,
+              borderWidth: 2,
+              boxShadow: isDark
+                ? '0 0 0 3px rgba(99, 102, 241, 0.12)'
+                : '0 0 0 3px rgba(99, 102, 241, 0.14)'
+            },
+            '& .MuiSelect-icon': {
+              color: primaryBlue
+            }
+          }
+        }
+      },
+      MuiBadge: {
+        styleOverrides: {
+          badge: {
+            fontWeight: 700,
+            letterSpacing: 0.2,
+            padding: '0 4px',
+            transform: 'translate(0, 2px)',
+            '&.MuiBadge-colorError': {
+              backgroundColor: errorColor,
+              color: '#FFFFFF',
+              boxShadow: isDark
+                ? '0 0 0 1px rgba(15,23,42,0.6), 0 2px 6px rgba(239,68,68,0.4)'
+                : '0 0 0 1px #FFFFFF, 0 2px 6px rgba(239,68,68,0.35)'
             }
           }
         }

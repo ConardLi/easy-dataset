@@ -149,8 +149,8 @@ npm run build
 # 打开Prisma Studio
 npm run db:studio
 
-# 查看数据库文件
-sqlite3 prisma/db.sqlite
+# 使用 MySQL CLI 连接（根据实际环境修改）
+mysql -h <HOST> -u <USER> -p <DATABASE_NAME>
 ```
 
 ### 2. LLM API调试

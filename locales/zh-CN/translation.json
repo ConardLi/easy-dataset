@@ -572,6 +572,7 @@
     "fetchLabelStatsError": "获取标签统计失败:"
   },
   "datasets": {
+    "title": "数据集管理",
     "loadingDataset": "正在加载数据集详情...",
     "datasetNotFound": "未找到数据集",
     "optimizeTitle": "AI 优化",

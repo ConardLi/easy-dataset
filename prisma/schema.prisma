@@ -58,8 +58,8 @@ model Chunks {
   projectId String
   fileId    String
   fileName  String
-  content   String
-  summary   String
+  content   String      @db.LongText
+  summary   String      @db.LongText
   size      Int
   createAt  DateTime    @default(now())
   updateAt  DateTime    @updatedAt
@@ -101,26 +101,26 @@ model Questions {
 }
 
 model Datasets {
-  id            String   @id @default(nanoid())
-  project       Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id            String    @id @default(nanoid())
+  project       Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId     String
   questionId    String
   question      String
-  answer        String
-  answerType    String?  @default("text") // 'text' | 'label' | 'custom_format'
+  answer        String    @db.LongText
+  answerType    String?   @default("text") // 'text' | 'label' | 'custom_format'
   chunkName     String
-  chunkContent  String
+  chunkContent  String    @db.LongText
   model         String
   questionLabel String
-  cot           String
-  confirmed     Boolean  @default(false)
-  score         Float    @default(0)
-  aiEvaluation  String   @default("") // AI评估结论
-  tags          String   @default("")
-  note          String   @default("")
-  other         String   @default("") // 存储其他字段的JSON字符串
-  createAt      DateTime @default(now())
-  updateAt      DateTime @updatedAt
+  cot           String    @db.LongText
+  confirmed     Boolean   @default(false)
+  score         Float     @default(0)
+  aiEvaluation  String    @default("") // AI评估结论
+  tags          String    @default("")
+  note          String    @default("")
+  other         String    @default("") // 存储其他字段的JSON字符串
+  createAt      DateTime  @default(now())
+  updateAt      DateTime  @updatedAt
 
   @@index([projectId])
 }
@@ -200,10 +200,10 @@ model Task {
   endTime        DateTime?
   completedCount Int       @default(0)
   totalCount     Int       @default(0)
-  modelInfo      String // JSON格式存储，包含使用的模型信息
+  modelInfo      String   @db.Text // JSON格式存储，包含使用的模型信息
   language       String    @default("zh-CN")
-  detail         String    @default("") // 任务详情
-  note           String    @default("") // 任务备注
+  detail         String?   @db.LongText // 任务详情
+  note           String?   @db.LongText // 任务备注
   createAt       DateTime  @default(now())
   updateAt       DateTime  @updatedAt
 
@@ -217,7 +217,7 @@ model CustomPrompts {
   promptType String // 提示词类型，对应 lib/llm/prompts 下的文件名
   promptKey  String // 提示词在模块中的键名，如 QUESTION_PROMPT, QUESTION_PROMPT_EN
   language   String // 语言: zh-CN, en
-  content    String // 自定义的提示词内容
+  content    String   @db.LongText // 自定义的提示词内容，支持长文本
   isActive   Boolean  @default(true) // 是否启用
   createAt   DateTime @default(now())
   updateAt   DateTime @updatedAt

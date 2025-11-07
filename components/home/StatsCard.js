@@ -8,14 +8,20 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import StorageIcon from '@mui/icons-material/Storage';
 import MemoryIcon from '@mui/icons-material/Memory';
 import { useTranslation } from 'react-i18next';
+import { MODEL_PROVIDERS } from '@/constant/model';
 
-// 默认模型列表
-const mockModels = [
-  { id: 'deepseek-r1', provider: 'Ollama', name: 'DeepSeek-R1' },
-  { id: 'gpt-3.5-turbo-openai', provider: 'OpenAI', name: 'gpt-3.5-turbo' },
-  { id: 'gpt-3.5-turbo-guiji', provider: 'Guiji', name: 'gpt-3.5-turbo' },
-  { id: 'glm-4-flash', provider: 'Zhipu AI', name: 'GLM-4-Flash' }
-];
+// 计算支持的模型数量（基于提供商的默认模型）
+const getSupportedModelCount = () => {
+  try {
+    const set = new Set();
+    MODEL_PROVIDERS.forEach(provider => {
+      (provider.defaultModels || []).forEach(m => set.add(`${provider.id}:${m}`));
+    });
+    return set.size;
+  } catch (e) {
+    return 0;
+  }
+};
 
 export default function StatsCard({ projects }) {
   const theme = useTheme();
@@ -48,7 +54,7 @@ export default function StatsCard({ projects }) {
       gradient: 'linear-gradient(135deg, #22C55E 0%, #059669 100%)'
     },
     {
-      value: mockModels.length,
+      value: getSupportedModelCount(),
       label: t('stats.supportedModels'),
       color: 'warning',
       icon: <MemoryIcon />,
@@ -110,6 +116,21 @@ export default function StatsCard({ projects }) {
                 position: 'relative',
                 overflow: 'hidden',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                // animated gradient border
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '20px',
+                  padding: '1px',
+                  background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.secondary.main})`,
+                  WebkitMask:
+                    'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  maskComposite: 'exclude',
+                  pointerEvents: 'none',
+                  opacity: isDark ? 0.25 : 0.15
+                },
                 '&::before': {
                   content: '""',
                   position: 'absolute',
@@ -118,7 +139,7 @@ export default function StatsCard({ projects }) {
                   right: 0,
                   height: '4px',
                   background: item.gradient,
-                  opacity: 0,
+                  opacity: 0.6,
                   transition: 'opacity 0.3s ease'
                 },
                 '&:hover': {

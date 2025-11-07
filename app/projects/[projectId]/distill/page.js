@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/lib/store';
-import { Box, Typography, Paper, Container, Button, CircularProgress, Alert, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Paper, Container, Button, CircularProgress, Alert, IconButton, Tooltip, Chip, useTheme } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import DistillTreeView from '@/components/distill/DistillTreeView';
@@ -19,6 +19,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 export default function DistillPage() {
+  const muiTheme = useTheme();
   const { t, i18n } = useTranslation();
   const { projectId } = useParams();
   const selectedModel = useAtomValue(selectedModelInfoAtom);
@@ -406,7 +407,125 @@ export default function DistillPage() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
-      <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+      {/* Tech gradient header bar */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 0,
+          mb: 3,
+          overflow: 'hidden',
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: muiTheme.palette.mode === 'dark' ? 'rgba(99,102,241,0.25)' : 'rgba(226,232,240,1)',
+          background: muiTheme.palette.mode === 'dark'
+            ? 'linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(10,14,39,0.85) 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.9) 100%)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          position: 'relative'
+        }}
+        className="tech-border"
+      >
+        <Box sx={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          <Box sx={{
+            position: 'absolute',
+            top: -80,
+            left: -40,
+            width: 240,
+            height: 240,
+            background: muiTheme.palette.gradient.primary,
+            opacity: muiTheme.palette.mode === 'dark' ? 0.15 : 0.10,
+            filter: 'blur(60px)',
+            borderRadius: '50%'
+          }} />
+        </Box>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 3.5, py: 2.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h5" component="h1" fontWeight={800} className="gradient-text">
+              {t('distill.title')}
+            </Typography>
+            <Tooltip title={t('common.help')}>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  const helpUrl =
+                    i18n.language === 'en'
+                      ? 'https://docs.easy-dataset.com/ed/en/advanced/images-and-media'
+                      : 'https://docs.easy-dataset.com/jin-jie-shi-yong/images-and-media';
+                  window.open(helpUrl, '_blank');
+                }}
+              >
+                <HelpOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="medium"
+              onClick={handleOpenAutoDistillDialog}
+              disabled={!selectedModel}
+              startIcon={<AutoFixHighIcon />}
+            >
+              {t('distill.autoDistillButton')}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              size="medium"
+              onClick={() => handleOpenTagDialog(null)}
+              disabled={!selectedModel}
+              startIcon={<AddIcon />}
+            >
+              {t('distill.generateRootTags')}
+            </Button>
+          </Box>
+        </Box>
+
+        {/* Stats strip */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 3.5, pb: 2.5, flexWrap: 'wrap' }}>
+          <Chip
+            label={`${t('distill.tags', '标签')} · ${distillStats.tagsCount}`}
+            color="primary"
+            variant="outlined"
+            sx={{
+              fontWeight: 700,
+              px: 1,
+              '& .MuiChip-label': { px: 1 },
+            }}
+          />
+          <Chip
+            label={`${t('distill.questions', '问题')} · ${distillStats.questionsCount}`}
+            variant="outlined"
+            sx={{ fontWeight: 700, px: 1, '& .MuiChip-label': { px: 1 } }}
+          />
+          <Chip
+            label={`${t('distill.datasets', '数据集')} · ${distillStats.datasetsCount}`}
+            variant="outlined"
+            sx={{ fontWeight: 700, px: 1, '& .MuiChip-label': { px: 1 } }}
+          />
+          <Chip
+            label={`${t('distill.multiTurn', '多轮对话')} · ${distillStats.multiTurnDatasetsCount}`}
+            variant="outlined"
+            sx={{ fontWeight: 700, px: 1, '& .MuiChip-label': { px: 1 } }}
+          />
+        </Box>
+      </Paper>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: muiTheme.palette.mode === 'dark' ? 'rgba(99,102,241,0.22)' : 'rgba(226,232,240,1)',
+          backgroundColor: muiTheme.palette.mode === 'dark' ? 'rgba(15,23,42,0.75)' : '#FFFFFF',
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)'
+        }}
+        className="tech-border"
+      >
         <Box
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, paddingLeft: '32px' }}
         >
@@ -467,7 +586,7 @@ export default function DistillPage() {
             <CircularProgress size={40} />
           </Box>
         ) : (
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 2 }} className="tech-glow">
             <DistillTreeView
               ref={treeViewRef}
               projectId={projectId}

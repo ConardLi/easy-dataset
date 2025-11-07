@@ -78,6 +78,43 @@ export default function Home() {
       background: theme.palette.background.default,
       minHeight: '100vh'
     }}>
+      {/* Tech layered background */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none'
+        }}
+      >
+        {/* subtle grid */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: theme.palette.mode === 'dark'
+              ? `linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)`
+              : `linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px)`,
+            backgroundSize: '64px 64px'
+          }}
+        />
+        {/* gradient blobs */}
+        <Box sx={{ position: 'absolute', top: -160, left: -120, width: 420, height: 420, borderRadius: '50%', filter: 'blur(80px)', background: theme.palette.gradient.primary, opacity: theme.palette.mode === 'dark' ? 0.18 : 0.12 }} />
+        <Box sx={{ position: 'absolute', bottom: -180, right: -140, width: 500, height: 500, borderRadius: '50%', filter: 'blur(100px)', background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.secondary.main})`, opacity: theme.palette.mode === 'dark' ? 0.18 : 0.12 }} />
+        {/* scanline shimmer */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
+            opacity: 0.6,
+            boxShadow: `0 0 24px ${theme.palette.primary.main}40`
+          }}
+        />
+      </Box>
       <Navbar projects={projects} />
 
       <HeroSection onCreateProject={() => setCreateDialogOpen(true)} />

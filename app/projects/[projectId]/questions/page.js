@@ -410,7 +410,8 @@ export default function QuestionsPage({ params }) {
                   transition: 'all 0.3s ease',
                   '&.Mui-selected': {
                     color: '#FFFFFF',
-                    bgcolor: theme.palette.gradient.primary,
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
                     boxShadow: isDark
                       ? '0 4px 16px rgba(99, 102, 241, 0.4)'
                       : '0 4px 16px rgba(99, 102, 241, 0.3)'
