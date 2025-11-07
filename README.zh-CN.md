@@ -26,9 +26,9 @@
 
 ## 概述
 
-GKGAI Dataset Generation 是一个专为创建大型语言模型（LLM）微调数据集而设计的应用程序。它提供了直观的界面，用于上传特定领域的文件，智能分割内容，生成问题，并为模型微调生成高质量的训练数据。
+HKGAI Dataset Generation 是一个专为创建大型语言模型（LLM）微调数据集而设计的应用程序。它提供了直观的界面，用于上传特定领域的文件，智能分割内容，生成问题，并为模型微调生成高质量的训练数据。
 
-通过 GKGAI Dataset Generation，您可以将领域知识转化为结构化数据集，兼容所有遵循 OpenAI 格式的 LLM API，使微调过程变得简单高效。
+通过 HKGAI Dataset Generation，您可以将领域知识转化为结构化数据集，兼容所有遵循 OpenAI 格式的 LLM API，使微调过程变得简单高效。
 
 ![](./public/imgs/cn-arc.png)
 
@@ -264,19 +264,19 @@ docker run -d \
 ## 文档
 
 - 有关所有功能和 API 的详细文档，请访问我们的 [文档站点](https://docs.easy-dataset.com/)
-- 查看本项目的演示视频：[GKGAI Dataset Generation 演示视频](https://www.bilibili.com/video/BV1y8QpYGE57/)
+- 查看本项目的演示视频：[HKGAI Dataset Generation 演示视频](https://www.bilibili.com/video/BV1y8QpYGE57/)
 - 查看本项目的论文：[Easy Dataset: A Unified and Extensible Framework for Synthesizing LLM Fine-Tuning Data from Unstructured Documents](https://arxiv.org/abs/2507.04009v1)
 
 ## 社区教程
 
-- [GKGAI Dataset Generation × LLaMA Factory: 让大模型高效学习领域知识](https://buaa-act.feishu.cn/wiki/KY9xwTGs1iqHrRkjXBwcZP9WnL9)
-- [GKGAI Dataset Generation 使用实战: 如何构建高质量数据集？](https://www.bilibili.com/video/BV1MRMnz1EGW)
-- [GKGAI Dataset Generation 重点功能更新解读](https://www.bilibili.com/video/BV1fyJhzHEb7/)
+- [HKGAI Dataset Generation × LLaMA Factory: 让大模型高效学习领域知识](https://buaa-act.feishu.cn/wiki/KY9xwTGs1iqHrRkjXBwcZP9WnL9)
+- [HKGAI Dataset Generation 使用实战: 如何构建高质量数据集？](https://www.bilibili.com/video/BV1MRMnz1EGW)
+- [HKGAI Dataset Generation 重点功能更新解读](https://www.bilibili.com/video/BV1fyJhzHEb7/)
 - [大模型微调数据集: 基础知识科普](https://docs.easy-dataset.com/zhi-shi-ke-pu)
 
 ## 贡献
 
-我们欢迎社区的贡献！如果您想为 GKGAI Dataset Generation 做出贡献，请按照以下步骤操作：
+我们欢迎社区的贡献！如果您想为 HKGAI Dataset Generation 做出贡献，请按照以下步骤操作：
 
 1. Fork 仓库
 2. 创建新分支（`git checkout -b feature/amazing-feature`）

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Tabs, Tab, Typography, Chip } from '@mui/material';
+import { Box, Tabs, Tab, Typography, Chip, useTheme } from '@mui/material';
 import { shouldShowPrompt } from './promptUtils';
 
 /**
@@ -15,10 +15,18 @@ const PromptList = ({
   onPromptSelect
 }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
 
   if (!currentCategoryConfig?.prompts) {
     return (
-      <Typography variant="body2" color="text.secondary" align="center">
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          color: isDark ? '#CBD5E1' : '#64748B',
+          textAlign: 'center'
+        }}
+      >
         {t('settings.prompts.noPromptsAvailable')}
       </Typography>
     );
@@ -32,15 +40,40 @@ const PromptList = ({
       variant="scrollable"
       scrollButtons="auto"
       sx={{
-        borderRight: 1,
-        borderColor: 'divider',
+        borderRight: `1px solid ${isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.15)'}`,
         '& .MuiTabs-indicator': {
           left: 0,
-          right: 'auto'
+          right: 'auto',
+          width: '3px',
+          bgcolor: theme.palette.primary.main
         },
         '& .MuiTab-root': {
           alignItems: 'flex-start',
-          textAlign: 'left'
+          textAlign: 'left',
+          color: isDark ? '#CBD5E1' : '#64748B',
+          fontWeight: 500,
+          fontSize: '0.9375rem',
+          minHeight: 60,
+          px: 2,
+          borderRadius: '8px',
+          mb: 0.5,
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.08)',
+            color: isDark ? '#FFFFFF' : theme.palette.primary.main
+          }
+        },
+        '& .Mui-selected': {
+          color: '#FFFFFF !important',
+          bgcolor: theme.palette.gradient?.primary || 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+          fontWeight: 600,
+          boxShadow: isDark
+            ? '0 2px 8px rgba(99, 102, 241, 0.4)'
+            : '0 2px 8px rgba(99, 102, 241, 0.3)',
+          '&:hover': {
+            bgcolor: theme.palette.gradient?.primary || 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+            opacity: 0.95
+          }
         }
       }}
     >

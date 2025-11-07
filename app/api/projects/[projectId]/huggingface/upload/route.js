@@ -90,7 +90,7 @@ export async function POST(request, { params }) {
             accessToken: token,
             private: isPrivate,
             license: 'mit',
-            description: project.description || 'Dataset created with GKGAI Dataset Generation'
+            description: project.description || 'Dataset created with HKGAI Dataset Generation'
           });
           console.log(`Successfully created dataset repository: ${datasetName}`);
         } catch (error) {
@@ -281,7 +281,7 @@ async function uploadFile(token, datasetName, filePath, destFileName) {
         }
       ],
       commitTitle: `Upload ${destFileName}`,
-      commitDescription: `Files uploaded using GKGAI Dataset Generation`
+      commitDescription: `Files uploaded using HKGAI Dataset Generation`
     });
 
     return { success: true };
@@ -296,15 +296,15 @@ function generateReadme(projectName, projectDescription, formatType) {
   return `# ${projectName}
 
 ## Description
-${projectDescription || 'This dataset was created using the GKGAI Dataset Generation tool.'}
+${projectDescription || 'This dataset was created using the HKGAI Dataset Generation tool.'}
 
 ## Format
 This dataset is in ${formatType} format.
 
 ## Creation Method
-This dataset was created using the [GKGAI Dataset Generation](https://github.com/ConardLi/easy-dataset) tool.
+This dataset was created using the [HKGAI Dataset Generation](https://github.com/ConardLi/easy-dataset) tool.
 
-> GKGAI Dataset Generation is a specialized application designed to streamline the creation of fine-tuning datasets for Large Language Models (LLMs). It offers an intuitive interface for uploading domain-specific files, intelligently splitting content, generating questions, and producing high-quality training data for model fine-tuning.
+> HKGAI Dataset Generation is a specialized application designed to streamline the creation of fine-tuning datasets for Large Language Models (LLMs). It offers an intuitive interface for uploading domain-specific files, intelligently splitting content, generating questions, and producing high-quality training data for model fine-tuning.
 
 `;
 }

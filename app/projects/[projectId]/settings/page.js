@@ -318,14 +318,26 @@ export default function SettingsPage({ params }) {
                   bgcolor: 'transparent',
                   fontWeight: 600,
                   fontSize: '0.95rem',
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease',
+                  color: isDark ? theme.palette.text.secondary : '#64748B',
+                  '&:hover': {
+                    color: isDark ? '#FFFFFF' : theme.palette.primary.main,
+                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.08)'
+                  }
                 },
                 '& .Mui-selected': {
                   color: '#FFFFFF !important',
-                  bgcolor: theme.palette.gradient.primary,
+                  background: theme.palette.gradient.primary || 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
                   boxShadow: isDark
                     ? '0 4px 16px rgba(99, 102, 241, 0.4)'
-                    : '0 4px 16px rgba(99, 102, 241, 0.3)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
+                  '&:hover': {
+                    background: theme.palette.gradient.primary || 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                    opacity: 0.95,
+                    boxShadow: isDark
+                      ? '0 6px 20px rgba(99, 102, 241, 0.5)'
+                      : '0 6px 20px rgba(99, 102, 241, 0.45)'
+                  }
                 },
                 '& .MuiTabs-indicator': {
                   display: 'none'

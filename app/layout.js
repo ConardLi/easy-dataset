@@ -5,7 +5,7 @@ import { Toaster } from 'sonner';
 import { Provider } from 'jotai';
 
 export const metadata = {
-  title: 'GKGAI Dataset Generation',
+  title: 'HKGAI Dataset Generation',
   description: '一个强大的 LLM 数据集生成工具',
   icons: {
     icon: [

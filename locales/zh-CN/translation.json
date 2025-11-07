@@ -275,7 +275,7 @@
     "detailInfo": "详细信息"
   },
   "home": {
-    "title": "GKGAI Dataset Generation",
+    "title": "HKGAI Dataset Generation",
     "subtitle": "一个强大的大型语言模型微调数据集创建工具",
     "badge": "AI驱动的数据集生成平台",
     "features": {
@@ -891,7 +891,7 @@
   },
   "migration": {
     "title": "【重要】历史数据迁移",
-    "description": "为了提升大量数据集的检索性能，自 1.3.1 版本起，GKGAI Dataset Generation 将文件存储方式变更为本地数据库存储，检测到您有历史项目尚未进行迁移，在完成迁移前，您将无法访问这些项目，请尽快完成迁移！",
+    "description": "为了提升大量数据集的检索性能，自 1.3.1 版本起，HKGAI Dataset Generation 将文件存储方式变更为本地数据库存储，检测到您有历史项目尚未进行迁移，在完成迁移前，您将无法访问这些项目，请尽快完成迁移！",
     "projectsList": "未迁移的项目",
     "migrate": "开始迁移",
     "migrating": "迁移中...",

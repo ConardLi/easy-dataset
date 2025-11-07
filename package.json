@@ -26,7 +26,11 @@
     "electron-build-win": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --win",
     "electron-build-linux": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --linux",
     "docker": "docker build -t easy-dataset .",
-    "prettier": "npx prettier --write ."
+    "prettier": "npx prettier --write .",
+    "migrate-api-keys": "node scripts/migrate-api-keys-to-env.js",
+    "generate-encryption-key": "node scripts/generate-encryption-key.js",
+    "cleanup-db-api-keys": "node scripts/cleanup-db-api-keys.js",
+    "cleanup-db-api-keys:dry-run": "node scripts/cleanup-db-api-keys.js --dry-run"
   },
   "bin": "desktop/server.js",
   "pkg": {
@@ -113,7 +117,7 @@
   "description": "一个用于创建大模型微调数据集的应用程序",
   "build": {
     "appId": "com.easydataset.app",
-    "productName": "GKGAI Dataset Generation",
+    "productName": "HKGAI Dataset Generation",
     "files": [
       ".next/**/*",
       "!.next/cache/**/*",

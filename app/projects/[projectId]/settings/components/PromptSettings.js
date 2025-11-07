@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { Box, Grid, Card, CardContent } from '@mui/material';
+import { Box, Grid, Card, CardContent, useTheme } from '@mui/material';
 import { fetchWithRetry } from '@/lib/util/request';
 import { useSnackbar } from '@/hooks/useSnackbar';
 
@@ -19,6 +19,8 @@ export default function PromptSettings() {
   const { projectId } = useParams();
   const { i18n, t } = useTranslation();
   const { showSuccess, showErrorMessage, SnackbarComponent } = useSnackbar();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
 
   // 基础状态
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language === 'en' ? 'en' : 'zh-CN');
@@ -355,7 +357,16 @@ export default function PromptSettings() {
       <Grid container spacing={3}>
         {/* 左侧：垂直 TAB 选择具体提示词 */}
         <Grid item xs={12} md={4} lg={3}>
-          <Card>
+          <Card
+            sx={{
+              bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : '#FFFFFF',
+              border: `1px solid ${isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(226, 232, 240, 1)'}`,
+              borderRadius: '16px',
+              boxShadow: isDark
+                ? '0 4px 24px rgba(0, 0, 0, 0.3)'
+                : '0 4px 24px rgba(15, 23, 42, 0.08)'
+            }}
+          >
             <CardContent>
               <PromptList
                 currentCategory={selectedCategory}

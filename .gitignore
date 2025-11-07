@@ -10,6 +10,7 @@ mock-login-callback.ts
 .env
 .env.local
 .env*.local
+.encryption-key
 /src/test/crawler
 /src/test/mock
 /test

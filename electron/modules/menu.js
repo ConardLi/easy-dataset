@@ -45,8 +45,8 @@ function createMenu(mainWindow, clearCache) {
           label: 'About',
           click: () => {
             dialog.showMessageBox(mainWindow, {
-              title: 'About GKGAI Dataset Generation',
-              message: `GKGAI Dataset Generation v${getAppVersion()}`,
+              title: 'About HKGAI Dataset Generation',
+              message: `HKGAI Dataset Generation v${getAppVersion()}`,
               detail: 'An application for creating fine-tuning datasets for large models.',
               buttons: ['OK']
             });

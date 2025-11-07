@@ -177,7 +177,7 @@ model ModelConfig {
   providerId   String
   providerName String
   endpoint     String
-  apiKey       String
+  apiKey       String?  // 可选字段，实际存储在 .env 文件中
   modelId      String
   modelName    String
   type         String

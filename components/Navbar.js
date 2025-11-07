@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -17,7 +17,8 @@ import {
   Menu,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  Fade
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import ModelSelect from './ModelSelect';
@@ -71,55 +72,108 @@ export default function Navbar({ projects = [], currentProject }) {
   const [sourceMenuAnchor, setSourceMenuAnchor] = useState(null);
   const isSourceMenuOpen = Boolean(sourceMenuAnchor);
 
-  // 处理更多菜单打开
-  const handleMoreMenuOpen = event => {
-    setMoreMenuAnchor(event.currentTarget);
+  // 延迟关闭的定时器
+  const closeTimeoutRef = useRef(null);
+  const sourceTimeoutRef = useRef(null);
+  const datasetTimeoutRef = useRef(null);
+  const moreTimeoutRef = useRef(null);
+
+  // 清除所有定时器
+  const clearAllTimeouts = () => {
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    if (sourceTimeoutRef.current) clearTimeout(sourceTimeoutRef.current);
+    if (datasetTimeoutRef.current) clearTimeout(datasetTimeoutRef.current);
+    if (moreTimeoutRef.current) clearTimeout(moreTimeoutRef.current);
+  };
+
+  // 关闭所有菜单
+  const closeAllMenus = () => {
+    clearAllTimeouts();
+    setSourceMenuAnchor(null);
+    setDatasetMenuAnchor(null);
+    setMoreMenuAnchor(null);
   };
 
   // 处理更多菜单悬浮打开
   const handleMoreMenuHover = event => {
+    clearAllTimeouts();
+    // 先关闭其他菜单
+    setSourceMenuAnchor(null);
+    setDatasetMenuAnchor(null);
+    // 然后打开当前菜单
     setMoreMenuAnchor(event.currentTarget);
+  };
+
+  // 处理更多菜单离开
+  const handleMoreMenuLeave = () => {
+    moreTimeoutRef.current = setTimeout(() => {
+      setMoreMenuAnchor(null);
+    }, 200);
   };
 
   // 关闭更多菜单
   const handleMoreMenuClose = () => {
-    setMoreMenuAnchor(null);
-  };
-
-  // 处理菜单区域的鼠标离开
-  const handleMenuMouseLeave = () => {
+    clearAllTimeouts();
     setMoreMenuAnchor(null);
   };
 
   // 处理数据集菜单悬浮打开
   const handleDatasetMenuHover = event => {
+    clearAllTimeouts();
+    // 先关闭其他菜单
+    setSourceMenuAnchor(null);
+    setMoreMenuAnchor(null);
+    // 然后打开当前菜单
     setDatasetMenuAnchor(event.currentTarget);
+  };
+
+  // 处理数据集菜单离开
+  const handleDatasetMenuLeave = () => {
+    datasetTimeoutRef.current = setTimeout(() => {
+      setDatasetMenuAnchor(null);
+    }, 200);
   };
 
   // 关闭数据集菜单
   const handleDatasetMenuClose = () => {
-    setDatasetMenuAnchor(null);
-  };
-
-  // 处理数据集菜单区域的鼠标离开
-  const handleDatasetMenuMouseLeave = () => {
+    clearAllTimeouts();
     setDatasetMenuAnchor(null);
   };
 
   // 处理数据源菜单悬浮打开
   const handleSourceMenuHover = event => {
+    clearAllTimeouts();
+    // 先关闭其他菜单
+    setDatasetMenuAnchor(null);
+    setMoreMenuAnchor(null);
+    // 然后打开当前菜单
     setSourceMenuAnchor(event.currentTarget);
+  };
+
+  // 处理数据源菜单离开
+  const handleSourceMenuLeave = () => {
+    sourceTimeoutRef.current = setTimeout(() => {
+      setSourceMenuAnchor(null);
+    }, 200);
   };
 
   // 关闭数据源菜单
   const handleSourceMenuClose = () => {
+    clearAllTimeouts();
     setSourceMenuAnchor(null);
   };
 
-  // 处理数据源菜单区域的鼠标离开
-  const handleSourceMenuMouseLeave = () => {
-    setSourceMenuAnchor(null);
+  // 菜单保持打开
+  const handleMenuEnter = () => {
+    clearAllTimeouts();
   };
+
+  // 组件卸载时清除定时器
+  useEffect(() => {
+    return () => {
+      clearAllTimeouts();
+    };
+  }, []);
 
   const handleProjectChange = event => {
     const newProjectId = event.target.value;
@@ -154,16 +208,29 @@ export default function Navbar({ projects = [], currentProject }) {
       color="transparent"
       sx={{
         borderBottom: isDark
-          ? '1px solid rgba(99, 102, 241, 0.2)'
-          : '1px solid rgba(226, 232, 240, 1)',
+          ? '1px solid rgba(99, 102, 241, 0.15)'
+          : '1px solid rgba(99, 102, 241, 0.15)',
         background: isDark
-          ? 'rgba(15, 23, 42, 0.8)'
-          : 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+          ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.85) 100%)'
+          : 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
         boxShadow: isDark
-          ? '0 4px 24px rgba(0, 0, 0, 0.2)'
-          : '0 4px 24px rgba(15, 23, 42, 0.05)'
+          ? '0 1px 0 0 rgba(99, 102, 241, 0.1) inset, 0 8px 32px rgba(0, 0, 0, 0.3)'
+          : '0 1px 0 0 rgba(255, 255, 255, 0.8) inset, 0 8px 32px rgba(15, 23, 42, 0.08)',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '1px',
+          background: isDark
+            ? 'linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent)'
+            : 'linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent)',
+          opacity: 0.6
+        }
       }}
       style={{ borderRadius: 0, zIndex: 99000 }}
     >
@@ -219,30 +286,38 @@ export default function Navbar({ projects = [], currentProject }) {
                 displayEmpty
                 variant="outlined"
                 sx={{
-                  bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',
                   borderRadius: '12px',
-                  color: theme.palette.text.primary,
+                  color: isDark ? theme.palette.text.primary : '#1E293B',
                   fontWeight: 600,
                   fontSize: '0.875rem',
+                  height: '36px',
                   '& .MuiSelect-icon': {
-                    color: theme.palette.primary.main
+                    color: theme.palette.primary.main,
+                    transition: 'transform 0.3s ease'
+                  },
+                  '&.Mui-expanded .MuiSelect-icon': {
+                    transform: 'rotate(180deg)'
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(226, 232, 240, 1)'
+                    borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.3)',
+                    borderWidth: '1.5px'
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
                     borderColor: theme.palette.primary.main
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: theme.palette.primary.main,
-                    borderWidth: '2px'
+                    borderWidth: '2px',
+                    boxShadow: `0 0 0 3px ${isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.15)'}`
                   },
-                  transition: 'all 0.3s ease',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   '&:hover': {
-                    bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 1)',
+                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.12)' : '#F8F9FA',
+                    transform: 'translateY(-1px)',
                     boxShadow: isDark
-                      ? '0 4px 12px rgba(99, 102, 241, 0.2)'
-                      : '0 4px 12px rgba(99, 102, 241, 0.1)'
+                      ? '0 4px 12px rgba(99, 102, 241, 0.25)'
+                      : '0 4px 12px rgba(99, 102, 241, 0.2)'
                   }
                 }}
                 MenuProps={{
@@ -251,33 +326,76 @@ export default function Navbar({ projects = [], currentProject }) {
                     sx: {
                       mt: 1.5,
                       borderRadius: '16px',
-                      background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                      backdropFilter: 'blur(20px)',
-                      WebkitBackdropFilter: 'blur(20px)',
+                      minWidth: 180,
+                      background: isDark
+                        ? '#1E293B'
+                        : '#FFFFFF !important',
+                      backdropFilter: 'blur(24px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
                       border: isDark
-                        ? '1px solid rgba(99, 102, 241, 0.2)'
-                        : '1px solid rgba(226, 232, 240, 1)',
+                        ? '1px solid rgba(99, 102, 241, 0.35)'
+                        : '1px solid rgba(99, 102, 241, 0.3)',
                       boxShadow: isDark
-                        ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-                        : '0 8px 32px rgba(15, 23, 42, 0.1)',
+                        ? '0 12px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.15)'
+                        : '0 12px 48px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.15)',
+                      overflow: 'hidden',
+                      py: 1,
+                      '& .MuiList-root': {
+                        py: 0.5,
+                        bgcolor: 'transparent'
+                      },
                       '& .MuiMenuItem-root': {
-                        borderRadius: '8px',
-                        mx: 0.5,
-                        my: 0.25,
+                        borderRadius: '10px',
+                        mx: 1,
+                        my: 0.5,
+                        minHeight: '52px',
+                        px: 2.5,
+                        py: 1.5,
+                        color: isDark ? '#F8FAFC' : '#0F172A !important',
+                        fontSize: '1rem',
+                        fontWeight: 700,
+                        lineHeight: 1.6,
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        letterSpacing: '0.02em',
+                        bgcolor: 'transparent',
                         '&:hover': {
-                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.22)' : 'rgba(99, 102, 241, 0.14)',
+                          color: isDark ? '#FFFFFF !important' : `${theme.palette.primary.main} !important`,
+                          transform: 'translateX(4px)',
+                          boxShadow: isDark
+                            ? '0 2px 10px rgba(99, 102, 241, 0.3)'
+                            : '0 2px 10px rgba(99, 102, 241, 0.2)',
+                          fontWeight: 700
                         },
                         '&.Mui-selected': {
-                          bgcolor: theme.palette.gradient.primary,
-                          color: '#FFFFFF',
+                          bgcolor: `${theme.palette.gradient.primary} !important`,
+                          color: '#FFFFFF !important',
+                          fontWeight: 700,
+                          boxShadow: isDark
+                            ? '0 4px 16px rgba(99, 102, 241, 0.45)'
+                            : '0 4px 16px rgba(99, 102, 241, 0.4)',
                           '&:hover': {
-                            bgcolor: theme.palette.gradient.primary,
-                            opacity: 0.9
+                            bgcolor: `${theme.palette.gradient.primary} !important`,
+                            opacity: 0.95,
+                            transform: 'translateX(4px) scale(1.02)',
+                            color: '#FFFFFF !important'
                           }
+                        },
+                        '&.Mui-disabled': {
+                          color: `${isDark ? '#94A3B8' : '#475569'} !important`,
+                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.05)' : 'rgba(99, 102, 241, 0.03)',
+                          opacity: 1,
+                          fontWeight: 600,
+                          fontSize: '0.875rem'
                         }
                       }
                     }
-                  }
+                  },
+                  TransitionComponent: Fade,
+                  transitionDuration: 200
                 }}
               >
                 <MenuItem value="" disabled>
@@ -319,27 +437,51 @@ export default function Navbar({ projects = [], currentProject }) {
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   textTransform: 'none',
-                  transition: 'all 0.3s ease',
-                  color: theme.palette.text.secondary,
-                  padding: '8px 16px',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  color: isDark ? theme.palette.text.secondary : '#475569',
+                  padding: '10px 18px',
                   minHeight: '40px',
                   borderRadius: '12px',
                   mx: 0.5,
+                  position: 'relative',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 0,
+                    height: '2px',
+                    background: theme.palette.gradient.primary,
+                    transition: 'width 0.3s ease',
+                    borderRadius: '2px'
+                  },
                   '&:hover': {
                     color: theme.palette.primary.main,
-                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)',
-                    transform: 'translateY(-2px)'
+                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.1)',
+                    transform: 'translateY(-2px)',
+                    '&::before': {
+                      width: '60%'
+                    }
                   }
                 },
                 '& .Mui-selected': {
                   color: '#FFFFFF',
                   bgcolor: theme.palette.gradient.primary,
                   boxShadow: isDark
-                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
-                    : '0 4px 16px rgba(99, 102, 241, 0.3)',
+                    ? '0 6px 20px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(99, 102, 241, 0.2)'
+                    : '0 6px 20px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.15)',
+                  transform: 'translateY(-1px)',
+                  '&::before': {
+                    width: '80%'
+                  },
                   '&:hover': {
                     bgcolor: theme.palette.gradient.primary,
-                    opacity: 0.9
+                    opacity: 0.95,
+                    transform: 'translateY(-2px)',
+                    boxShadow: isDark
+                      ? '0 8px 24px rgba(99, 102, 241, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.25)'
+                      : '0 8px 24px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.2)'
                   }
                 }
               }}
@@ -354,6 +496,7 @@ export default function Navbar({ projects = [], currentProject }) {
                 label={t('common.dataSource')}
                 value="source"
                 onMouseEnter={handleSourceMenuHover}
+                onMouseLeave={handleSourceMenuLeave}
               />
               <Tab
                 icon={
@@ -389,6 +532,7 @@ export default function Navbar({ projects = [], currentProject }) {
                 label={t('datasets.management')}
                 value="datasets"
                 onMouseEnter={handleDatasetMenuHover}
+                onMouseLeave={handleDatasetMenuLeave}
               />
               <Tab
                 icon={
@@ -399,6 +543,7 @@ export default function Navbar({ projects = [], currentProject }) {
                 iconPosition="start"
                 label={t('common.more')}
                 onMouseEnter={handleMoreMenuHover}
+                onMouseLeave={handleMoreMenuLeave}
                 value="more"
               />
             </Tabs>
@@ -410,46 +555,98 @@ export default function Navbar({ projects = [], currentProject }) {
           anchorEl={sourceMenuAnchor}
           open={isSourceMenuOpen}
           onClose={handleSourceMenuClose}
+          onMouseEnter={handleMenuEnter}
+          onMouseLeave={handleSourceMenuLeave}
+          TransitionComponent={Fade}
+          transitionDuration={200}
+          MenuListProps={{
+            dense: true,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleSourceMenuLeave,
+            sx: { py: 1 }
+          }}
           PaperProps={{
             elevation: 0,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleSourceMenuLeave,
             sx: {
-              mt: 1.5,
+              mt: 1,
               borderRadius: '16px',
-              minWidth: 180,
-              background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              minWidth: 200,
+              background: isDark
+                ? '#1E293B'
+                : '#FFFFFF',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
               border: isDark
-                ? '1px solid rgba(99, 102, 241, 0.2)'
-                : '1px solid rgba(226, 232, 240, 1)',
+                ? '1px solid rgba(99, 102, 241, 0.3)'
+                : '1px solid rgba(99, 102, 241, 0.25)',
               boxShadow: isDark
-                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-                : '0 8px 32px rgba(15, 23, 42, 0.1)',
-              onMouseLeave: handleSourceMenuMouseLeave,
+                ? '0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 12px 48px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1)',
+              overflow: 'hidden',
               '& .MuiMenuItem-root': {
-                borderRadius: '8px',
-                mx: 0.5,
-                my: 0.25,
+                borderRadius: '10px',
+                mx: 0.75,
+                my: 0.5,
+                minHeight: '48px',
+                px: 2,
+                py: 1.25,
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                lineHeight: 1.6,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                letterSpacing: '0.01em',
                 '&:hover': {
-                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.12)',
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main,
+                  transform: 'translateX(4px)',
+                  boxShadow: isDark
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(99, 102, 241, 0.18)'
                 },
                 '&.Mui-selected': {
                   bgcolor: theme.palette.gradient.primary,
                   color: '#FFFFFF',
+                  fontWeight: 700,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
                   '&:hover': {
                     bgcolor: theme.palette.gradient.primary,
-                    opacity: 0.9
+                    opacity: 0.95,
+                    transform: 'translateX(4px) scale(1.02)'
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: '#FFFFFF'
                   }
+                },
+                '& .MuiListItemIcon-root': {
+                  minWidth: 40,
+                  color: isDark ? '#CBD5E1' : '#475569',
+                  transition: 'color 0.2s ease'
+                },
+                '&:hover .MuiListItemIcon-root': {
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main
+                },
+                '& .MuiListItemText-primary': {
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  lineHeight: 1.6,
+                  color: 'inherit',
+                  letterSpacing: '0.01em'
                 }
+              },
+              '& .MuiDivider-root': {
+                borderColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)',
+                mx: 1,
+                my: 0.5
               }
             }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-          MenuListProps={{
-            dense: true,
-            onMouseLeave: handleSourceMenuMouseLeave
-          }}
         >
           <MenuItem
             component={Link}
@@ -481,46 +678,98 @@ export default function Navbar({ projects = [], currentProject }) {
           anchorEl={datasetMenuAnchor}
           open={isDatasetMenuOpen}
           onClose={handleDatasetMenuClose}
+          onMouseEnter={handleMenuEnter}
+          onMouseLeave={handleDatasetMenuLeave}
+          TransitionComponent={Fade}
+          transitionDuration={200}
+          MenuListProps={{
+            dense: true,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleDatasetMenuLeave,
+            sx: { py: 1 }
+          }}
           PaperProps={{
             elevation: 0,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleDatasetMenuLeave,
             sx: {
-              mt: 1.5,
+              mt: 1,
               borderRadius: '16px',
-              minWidth: 200,
-              background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              minWidth: 220,
+              background: isDark
+                ? '#1E293B'
+                : '#FFFFFF',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
               border: isDark
-                ? '1px solid rgba(99, 102, 241, 0.2)'
-                : '1px solid rgba(226, 232, 240, 1)',
+                ? '1px solid rgba(99, 102, 241, 0.3)'
+                : '1px solid rgba(99, 102, 241, 0.25)',
               boxShadow: isDark
-                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-                : '0 8px 32px rgba(15, 23, 42, 0.1)',
-              onMouseLeave: handleDatasetMenuMouseLeave,
+                ? '0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 12px 48px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1)',
+              overflow: 'hidden',
               '& .MuiMenuItem-root': {
-                borderRadius: '8px',
-                mx: 0.5,
-                my: 0.25,
+                borderRadius: '10px',
+                mx: 0.75,
+                my: 0.5,
+                minHeight: '48px',
+                px: 2,
+                py: 1.25,
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                lineHeight: 1.6,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                letterSpacing: '0.01em',
                 '&:hover': {
-                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.12)',
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main,
+                  transform: 'translateX(4px)',
+                  boxShadow: isDark
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(99, 102, 241, 0.18)'
                 },
                 '&.Mui-selected': {
                   bgcolor: theme.palette.gradient.primary,
                   color: '#FFFFFF',
+                  fontWeight: 700,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
                   '&:hover': {
                     bgcolor: theme.palette.gradient.primary,
-                    opacity: 0.9
+                    opacity: 0.95,
+                    transform: 'translateX(4px) scale(1.02)'
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: '#FFFFFF'
                   }
+                },
+                '& .MuiListItemIcon-root': {
+                  minWidth: 40,
+                  color: isDark ? '#CBD5E1' : '#475569',
+                  transition: 'color 0.2s ease'
+                },
+                '&:hover .MuiListItemIcon-root': {
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main
+                },
+                '& .MuiListItemText-primary': {
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  lineHeight: 1.6,
+                  color: 'inherit',
+                  letterSpacing: '0.01em'
                 }
+              },
+              '& .MuiDivider-root': {
+                borderColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)',
+                mx: 1,
+                my: 0.5
               }
             }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-          MenuListProps={{
-            dense: true,
-            onMouseLeave: handleDatasetMenuMouseLeave
-          }}
         >
           <MenuItem
             component={Link}
@@ -564,46 +813,98 @@ export default function Navbar({ projects = [], currentProject }) {
           anchorEl={moreMenuAnchor}
           open={isMoreMenuOpen}
           onClose={handleMoreMenuClose}
+          onMouseEnter={handleMenuEnter}
+          onMouseLeave={handleMoreMenuLeave}
+          TransitionComponent={Fade}
+          transitionDuration={200}
+          MenuListProps={{
+            dense: true,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleMoreMenuLeave,
+            sx: { py: 1 }
+          }}
           PaperProps={{
             elevation: 0,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleMoreMenuLeave,
             sx: {
-              mt: 1.5,
+              mt: 1,
               borderRadius: '16px',
-              minWidth: 180,
-              background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              minWidth: 200,
+              background: isDark
+                ? '#1E293B'
+                : '#FFFFFF',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
               border: isDark
-                ? '1px solid rgba(99, 102, 241, 0.2)'
-                : '1px solid rgba(226, 232, 240, 1)',
+                ? '1px solid rgba(99, 102, 241, 0.3)'
+                : '1px solid rgba(99, 102, 241, 0.25)',
               boxShadow: isDark
-                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-                : '0 8px 32px rgba(15, 23, 42, 0.1)',
-              onMouseLeave: handleMenuMouseLeave,
+                ? '0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 12px 48px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1)',
+              overflow: 'hidden',
               '& .MuiMenuItem-root': {
-                borderRadius: '8px',
-                mx: 0.5,
-                my: 0.25,
+                borderRadius: '10px',
+                mx: 0.75,
+                my: 0.5,
+                minHeight: '48px',
+                px: 2,
+                py: 1.25,
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                lineHeight: 1.6,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                letterSpacing: '0.01em',
                 '&:hover': {
-                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.05)'
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.12)',
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main,
+                  transform: 'translateX(4px)',
+                  boxShadow: isDark
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(99, 102, 241, 0.18)'
                 },
                 '&.Mui-selected': {
                   bgcolor: theme.palette.gradient.primary,
                   color: '#FFFFFF',
+                  fontWeight: 700,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
                   '&:hover': {
                     bgcolor: theme.palette.gradient.primary,
-                    opacity: 0.9
+                    opacity: 0.95,
+                    transform: 'translateX(4px) scale(1.02)'
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: '#FFFFFF'
                   }
+                },
+                '& .MuiListItemIcon-root': {
+                  minWidth: 40,
+                  color: isDark ? '#CBD5E1' : '#475569',
+                  transition: 'color 0.2s ease'
+                },
+                '&:hover .MuiListItemIcon-root': {
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main
+                },
+                '& .MuiListItemText-primary': {
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  lineHeight: 1.6,
+                  color: 'inherit',
+                  letterSpacing: '0.01em'
                 }
+              },
+              '& .MuiDivider-root': {
+                borderColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)',
+                mx: 1,
+                my: 0.5
               }
             }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-          MenuListProps={{
-            dense: true,
-            onMouseLeave: handleMenuMouseLeave
-          }}
         >
           <MenuItem
             component={Link}
@@ -654,26 +955,38 @@ export default function Navbar({ projects = [], currentProject }) {
             <LanguageSwitcher />
           </Box>
           {/* 主题切换按钮 */}
-          <Tooltip title={resolvedTheme === 'dark' ? t('theme.switchToLight') : t('theme.switchToDark')}>
+          <Tooltip
+            title={resolvedTheme === 'dark' ? t('theme.switchToLight') : t('theme.switchToDark')}
+            arrow
+            placement="bottom"
+          >
             <IconButton
               onClick={toggleTheme}
               size="small"
               sx={{
-                bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.9)',
-                color: theme.palette.text.primary,
-                p: 1,
+                bgcolor: isDark ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',
+                color: isDark ? theme.palette.text.primary : '#1E293B',
+                p: 1.25,
                 borderRadius: '12px',
                 border: isDark
                   ? '1px solid rgba(99, 102, 241, 0.2)'
-                  : '1px solid rgba(226, 232, 240, 1)',
-                transition: 'all 0.3s ease',
+                  : '1px solid rgba(99, 102, 241, 0.25)',
+                width: '40px',
+                height: '40px',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  bgcolor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 1)',
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#F8F9FA',
                   borderColor: theme.palette.primary.main,
                   boxShadow: isDark
-                    ? '0 4px 12px rgba(99, 102, 241, 0.3)'
-                    : '0 4px 12px rgba(99, 102, 241, 0.15)',
-                  transform: 'translateY(-2px)'
+                    ? '0 4px 16px rgba(99, 102, 241, 0.35), 0 0 0 3px rgba(99, 102, 241, 0.1)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.25), 0 0 0 3px rgba(99, 102, 241, 0.1)',
+                  transform: 'translateY(-2px) rotate(15deg)',
+                  '& svg': {
+                    filter: `drop-shadow(0 0 8px ${theme.palette.primary.main}60)`
+                  }
+                },
+                '& svg': {
+                  transition: 'all 0.3s ease'
                 }
               }}
             >

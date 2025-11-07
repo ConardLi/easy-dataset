@@ -26,9 +26,9 @@ If you like this project, please give it a Star⭐️, or buy the author a coffe
 
 ## Overview
 
-GKGAI Dataset Generation is an application specifically designed for creating fine-tuning datasets for Large Language Models (LLMs). It provides an intuitive interface for uploading domain-specific files, intelligently splitting content, generating questions, and producing high-quality training data for model fine-tuning.
+HKGAI Dataset Generation is an application specifically designed for creating fine-tuning datasets for Large Language Models (LLMs). It provides an intuitive interface for uploading domain-specific files, intelligently splitting content, generating questions, and producing high-quality training data for model fine-tuning.
 
-With GKGAI Dataset Generation, you can transform domain knowledge into structured datasets, compatible with all LLM APIs that follow the OpenAI format, making the fine-tuning process simple and efficient.
+With HKGAI Dataset Generation, you can transform domain knowledge into structured datasets, compatible with all LLM APIs that follow the OpenAI format, making the fine-tuning process simple and efficient.
 
 ![](./public/imgs/en-arc.png)
 
@@ -261,20 +261,20 @@ docker run -d \
 
 ## Documentation
 
-- View the demo video of this project: [GKGAI Dataset Generation Demo Video](https://www.bilibili.com/video/BV1y8QpYGE57/)
+- View the demo video of this project: [HKGAI Dataset Generation Demo Video](https://www.bilibili.com/video/BV1y8QpYGE57/)
 - For detailed documentation on all features and APIs, visit our [Documentation Site](https://docs.easy-dataset.com/ed/en)
 - View the paper of this project: [Easy Dataset: A Unified and Extensible Framework for Synthesizing LLM Fine-Tuning Data from Unstructured Documents](https://arxiv.org/abs/2507.04009v1)
 
 ## Community Practice
 
-- [GKGAI Dataset Generation × LLaMA Factory: Enabling LLMs to Efficiently Learn Domain Knowledge](https://buaa-act.feishu.cn/wiki/GVzlwYcRFiR8OLkHbL6cQpYin7g)
-- [GKGAI Dataset Generation Practical Guide: How to Build High-Quality Datasets?](https://www.bilibili.com/video/BV1MRMnz1EGW)
-- [Interpretation of Key Feature Updates in GKGAI Dataset Generation](https://www.bilibili.com/video/BV1fyJhzHEb7/)
+- [HKGAI Dataset Generation × LLaMA Factory: Enabling LLMs to Efficiently Learn Domain Knowledge](https://buaa-act.feishu.cn/wiki/GVzlwYcRFiR8OLkHbL6cQpYin7g)
+- [HKGAI Dataset Generation Practical Guide: How to Build High-Quality Datasets?](https://www.bilibili.com/video/BV1MRMnz1EGW)
+- [Interpretation of Key Feature Updates in HKGAI Dataset Generation](https://www.bilibili.com/video/BV1fyJhzHEb7/)
 - [Foundation Models Fine-tuning Datasets: Basic Knowledge Popularization](https://docs.easy-dataset.com/zhi-shi-ke-pu)
 
 ## Contributing
 
-We welcome contributions from the community! If you'd like to contribute to GKGAI Dataset Generation, please follow these steps:
+We welcome contributions from the community! If you'd like to contribute to HKGAI Dataset Generation, please follow these steps:
 
 1. Fork the repository
 2. Create a new branch (`git checkout -b feature/amazing-feature`)

@@ -274,7 +274,7 @@
     "detailInfo": "Detail Info"
   },
   "home": {
-    "title": "GKGAI Dataset Generation",
+    "title": "HKGAI Dataset Generation",
     "subtitle": "A powerful tool for creating fine-tuning datasets for Large Language Models",
     "badge": "AI-Powered Dataset Generation Platform",
     "features": {

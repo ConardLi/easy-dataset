@@ -29,7 +29,7 @@ function checkPort(port) {
  * @returns {Promise<string>} 服务URL
  */
 async function startNextServer(port, app) {
-  console.log(`GKGAI Dataset Generation 客户端启动中，当前版本: ${require('../util').getAppVersion()}`);
+  console.log(`HKGAI Dataset Generation 客户端启动中，当前版本: ${require('../util').getAppVersion()}`);
 
   // 设置日志文件路径
   const logDir = path.join(app.getPath('userData'), 'logs');
