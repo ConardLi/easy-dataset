@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Container, Box, Typography, Grid, Pagination, CircularProgress, Card, Button } from '@mui/material';
+import { Container, Box, Typography, Grid, Pagination, CircularProgress, Card, Button, useTheme } from '@mui/material';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
@@ -15,13 +15,16 @@ import ImageDatasetCard from './components/ImageDatasetCard';
 import EmptyState from './components/EmptyState';
 import ExportImageDatasetDialog from './components/ExportImageDatasetDialog';
 import useImageDatasetExport from './hooks/useImageDatasetExport';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { alpha } from '@mui/material/styles';
+import CollectionsIcon from '@mui/icons-material/Collections';
 
 export default function ImageDatasetsPage() {
   const { projectId } = useParams();
   const router = useRouter();
   const { t } = useTranslation();
+  const theme = useTheme();
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
@@ -97,7 +100,58 @@ export default function ImageDatasetsPage() {
   const totalPages = Math.ceil(datasets.total / pageSize);
 
   return (
-    <Container maxWidth="xl" sx={imageDatasetStyles.pageContainer}>
+    <main style={{
+      overflow: 'hidden',
+      position: 'relative',
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
+      <Container maxWidth="xl" sx={{ ...imageDatasetStyles.pageContainer, position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            mb: 3
+          }}
+        >
+        <CollectionsIcon
+          sx={theme => ({
+            fontSize: { xs: 32, md: 40 },
+            color: theme.palette.primary.main,
+            filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
+          })}
+        />
+        <Typography
+          component="h1"
+          variant="h3"
+          sx={theme => {
+            const gradient = theme.palette.gradient?.primary;
+            return {
+              fontSize: { xs: '1.75rem', md: '2.5rem' },
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.1,
+              ...(gradient
+                ? {
+                    background: gradient,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }
+                : {
+                    color: theme.palette.primary.main
+                  })
+            };
+          }}
+        >
+          {t('datasets.title', { defaultValue: '数据集管理' })}
+        </Typography>
+      </Box>
+
       {/* 筛选区域 - 参考数据集管理的设计 */}
       <Card
         sx={{
@@ -188,6 +242,7 @@ export default function ImageDatasetsPage() {
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
       />
-    </Container>
+      </Container>
+    </main>
   );
 }

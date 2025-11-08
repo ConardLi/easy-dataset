@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material/styles';
 import ChatArea from '@/components/playground/ChatArea';
 import MessageInput from '@/components/playground/MessageInput';
 import PlaygroundHeader from '@/components/playground/PlaygroundHeader';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import useModelPlayground from '@/hooks/useModelPlayground';
 import { playgroundStyles } from '@/styles/playground';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +58,9 @@ export default function ModelPlayground({ searchParams }) {
       background: theme.palette.background.default,
       minHeight: '100vh'
     }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
       {/* Hero Section - 参考首页风格 */}
       <Box
         sx={{
@@ -92,35 +96,47 @@ export default function ModelPlayground({ searchParams }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              mb: 2
+              textAlign: 'center',
+              maxWidth: '780px',
+              mx: 'auto'
             }}
           >
-            <SmartToyIcon
+            <Box
               sx={{
-                fontSize: { xs: 32, md: 40 },
-                mr: 2,
-                color: theme.palette.primary.main,
-                filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
-              }}
-            />
-            <Typography
-              variant={isMobile ? 'h3' : 'h2'}
-              component="h1"
-              sx={{
-                fontSize: { xs: '1.75rem', md: '2.5rem' },
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                lineHeight: 1.1,
-                background: theme.palette.gradient.primary,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 2
               }}
             >
-              {t('playground.title')}
-            </Typography>
+              <SmartToyIcon
+                sx={{
+                  fontSize: { xs: 36, md: 44 },
+                  mr: 2,
+                  color: theme.palette.primary.main,
+                  filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
+                }}
+              />
+              <Typography
+                variant={isMobile ? 'h3' : 'h2'}
+                component="h1"
+                sx={{
+                  fontSize: { xs: '1.9rem', md: '2.6rem' },
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.1,
+                  background: theme.palette.gradient.primary,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  position: 'relative',
+                  display: 'inline-flex',
+                  alignItems: 'center'
+                }}
+              >
+                {t('playground.title')}
+              </Typography>
+            </Box>
           </Box>
         </Container>
       </Box>

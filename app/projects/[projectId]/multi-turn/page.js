@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import SearchBar from './components/SearchBar';
 import ConversationTable from './components/ConversationTable';
 import FilterDialog from './components/FilterDialog';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import { useMultiTurnData } from './hooks/useMultiTurnData';
 
 export default function MultiTurnDatasetPage({ params }) {
@@ -47,7 +48,58 @@ export default function MultiTurnDatasetPage({ params }) {
   } = useMultiTurnData(projectId);
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
+    <main style={{
+      overflow: 'hidden',
+      position: 'relative',
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 6, position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            mb: 3
+          }}
+        >
+        <ChatIcon
+          sx={theme => ({
+            fontSize: { xs: 32, md: 40 },
+            color: theme.palette.primary.main,
+            filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
+          })}
+        />
+        <Typography
+          component="h1"
+          variant="h3"
+          sx={theme => {
+            const gradient = theme.palette.gradient?.primary;
+            return {
+              fontSize: { xs: '1.75rem', md: '2.5rem' },
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.1,
+              ...(gradient
+                ? {
+                    background: gradient,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }
+                : {
+                    color: theme.palette.primary.main
+                  })
+            };
+          }}
+        >
+          {t('datasets.title', { defaultValue: '数据集管理' })}
+        </Typography>
+      </Box>
+
       <Card
         elevation={0}
         sx={{
@@ -101,6 +153,7 @@ export default function MultiTurnDatasetPage({ params }) {
         onReset={resetFilters}
         onApply={applyFilters}
       />
-    </Container>
+      </Container>
+    </main>
   );
 }

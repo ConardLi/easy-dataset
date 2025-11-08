@@ -13,7 +13,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField
+  TextField,
+  useTheme
 } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -30,6 +31,7 @@ import ImportDialog from './components/ImportDialog';
 import QuestionDialog from './components/QuestionDialog';
 import DatasetDialog from './components/DatasetDialog';
 import AnnotationDialog from './components/annotation/AnnotationDialog';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import { useQuestionTemplates } from '../questions/hooks/useQuestionTemplates';
 import { useAnnotation } from './hooks/useAnnotation';
 import { useQuestionEdit } from '../questions/hooks/useQuestionEdit';
@@ -40,6 +42,7 @@ export default function ImagesPage() {
   const { projectId } = useParams();
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const selectedModel = useAtomValue(selectedModelInfoAtom);
 
   const [loading, setLoading] = useState(false);
@@ -241,9 +244,18 @@ export default function ImagesPage() {
   };
 
   return (
-    <Container maxWidth="xl" sx={imageStyles.pageContainer}>
-      {/* 页面头部 */}
-      <Box sx={imageStyles.header}>
+    <main style={{
+      overflow: 'hidden',
+      position: 'relative',
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
+      <Container maxWidth="xl" sx={{ ...imageStyles.pageContainer, position: 'relative', zIndex: 1 }}>
+        {/* 页面头部 */}
+        <Box sx={imageStyles.header}>
         <Box sx={imageStyles.headerTitle}>
           <Typography variant="h4" component="h1" sx={imageStyles.title}>
             {t('images.title', { defaultValue: '图片管理' })}
@@ -399,6 +411,7 @@ export default function ImagesPage() {
         projectId={projectId}
         template={{ sourceType: 'image' }}
       />
-    </Container>
+      </Container>
+    </main>
   );
 }

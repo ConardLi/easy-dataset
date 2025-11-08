@@ -275,7 +275,7 @@
   },
   "home": {
     "title": "HKGAI Dataset Generation",
-    "subtitle": "A powerful tool for creating fine-tuning datasets for Large Language Models",
+    "subtitle": "A powerful tool for creating datasets for Large Language Models",
     "badge": "AI-Powered Dataset Generation Platform",
     "features": {
       "smartChunking": "Smart Chunking",
@@ -636,6 +636,14 @@
   },
   "datasets": {
     "title": "Datasets Management",
+    "subtitle": "Efficiently manage and organize your AI training datasets",
+    "stats": {
+      "totalDatasets": "Total Datasets",
+      "confirmedDatasets": "Confirmed Data",
+      "avgScore": "Average Score",
+      "highQuality": "High Quality Data"
+    },
+    "noDataHint": "No data available, please create a new dataset",
     "loadingDataset": "Loading Dataset...",
     "datasetNotFound": "Dataset Not Found",
     "optimizeTitle": "AI Optimize",
@@ -901,7 +909,7 @@
     "ongoingProjects": "Ongoing Projects",
     "questionCount": "Question Count",
     "generatedDatasets": "Generated Datasets",
-    "supportedModels": "Supported Models"
+    "supportedModels": "Connected Models"
   },
   "migration": {
     "title": "Project Migration",
@@ -927,7 +935,8 @@
     "deleteDirectoryFailed": "Failed to delete project directory"
   },
   "distill": {
-    "title": "Distill",
+    "title": "Data Distillation",
+    "subtitle": "Intelligently build domain knowledge systems and efficiently generate high-quality Q&A data",
     "generateRootTags": "Generate Root Tags",
     "generateSubTags": "Generate Sub Tags",
     "generateQuestions": "Generate Questions",

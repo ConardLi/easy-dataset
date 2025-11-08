@@ -15,6 +15,8 @@ import SearchBar from './components/SearchBar';
 import ActionBar from './components/ActionBar';
 import FilterDialog from './components/FilterDialog';
 import DeleteConfirmDialog from './components/DeleteConfirmDialog';
+import DatasetStats from './components/DatasetStats';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import useDatasetExport from './hooks/useDatasetExport';
 import useDatasetEvaluation from './hooks/useDatasetEvaluation';
 import useDatasetFilters from './hooks/useDatasetFilters';
@@ -419,18 +421,48 @@ export default function DatasetsPage({ params }) {
         background: theme.palette.background.default,
         minHeight: '100vh'
       }}>
+        {/* 粒子背景 */}
+        <ParticleBackground />
+        
         <Container maxWidth="xl" sx={{ 
           mt: 4, 
           display: 'flex', 
           flexDirection: 'column',
           justifyContent: 'center', 
           alignItems: 'center', 
-          minHeight: '60vh' 
+          minHeight: '60vh',
+          position: 'relative',
+          zIndex: 1
         }}>
-          <CircularProgress size={40} thickness={4} />
-          <Typography variant="h6" sx={{ mt: 2, color: 'text.secondary' }}>
-            {t('datasets.loading')}
-          </Typography>
+          <Box
+            component={motion.div}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            sx={{
+              textAlign: 'center'
+            }}
+          >
+            <CircularProgress 
+              size={60} 
+              thickness={4}
+              sx={{
+                color: theme.palette.primary.main,
+                filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}60)`
+              }}
+            />
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                mt: 3, 
+                color: 'text.secondary',
+                fontWeight: 600,
+                letterSpacing: '0.05em'
+              }}
+            >
+              {t('datasets.loading')}
+            </Typography>
+          </Box>
         </Container>
       </main>
     );
@@ -443,30 +475,93 @@ export default function DatasetsPage({ params }) {
       background: theme.palette.background.default,
       minHeight: '100vh'
     }}>
-      {/* Hero Section - 参考首页风格 */}
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
+      {/* Hero Section - 科技感升级版 */}
       <Box
         sx={{
           position: 'relative',
-          pt: { xs: 6, md: 8 },
-          pb: { xs: 4, md: 6 },
+          pt: { xs: 8, md: 10 },
+          pb: { xs: 6, md: 8 },
           overflow: 'hidden',
           background: isDark
-            ? 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%), #0A0E27'
-            : 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.05) 0%, transparent 50%), #FAFBFC'
+            ? 'radial-gradient(ellipse 120% 80% at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse 100% 60% at 50% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)'
+            : 'radial-gradient(ellipse 120% 80% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%), radial-gradient(ellipse 100% 60% at 50% 100%, rgba(139, 92, 246, 0.05) 0%, transparent 50%)'
         }}
       >
-        {/* 科技风格网格背景 */}
+        {/* 动态网格背景 */}
         <Box
+          component={motion.div}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
           sx={{
             position: 'absolute',
             inset: 0,
             backgroundImage: isDark
-              ? `linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                 linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)`
-              : `linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
-                 linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px',
-            opacity: 0.4,
+              ? `linear-gradient(rgba(99, 102, 241, 0.05) 1.5px, transparent 1.5px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1.5px, transparent 1.5px)`
+              : `linear-gradient(rgba(99, 102, 241, 0.08) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px',
+            opacity: 0.5,
+            zIndex: 0,
+            maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
+          }}
+        />
+
+        {/* 光晕装饰 */}
+        <Box
+          component={motion.div}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          sx={{
+            position: 'absolute',
+            top: -100,
+            left: '10%',
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            background: isDark
+              ? 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+            zIndex: 0
+          }}
+        />
+        
+        <Box
+          component={motion.div}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2]
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+          sx={{
+            position: 'absolute',
+            top: -50,
+            right: '15%',
+            width: 250,
+            height: 250,
+            borderRadius: '50%',
+            background: isDark
+              ? 'radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%)',
+            filter: 'blur(70px)',
             zIndex: 0
           }}
         />
@@ -474,38 +569,113 @@ export default function DatasetsPage({ params }) {
         <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
           <Box
             component={motion.div}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
             sx={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
+              textAlign: 'center',
               mb: 2
             }}
           >
-            <StorageIcon
-              sx={{
-                fontSize: { xs: 32, md: 40 },
-                mr: 2,
-                color: theme.palette.primary.main,
-                filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
+            {/* 图标容器 */}
+            <Box
+              component={motion.div}
+              initial={{ scale: 0.5, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ 
+                duration: 0.6,
+                delay: 0.2,
+                type: "spring",
+                stiffness: 200
               }}
-            />
-            <Typography
-              variant={isMobile ? 'h3' : 'h2'}
-              component="h1"
+              whileHover={{ 
+                scale: 1.1,
+                rotate: 5,
+                transition: { duration: 0.3 }
+              }}
               sx={{
-                fontSize: { xs: '1.75rem', md: '2.5rem' },
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
+                width: { xs: 72, md: 88 },
+                height: { xs: 72, md: 88 },
+                borderRadius: '22px',
+                background: theme.palette.gradient.primary,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 3,
+                boxShadow: isDark
+                  ? `0 12px 40px ${theme.palette.primary.main}50, 0 0 80px ${theme.palette.primary.main}30`
+                  : `0 8px 32px ${theme.palette.primary.main}40, 0 0 60px ${theme.palette.primary.main}20`,
+                position: 'relative',
+                cursor: 'pointer',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  inset: -4,
+                  borderRadius: '26px',
+                  background: theme.palette.gradient.primary,
+                  opacity: 0.3,
+                  filter: 'blur(16px)',
+                  zIndex: -1,
+                  animation: 'pulse 3s ease-in-out infinite'
+                },
+                '@keyframes pulse': {
+                  '0%, 100%': { opacity: 0.3, transform: 'scale(1)' },
+                  '50%': { opacity: 0.5, transform: 'scale(1.05)' }
+                }
+              }}
+            >
+              <StorageIcon
+                sx={{
+                  fontSize: { xs: 40, md: 48 },
+                  color: '#FFFFFF',
+                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                }}
+              />
+            </Box>
+            
+            {/* 标题 */}
+            <Typography
+              component={motion.h1}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              variant={isMobile ? 'h3' : 'h2'}
+              sx={{
+                fontSize: { xs: '2rem', md: '3rem' },
+                fontWeight: 900,
+                letterSpacing: '-0.03em',
                 lineHeight: 1.1,
                 background: theme.palette.gradient.primary,
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                backgroundClip: 'text',
+                mb: 2,
+                textShadow: isDark ? '0 0 40px rgba(99, 102, 241, 0.3)' : 'none'
               }}
             >
               {t('datasets.title', { defaultValue: '数据集管理' })}
+            </Typography>
+            
+            {/* 副标题 */}
+            <Typography
+              component={motion.p}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              variant="h6"
+              sx={{
+                color: theme.palette.text.secondary,
+                fontWeight: 500,
+                fontSize: { xs: '0.95rem', md: '1.1rem' },
+                maxWidth: 600,
+                opacity: 0.85,
+                letterSpacing: '0.01em'
+              }}
+            >
+              {t('datasets.subtitle', '高效管理和组织您的AI训练数据集')}
             </Typography>
           </Box>
         </Container>
@@ -515,7 +685,7 @@ export default function DatasetsPage({ params }) {
       <Container
         maxWidth="xl"
         sx={{
-          mt: { xs: -4, md: -6 },
+          mt: { xs: -6, md: -8 },
           mb: { xs: 6, md: 8 },
           position: 'relative',
           zIndex: 2
@@ -524,16 +694,24 @@ export default function DatasetsPage({ params }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
         >
+          {/* 数据统计仪表盘 */}
+          <DatasetStats 
+            projectId={projectId} 
+            datasets={datasets} 
+            loading={false}
+          />
+          
+          {/* 搜索和操作栏 */}
           <Paper
             elevation={0}
             sx={{
-              mb: 4,
-              p: 3,
-              borderRadius: '20px',
+              mb: 3,
+              p: { xs: 2.5, md: 3 },
+              borderRadius: '18px',
               background: isDark
-                ? 'rgba(15, 23, 42, 0.8)'
+                ? 'rgba(15, 23, 42, 0.9)'
                 : '#FFFFFF',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
@@ -542,7 +720,19 @@ export default function DatasetsPage({ params }) {
                 : '1px solid rgba(226, 232, 240, 1)',
               boxShadow: isDark
                 ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)'
-                : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)'
+                : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '2px',
+                background: theme.palette.gradient.primary,
+                opacity: 0.6
+              }
             }}
           >
         <Box
@@ -576,41 +766,91 @@ export default function DatasetsPage({ params }) {
           />
         </Box>
           </Paper>
+          
+          {/* 批量选择提示 */}
           {selectedIds.length ? (
-            <Box
+            <Paper
+              component={motion.div}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              elevation={0}
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
-                marginTop: '10px',
                 gap: 2,
-                mb: 3
+                mb: 3,
+                p: 2.5,
+                borderRadius: '14px',
+                background: isDark
+                  ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%)'
+                  : 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%)',
+                border: isDark
+                  ? '1px solid rgba(99, 102, 241, 0.25)'
+                  : '1px solid rgba(99, 102, 241, 0.2)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)'
               }}
             >
-              <Typography variant="body1" color="text.secondary">
-                {t('datasets.selected', {
-                  count: selectedIds.length
-                })}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '8px',
+                    background: theme.palette.gradient.primary,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  {selectedIds.length}
+                </Box>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    color: 'text.primary',
+                    fontWeight: 600
+                  }}
+                >
+                  {t('datasets.selected', { count: selectedIds.length })}
+                </Typography>
+              </Box>
               <Button
                 variant="outlined"
                 color="error"
                 startIcon={<DeleteIcon />}
-                sx={{ borderRadius: 2 }}
                 onClick={handleBatchDeleteDataset}
+                sx={{ 
+                  borderRadius: '10px',
+                  px: 3,
+                  fontWeight: 600,
+                  borderWidth: 2,
+                  '&:hover': {
+                    borderWidth: 2,
+                    transform: 'translateY(-2px)',
+                    boxShadow: theme => `0 4px 12px ${theme.palette.error.main}40`
+                  },
+                  transition: 'all 0.2s ease'
+                }}
               >
                 {t('datasets.batchDelete')}
               </Button>
-            </Box>
+            </Paper>
           ) : null}
 
+          {/* 数据集列表 */}
           <Paper
             elevation={0}
             sx={{
-              borderRadius: '20px',
+              borderRadius: '18px',
               background: isDark
-                ? 'rgba(15, 23, 42, 0.8)'
+                ? 'rgba(15, 23, 42, 0.9)'
                 : '#FFFFFF',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
@@ -620,7 +860,18 @@ export default function DatasetsPage({ params }) {
               boxShadow: isDark
                 ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)'
                 : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '2px',
+                background: theme.palette.gradient.primary,
+                opacity: 0.6
+              }
             }}
           >
             <DatasetList

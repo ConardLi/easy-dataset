@@ -23,6 +23,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useTranslation } from 'react-i18next';
 import QuestionListItem from './QuestionListItem';
+import { alpha, useTheme } from '@mui/material/styles';
 
 /**
  * 标签树项组件
@@ -65,6 +66,24 @@ export default function TagTreeItem({
   children
 }) {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
+  const branchColor = alpha(theme.palette.primary.main, isDark ? 0.35 : 0.18);
+  const nestedBackground = alpha(theme.palette.primary.main, isDark ? 0.1 : 0.04);
+  const idleBackground = alpha(theme.palette.primary.main, isDark ? 0.14 : 0.06);
+  const expandedBackground = alpha(theme.palette.primary.main, isDark ? 0.32 : 0.18);
+  const hoverBackground = alpha(theme.palette.primary.main, isDark ? 0.42 : 0.24);
+  const accentTextColor = isDark ? theme.palette.primary.light : theme.palette.primary.dark;
+  const secondaryAccentTextColor = isDark ? theme.palette.secondary.light : theme.palette.secondary.dark;
+
+  const actionButtonStyles = colorKey => ({
+    backgroundColor: alpha(theme.palette[colorKey].main, isDark ? 0.26 : 0.12),
+    color: isDark ? theme.palette[colorKey].light : theme.palette[colorKey].dark,
+    '&:hover': {
+      backgroundColor: alpha(theme.palette[colorKey].main, isDark ? 0.36 : 0.2)
+    }
+  });
 
   // 递归计算所有层级的子标签数量
   const getTotalSubTagsCount = childrenTags => {
@@ -117,34 +136,82 @@ export default function TagTreeItem({
         disablePadding
         sx={{
           pl: level * 2,
-          borderLeft: level > 0 ? '1px dashed rgba(0, 0, 0, 0.1)' : 'none',
-          ml: level > 0 ? 2 : 0
+          borderLeft: level > 0 ? `1px solid ${branchColor}` : 'none',
+          ml: level > 0 ? 1.75 : 0
         }}
       >
-        <ListItemButton onClick={() => onToggle(tag.id)} sx={{ borderRadius: 1, py: 0.5 }}>
-          <ListItemIcon sx={{ minWidth: 36 }}>
-            <FolderIcon color="primary" fontSize="small" />
+        <ListItemButton
+          onClick={() => onToggle(tag.id)}
+          sx={{
+            borderRadius: 1.5,
+            py: 0.9,
+            px: 1.25,
+            backgroundColor: expanded ? expandedBackground : idleBackground,
+            color: expanded ? theme.palette.primary.contrastText : theme.palette.text.primary,
+            transition: 'all 0.2s ease',
+            boxShadow: expanded ? theme.shadows[isDark ? 3 : 2] : 'none',
+            '&:hover': {
+              backgroundColor: expanded ? hoverBackground : alpha(theme.palette.primary.main, isDark ? 0.24 : 0.12),
+              transform: 'translateX(4px)',
+              boxShadow: theme.shadows[isDark ? 3 : 4]
+            }
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 42 }}>
+            <Box
+              sx={{
+                width: 30,
+                height: 30,
+                borderRadius: 1.2,
+                display: 'grid',
+                placeItems: 'center',
+                background: alpha(theme.palette.primary.main, isDark ? 0.24 : 0.1),
+                boxShadow: `0 6px 14px ${alpha(theme.palette.primary.main, isDark ? 0.28 : 0.18)}`
+              }}
+            >
+              <FolderIcon sx={{ fontSize: 18, color: accentTextColor }} />
+            </Box>
           </ListItemIcon>
           <ListItemText
             primary={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography sx={{ fontWeight: 'medium' }}>{tag.label}</Typography>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    color: expanded ? theme.palette.primary.contrastText : theme.palette.text.primary,
+                    transition: 'color 0.2s ease'
+                  }}
+                >
+                  {tag.label}
+                </Typography>
                 {tag.children && tag.children.length > 0 && (
                   <Chip
                     size="small"
                     label={`${getTotalSubTagsCount(tag.children)} ${t('distill.subTags')}`}
-                    color="primary"
                     variant="outlined"
-                    sx={{ height: 20, fontSize: '0.7rem' }}
+                    sx={{
+                      height: 20,
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      borderColor: alpha(theme.palette.primary.main, isDark ? 0.45 : 0.3),
+                      backgroundColor: alpha(theme.palette.primary.main, isDark ? 0.20 : 0.08),
+                      color: accentTextColor
+                    }}
                   />
                 )}
                 {totalQuestions > 0 && (
                   <Chip
                     size="small"
                     label={`${totalQuestions} ${t('distill.questions')}`}
-                    color="secondary"
                     variant="outlined"
-                    sx={{ height: 20, fontSize: '0.7rem' }}
+                    sx={{
+                      height: 20,
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      borderColor: alpha(theme.palette.secondary.main, isDark ? 0.42 : 0.32),
+                      backgroundColor: alpha(theme.palette.secondary.main, isDark ? 0.22 : 0.08),
+                      color: secondaryAccentTextColor
+                    }}
                   />
                 )}
               </Box>
@@ -160,6 +227,10 @@ export default function TagTreeItem({
                   e.stopPropagation();
                   onGenerateQuestions(tag);
                 }}
+                sx={{
+                  ...actionButtonStyles('secondary'),
+                  boxShadow: `0 4px 12px ${alpha(theme.palette.secondary.main, isDark ? 0.3 : 0.2)}`
+                }}
               >
                 <QuestionMarkIcon fontSize="small" />
               </IconButton>
@@ -172,20 +243,34 @@ export default function TagTreeItem({
                   e.stopPropagation();
                   onGenerateSubTags(tag);
                 }}
+                sx={{
+                  ...actionButtonStyles('primary'),
+                  boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, isDark ? 0.32 : 0.2)}`
+                }}
               >
                 <AddIcon fontSize="small" />
               </IconButton>
             </Tooltip>
 
-            <IconButton size="small" onClick={e => onMenuOpen(e, tag)}>
+            <IconButton
+              size="small"
+              onClick={e => onMenuOpen(e, tag)}
+              sx={{
+                backgroundColor: alpha(theme.palette.text.primary, isDark ? 0.22 : 0.08),
+                color: theme.palette.text.secondary,
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.text.primary, isDark ? 0.32 : 0.16)
+                }
+              }}
+            >
               <MoreVertIcon fontSize="small" />
             </IconButton>
 
             {tag.children && tag.children.length > 0 ? (
               expanded ? (
-                <ExpandLessIcon fontSize="small" />
+                <ExpandLessIcon fontSize="small" sx={{ color: theme.palette.text.secondary }} />
               ) : (
-                <ExpandMoreIcon fontSize="small" />
+                <ExpandMoreIcon fontSize="small" sx={{ color: theme.palette.text.secondary }} />
               )
             ) : null}
           </Box>
@@ -202,7 +287,16 @@ export default function TagTreeItem({
       {/* 标签下的问题 */}
       {expanded && (
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <List disablePadding sx={{ mt: 0.5, mb: 1 }}>
+          <List
+            disablePadding
+            sx={{
+              mt: 0.5,
+              mb: 1,
+              borderRadius: 1.5,
+              backgroundColor: nestedBackground,
+              backdropFilter: 'blur(10px)'
+            }}
+          >
             {loadingQuestions ? (
               <ListItem sx={{ pl: (level + 1) * 2, py: 0.75 }}>
                 <CircularProgress size={20} />

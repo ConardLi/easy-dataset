@@ -14,7 +14,7 @@
 
 <a href="https://trendshift.io/repositories/13944" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13944" alt="ConardLi%2Feasy-dataset | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-**一个强大的大型语言模型微调数据集创建工具**
+**一个强大的大型语言模型数据集创建工具**
 
 [简体中文](./README.zh-CN.md) | [English](./README.md)
 
@@ -26,7 +26,7 @@
 
 ## 概述
 
-HKGAI Dataset Generation 是一个专为创建大型语言模型（LLM）微调数据集而设计的应用程序。它提供了直观的界面，用于上传特定领域的文件，智能分割内容，生成问题，并为模型微调生成高质量的训练数据。
+HKGAI Dataset Generation 是一个专为创建大型语言模型（LLM）数据集而设计的应用程序。它提供了直观的界面，用于上传特定领域的文件，智能分割内容，生成问题，并为模型训练生成高质量的数据。
 
 通过 HKGAI Dataset Generation，您可以将领域知识转化为结构化数据集，兼容所有遵循 OpenAI 格式的 LLM API，使微调过程变得简单高效。
 

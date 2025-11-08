@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 // 导入任务管理组件
 import TaskFilters from '@/components/tasks/TaskFilters';
 import TasksTable from '@/components/tasks/TasksTable';
+import ParticleBackground from '@/components/home/ParticleBackground';
 
 export default function TasksPage({ params }) {
   const { projectId } = params;
@@ -143,6 +144,9 @@ export default function TasksPage({ params }) {
       background: theme.palette.background.default,
       minHeight: '100vh'
     }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
       {/* Hero Section - 参考首页风格 */}
       <Box
         sx={{

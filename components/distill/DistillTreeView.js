@@ -8,6 +8,7 @@ import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/lib/store';
 import { useGenerateDataset } from '@/hooks/useGenerateDataset';
 import { toast } from 'sonner';
+import { alpha, useTheme } from '@mui/material/styles';
 
 // 导入子组件
 import TagTreeItem from './TagTreeItem';
@@ -30,6 +31,8 @@ const DistillTreeView = forwardRef(function DistillTreeView(
   ref
 ) {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const selectedModel = useAtomValue(selectedModelInfoAtom);
   const [expandedTags, setExpandedTags] = useState({});
   const [tagQuestions, setTagQuestions] = useState({});
@@ -410,9 +413,23 @@ const DistillTreeView = forwardRef(function DistillTreeView(
   const renderTagTree = (tagList, level = 0) => {
     // 对同级标签进行排序
     const sortedTagList = sortTagsByNumber(tagList);
+    const treeContainerBg = alpha(theme.palette.background.paper, isDark ? 0.16 : 0.06);
+    const treeContainerBorder = alpha(theme.palette.primary.main, isDark ? 0.24 : 0.12);
 
     return (
-      <List disablePadding sx={{ px: 2 }}>
+      <List
+        disablePadding
+        sx={{
+          px: 2,
+          py: 1,
+          borderRadius: 2,
+          backgroundColor: treeContainerBg,
+          border: `1px solid ${treeContainerBorder}`,
+          '& + &': {
+            mt: 1.5
+          }
+        }}
+      >
         {sortedTagList.map(tag => (
           <TagTreeItem
             key={tag.id}

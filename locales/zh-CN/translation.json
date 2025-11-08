@@ -276,7 +276,7 @@
   },
   "home": {
     "title": "HKGAI Dataset Generation",
-    "subtitle": "一个强大的大型语言模型微调数据集创建工具",
+    "subtitle": "一个强大的大型语言模型数据集创建工具",
     "badge": "AI驱动的数据集生成平台",
     "features": {
       "smartChunking": "智能分块",
@@ -573,6 +573,14 @@
   },
   "datasets": {
     "title": "数据集管理",
+    "subtitle": "高效管理和组织您的AI训练数据集",
+    "stats": {
+      "totalDatasets": "数据集总数",
+      "confirmedDatasets": "已确认数据",
+      "avgScore": "平均评分",
+      "highQuality": "高质量数据"
+    },
+    "noDataHint": "暂无数据，请创建新的数据集",
     "loadingDataset": "正在加载数据集详情...",
     "datasetNotFound": "未找到数据集",
     "optimizeTitle": "AI 优化",
@@ -888,7 +896,7 @@
     "ongoingProjects": "正在运行的项目",
     "questionCount": "问题数量",
     "generatedDatasets": "已生成的数据集",
-    "supportedModels": "已支持的模型"
+    "supportedModels": "已经接入模型数"
   },
   "migration": {
     "title": "【重要】历史数据迁移",
@@ -915,6 +923,7 @@
   },
   "distill": {
     "title": "数据蒸馏",
+    "subtitle": "智能化构建领域知识体系，高效生成高质量问答数据",
     "generateRootTags": "生成顶级标签",
     "generateSubTags": "生成子标签",
     "generateQuestions": "生成问题",

@@ -54,7 +54,7 @@ export default function StatsCard({ projects }) {
       gradient: 'linear-gradient(135deg, #22C55E 0%, #059669 100%)'
     },
     {
-      value: getSupportedModelCount(),
+      value: 2,
       label: t('stats.supportedModels'),
       color: 'warning',
       icon: <MemoryIcon />,

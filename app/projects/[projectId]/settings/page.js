@@ -12,6 +12,7 @@ import BasicSettings from '@/components/settings/BasicSettings';
 import ModelSettings from '@/components/settings/ModelSettings';
 import TaskSettings from '@/components/settings/TaskSettings';
 import PromptSettings from './components/PromptSettings';
+import ParticleBackground from '@/components/home/ParticleBackground';
 
 // 定义 TAB 枚举
 const TABS = {
@@ -134,6 +135,9 @@ export default function SettingsPage({ params }) {
       background: theme.palette.background.default,
       minHeight: '100vh'
     }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
       {/* Hero Section - 参考首页风格 */}
       <Box
         sx={{

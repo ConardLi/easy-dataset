@@ -14,7 +14,7 @@
 
 <a href="https://trendshift.io/repositories/13944" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13944" alt="ConardLi%2Feasy-dataset | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-**A powerful tool for creating fine-tuning datasets for Large Language Models**
+**A powerful tool for creating datasets for Large Language Models**
 
 [简体中文](./README.zh-CN.md) | [English](./README.md)
 
@@ -26,7 +26,7 @@ If you like this project, please give it a Star⭐️, or buy the author a coffe
 
 ## Overview
 
-HKGAI Dataset Generation is an application specifically designed for creating fine-tuning datasets for Large Language Models (LLMs). It provides an intuitive interface for uploading domain-specific files, intelligently splitting content, generating questions, and producing high-quality training data for model fine-tuning.
+HKGAI Dataset Generation is an application specifically designed for creating datasets for Large Language Models (LLMs). It provides an intuitive interface for uploading domain-specific files, intelligently splitting content, generating questions, and producing high-quality data for model training.
 
 With HKGAI Dataset Generation, you can transform domain knowledge into structured datasets, compatible with all LLM APIs that follow the OpenAI format, making the fine-tuning process simple and efficient.
 

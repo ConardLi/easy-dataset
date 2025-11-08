@@ -49,6 +49,13 @@ const getTheme = mode => {
   const gradientPrimary = isDark 
     ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%)'
     : 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #0891B2 100%)';
+  const chipGradient = isDark
+    ? 'linear-gradient(135deg, rgba(99,102,241,0.92) 0%, rgba(139,92,246,0.88) 55%, rgba(6,182,212,0.82) 100%)'
+    : 'linear-gradient(135deg, #7C8CFF 0%, #9AAEFF 55%, #5CD4FF 100%)';
+  const chipGradientHover = isDark
+    ? 'linear-gradient(135deg, rgba(99,102,241,0.98) 0%, rgba(139,92,246,0.92) 55%, rgba(6,182,212,0.88) 100%)'
+    : 'linear-gradient(135deg, #6E82FF 0%, #8FA4FF 55%, #4AC7F6 100%)';
+  const chipTextColor = isDark ? '#F8FAFF' : '#0A0E27';
   const gradientGlow = 'linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 50%, rgba(6, 182, 212, 0.3) 100%)';
 
   // 根据模式调整颜色
@@ -495,24 +502,23 @@ const getTheme = mode => {
                 : `0 1px 4px rgba(99, 102, 241, 0.15)`
             },
             '&.MuiChip-colorPrimary': {
-              color: '#FFFFFF',
+              color: chipTextColor,
               borderColor: 'transparent',
-              background: gradientPrimary,
+              background: chipGradient,
               boxShadow: isDark
-                ? '0 4px 16px rgba(99, 102, 241, 0.35)'
-                : '0 2px 8px rgba(99, 102, 241, 0.2)',
+                ? '0 3px 12px rgba(99, 102, 241, 0.28)'
+                : '0 2px 6px rgba(99, 102, 241, 0.18)',
               '&:hover': {
-                background: gradientPrimary,
-                opacity: 0.95,
+                background: chipGradientHover,
                 boxShadow: isDark
-                  ? '0 6px 20px rgba(99, 102, 241, 0.45)'
-                  : '0 4px 12px rgba(99, 102, 241, 0.25)'
+                  ? '0 5px 16px rgba(99, 102, 241, 0.36)'
+                  : '0 4px 10px rgba(99, 102, 241, 0.22)'
               },
               '& .MuiChip-icon': {
-                color: '#FFFFFF'
+                color: chipTextColor
               },
               '& .MuiChip-deleteIcon': {
-                color: '#FFFFFF',
+                color: chipTextColor,
                 '&:hover': {
                   opacity: 0.85
                 }
@@ -575,7 +581,20 @@ const getTheme = mode => {
             },
             '&.Mui-selected': {
               fontWeight: 700,
-              color: isDark ? textDarkPrimary : primaryBlue
+              // 选中状态下使用白色文字，确保在蓝色背景上有足够的对比度
+              color: '#FFFFFF !important',
+              background: isDark
+                ? gradientPrimary
+                : 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #0891B2 100%)',
+              boxShadow: isDark
+                ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                : '0 4px 16px rgba(79, 70, 229, 0.35)',
+              '&:hover': {
+                opacity: 0.95,
+                background: isDark
+                  ? gradientPrimary
+                  : 'linear-gradient(135deg, #4338CA 0%, #6D28D9 50%, #0E7490 100%)'
+              }
             }
           }
         }
@@ -583,16 +602,20 @@ const getTheme = mode => {
       MuiIconButton: {
         styleOverrides: {
           root: {
-            color: isDark ? textDarkPrimary : '#0F172A',
-            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',
+            color: isDark ? textDarkPrimary : primaryBlue,
+            backgroundColor: isDark
+              ? 'rgba(99, 102, 241, 0.08)'
+              : 'rgba(99, 102, 241, 0.12)',
             border: isDark
               ? '1px solid rgba(99, 102, 241, 0.2)'
-              : '1px solid rgba(15, 23, 42, 0.10)',
+              : '1px solid rgba(99, 102, 241, 0.25)',
             borderRadius: 12,
             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             boxShadow: isDark ? 'none' : '0 1px 2px rgba(15,23,42,0.06)',
             '&:hover': {
-              backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#F8FAFC',
+              backgroundColor: isDark
+                ? 'rgba(99, 102, 241, 0.15)'
+                : 'rgba(99, 102, 241, 0.18)',
               borderColor: primaryBlue,
               boxShadow: isDark
                 ? '0 4px 14px rgba(99,102,241,0.35)'
@@ -656,6 +679,197 @@ const getTheme = mode => {
           root: {
             fontSize: '1.25rem',
             fontWeight: 600
+          }
+        }
+      },
+      // 修复白天模式下拉菜单可见性问题
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#FFFFFF',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: isDark 
+              ? '1px solid rgba(99, 102, 241, 0.25)' 
+              : '1px solid rgba(226, 232, 240, 1)',
+            boxShadow: isDark
+              ? '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.2)'
+              : '0 4px 24px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 1)',
+            '& .MuiList-root': {
+              padding: '8px'
+            }
+          }
+        }
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            borderRadius: '8px',
+            margin: '2px 0',
+            padding: '10px 16px',
+            fontSize: '0.9375rem',
+            fontWeight: 500,
+            // 确保文字颜色有足够对比度
+            color: isDark ? textDarkPrimary : textLightPrimary,
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            '&:hover': {
+              backgroundColor: isDark 
+                ? 'rgba(99, 102, 241, 0.15)' 
+                : 'rgba(99, 102, 241, 0.1)',
+              color: isDark ? '#FFFFFF' : primaryBlue
+            },
+            '&.Mui-selected': {
+              backgroundColor: isDark 
+                ? 'rgba(99, 102, 241, 0.2)' 
+                : 'rgba(99, 102, 241, 0.12)',
+              color: isDark ? '#FFFFFF' : primaryBlue,
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: isDark 
+                  ? 'rgba(99, 102, 241, 0.28)' 
+                  : 'rgba(99, 102, 241, 0.18)'
+              }
+            },
+            '&.Mui-disabled': {
+              opacity: 0.5,
+              // 禁用状态也要确保可见
+              color: isDark ? textDarkSecondary : textLightSecondary
+            }
+          }
+        }
+      },
+      MuiPopover: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#FFFFFF',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: isDark 
+              ? '1px solid rgba(99, 102, 241, 0.25)' 
+              : '1px solid rgba(226, 232, 240, 1)',
+            boxShadow: isDark
+              ? '0 8px 32px rgba(0, 0, 0, 0.5)'
+              : '0 4px 24px rgba(15, 23, 42, 0.12)'
+          }
+        }
+      },
+      MuiSelect: {
+        styleOverrides: {
+          select: {
+            // Select选中的值也要确保可见
+            color: isDark ? textDarkPrimary : textLightPrimary,
+            fontWeight: 500,
+            '&:focus': {
+              backgroundColor: 'transparent'
+            }
+          },
+          icon: {
+            color: isDark ? textDarkSecondary : primaryBlue
+          }
+        }
+      },
+      MuiAutocomplete: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#FFFFFF',
+            border: isDark 
+              ? '1px solid rgba(99, 102, 241, 0.25)' 
+              : '1px solid rgba(226, 232, 240, 1)',
+            boxShadow: isDark
+              ? '0 8px 32px rgba(0, 0, 0, 0.5)'
+              : '0 4px 24px rgba(15, 23, 42, 0.12)'
+          },
+          option: {
+            borderRadius: '8px',
+            margin: '2px 8px',
+            color: isDark ? textDarkPrimary : textLightPrimary,
+            '&:hover': {
+              backgroundColor: isDark 
+                ? 'rgba(99, 102, 241, 0.15)' 
+                : 'rgba(99, 102, 241, 0.1)'
+            },
+            '&[aria-selected="true"]': {
+              backgroundColor: isDark 
+                ? 'rgba(99, 102, 241, 0.2)' 
+                : 'rgba(99, 102, 241, 0.12)',
+              color: isDark ? '#FFFFFF' : primaryBlue,
+              fontWeight: 600
+            }
+          },
+          listbox: {
+            padding: '8px'
+          }
+        }
+      },
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.98)' : 'rgba(30, 41, 59, 0.98)',
+            color: '#FFFFFF',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: isDark 
+              ? '1px solid rgba(99, 102, 241, 0.3)' 
+              : '1px solid rgba(148, 163, 184, 0.2)',
+            boxShadow: isDark
+              ? '0 4px 20px rgba(0, 0, 0, 0.5)'
+              : '0 4px 20px rgba(15, 23, 42, 0.3)'
+          },
+          arrow: {
+            color: isDark ? 'rgba(15, 23, 42, 0.98)' : 'rgba(30, 41, 59, 0.98)'
+          }
+        }
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.98)' : '#FFFFFF',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: isDark 
+              ? '1px solid rgba(99, 102, 241, 0.25)' 
+              : '1px solid rgba(226, 232, 240, 1)',
+            boxShadow: isDark
+              ? '0 24px 48px rgba(0, 0, 0, 0.6)'
+              : '0 24px 48px rgba(15, 23, 42, 0.15)',
+            color: isDark ? textDarkPrimary : textLightPrimary
+          }
+        }
+      },
+      MuiTableCell: {
+        styleOverrides: {
+          root: {
+            borderColor: isDark 
+              ? 'rgba(99, 102, 241, 0.15)' 
+              : 'rgba(226, 232, 240, 1)',
+            color: isDark ? textDarkPrimary : textLightPrimary
+          }
+        }
+      },
+      MuiList: {
+        styleOverrides: {
+          root: {
+            color: isDark ? textDarkPrimary : textLightPrimary
+          }
+        }
+      },
+      MuiListItem: {
+        styleOverrides: {
+          root: {
+            color: isDark ? textDarkPrimary : textLightPrimary
+          }
+        }
+      },
+      MuiListItemText: {
+        styleOverrides: {
+          primary: {
+            color: isDark ? textDarkPrimary : textLightPrimary,
+            fontWeight: 500
+          },
+          secondary: {
+            color: isDark ? textDarkSecondary : textLightSecondary
           }
         }
       }

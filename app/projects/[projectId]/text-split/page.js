@@ -39,6 +39,7 @@ import LoadingBackdrop from '@/components/text-split/LoadingBackdrop';
 import PdfSettings from '@/components/text-split/PdfSettings';
 import ChunkList from '@/components/text-split/ChunkList';
 import DomainAnalysis from '@/components/text-split/DomainAnalysis';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import useTaskSettings from '@/hooks/useTaskSettings';
 import { useAtomValue } from 'jotai/index';
 import { selectedModelInfoAtom } from '@/lib/store';
@@ -218,6 +219,9 @@ export default function TextSplitPage({ params }) {
       background: theme.palette.background.default,
       minHeight: '100vh'
     }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
       {/* Hero Section - 紧凑设计，参考首页 */}
       <Box
         sx={{

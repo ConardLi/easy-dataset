@@ -23,111 +23,9 @@ export default function HeroSection({ onCreateProject }) {
         overflow: 'hidden',
         minHeight: { xs: '70vh', md: '85vh' },
         display: 'flex',
-        alignItems: 'center',
-        background: isDark
-          ? 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%), #0A0E27'
-          : 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08) 0%, transparent 50%), radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.05) 0%, transparent 50%), #FAFBFC'
+        alignItems: 'center'
       }}
     >
-      {/* 科技风格网格背景 */}
-      <Box
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: isDark
-            ? `linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-               linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)`
-            : `linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
-               linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px',
-          opacity: 0.4,
-          zIndex: 0
-        }}
-      />
-
-      {/* 动态光效圆圈 */}
-      <Box
-        component={motion.div}
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-          x: [0, 100, 0],
-          y: [0, 50, 0]
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: 'easeInOut'
-        }}
-        sx={{
-          position: 'absolute',
-          width: '600px',
-          height: '600px',
-          borderRadius: '50%',
-          background: isDark
-            ? 'radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-          top: '-200px',
-          right: '-150px',
-          zIndex: 0,
-          filter: 'blur(60px)'
-        }}
-      />
-
-      <Box
-        component={motion.div}
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.2, 0.4, 0.2],
-          x: [0, -80, 0],
-          y: [0, -40, 0]
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: 'easeInOut'
-        }}
-        sx={{
-          position: 'absolute',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: isDark
-            ? 'radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
-          bottom: '-150px',
-          left: '-100px',
-          zIndex: 0,
-          filter: 'blur(60px)'
-        }}
-      />
-
-      {/* 科技风格装饰线条 */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '20%',
-          left: '10%',
-          width: '200px',
-          height: '2px',
-          background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
-          opacity: 0.3,
-          zIndex: 0,
-          transform: 'rotate(-45deg)',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            right: 0,
-            top: '-4px',
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            background: theme.palette.primary.main,
-            boxShadow: `0 0 20px ${theme.palette.primary.main}`
-          }
-        }}
-      />
-
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         <Box
           sx={{
@@ -371,45 +269,6 @@ export default function HeroSection({ onCreateProject }) {
             >
               {t('home.searchDataset')}
             </Button>
-          </Box>
-
-          {/* 底部装饰元素 */}
-          <Box
-            component={motion.div}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 1 }}
-            sx={{
-              mt: 6,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 2
-            }}
-          >
-            {[1, 2, 3, 4].map((n, idx) => (
-              <Box
-                key={n}
-                component={motion.div}
-                animate={{
-                  y: [0, -10, 0],
-                  opacity: [0.5, 1, 0.5]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  delay: idx * 0.2,
-                  ease: 'easeInOut'
-                }}
-                sx={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: theme.palette.gradient.primary,
-                  boxShadow: `0 0 20px ${theme.palette.primary.main}`
-                }}
-              />
-            ))}
           </Box>
         </Box>
       </Container>

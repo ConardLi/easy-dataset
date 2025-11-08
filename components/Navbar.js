@@ -438,12 +438,28 @@ export default function Navbar({ projects = [], currentProject }) {
                   fontWeight: 600,
                   textTransform: 'none',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  color: isDark ? theme.palette.text.secondary : '#475569',
+                  color: isDark ? '#E2E8F0' : '#1E293B',
                   padding: '10px 18px',
                   minHeight: '40px',
-                  borderRadius: '12px',
+                  borderRadius: '14px',
                   mx: 0.5,
                   position: 'relative',
+                  background: isDark
+                    ? 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(14,165,233,0.08) 100%)'
+                    : 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(14,165,233,0.06) 100%)',
+                  border: isDark
+                    ? '1px solid rgba(148, 163, 255, 0.35)'
+                    : '1px solid rgba(99, 102, 241, 0.2)',
+                  boxShadow: isDark
+                    ? 'inset 0 1px 0 rgba(148, 163, 255, 0.35), 0 4px 14px rgba(15, 23, 42, 0.4)'
+                    : 'inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 4px 14px rgba(148, 163, 255, 0.22)',
+                  backdropFilter: 'blur(18px)',
+                  WebkitBackdropFilter: 'blur(18px)',
+                  '& .MuiTab-iconWrapper svg': {
+                    transition: 'all 0.2s ease',
+                    filter: 'drop-shadow(0 2px 4px rgba(15, 23, 42, 0.2))',
+                    color: isDark ? '#C7D2FE' : '#4C51BF'
+                  },
                   '&::before': {
                     content: '""',
                     position: 'absolute',
@@ -458,32 +474,55 @@ export default function Navbar({ projects = [], currentProject }) {
                   },
                   '&:hover': {
                     color: theme.palette.primary.main,
-                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.1)',
                     transform: 'translateY(-2px)',
+                    boxShadow: isDark
+                      ? 'inset 0 1px 0 rgba(148, 163, 255, 0.45), 0 8px 18px rgba(15, 23, 42, 0.55)'
+                      : 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 20px rgba(99, 102, 241, 0.28)',
+                    borderColor: theme.palette.primary.main,
                     '&::before': {
                       width: '60%'
+                    },
+                    '& .MuiTab-iconWrapper svg': {
+                      color: theme.palette.primary.main,
+                      filter: 'drop-shadow(0 4px 8px rgba(99, 102, 241, 0.35))'
                     }
                   }
                 },
                 '& .Mui-selected': {
-                  color: '#FFFFFF',
-                  background: theme.palette.gradient.primary,
+                  color: '#FFFFFF !important',
+                  // 白天模式下使用更深的蓝色渐变，确保白色文字有足够的对比度
+                  background: isDark
+                    ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 55%, #0EA5E9 100%)'
+                    : 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #0891B2 100%)',
+                  border: '1px solid rgba(148, 163, 255, 0.6)',
                   backgroundColor: theme.palette.primary.main,
                   boxShadow: isDark
-                    ? '0 6px 20px rgba(99, 102, 241, 0.45), 0 0 0 1px rgba(99, 102, 241, 0.2)'
-                    : '0 6px 20px rgba(99, 102, 241, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.15)',
-                  transform: 'translateY(-1px)',
+                    ? '0 10px 28px rgba(99, 102, 241, 0.55), 0 0 0 1px rgba(99, 102, 241, 0.3)'
+                    : '0 12px 32px rgba(79, 70, 229, 0.45), 0 0 0 1px rgba(99, 102, 241, 0.28)',
+                  transform: 'translateY(-1.5px)',
+                  textShadow: isDark
+                    ? '0 4px 12px rgba(15, 23, 42, 0.35)'
+                    : '0 2px 8px rgba(15, 23, 42, 0.5)',
                   '&::before': {
                     width: '80%'
                   },
                   '&:hover': {
-                    background: theme.palette.gradient.primary,
+                    background: isDark
+                      ? theme.palette.gradient.primary
+                      : 'linear-gradient(135deg, #4338CA 0%, #6D28D9 50%, #0E7490 100%)',
                     backgroundColor: theme.palette.primary.main,
                     opacity: 0.95,
-                    transform: 'translateY(-2px)',
+                    transform: 'translateY(-2.5px)',
                     boxShadow: isDark
-                      ? '0 8px 24px rgba(99, 102, 241, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.25)'
-                      : '0 8px 24px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.2)'
+                      ? '0 14px 34px rgba(99, 102, 241, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.35)'
+                      : '0 16px 36px rgba(79, 70, 229, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.3)',
+                    '& .MuiTab-iconWrapper svg': {
+                      filter: 'drop-shadow(0 6px 16px rgba(14, 165, 233, 0.55))'
+                    }
+                  },
+                  '& .MuiTab-iconWrapper svg': {
+                    color: '#FFFFFF !important',
+                    filter: 'drop-shadow(0 4px 10px rgba(14, 165, 233, 0.45))'
                   }
                 }
               }}
@@ -936,18 +975,6 @@ export default function Navbar({ projects = [], currentProject }) {
               <ScienceOutlinedIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText primary={t('playground.title')} />
-          </MenuItem>
-          <Divider />
-          <MenuItem
-            component={Link}
-            href="/dataset-square"
-            onClick={handleMoreMenuClose}
-            selected={pathname === `/dataset-square`}
-          >
-            <ListItemIcon>
-              <StorageIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary={t('datasetSquare.title')} />
           </MenuItem>
         </Menu>
 

@@ -1,10 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Container, Typography, Box, Paper, Tabs, Tab, CircularProgress, Divider, LinearProgress, useTheme, useMediaQuery } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Tabs,
+  Tab,
+  CircularProgress,
+  Divider,
+  LinearProgress,
+  useTheme,
+  useMediaQuery,
+  Grid,
+  Stack,
+  Chip,
+  Tooltip
+} from '@mui/material';
 import { motion } from 'framer-motion';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
+import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined';
+import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
+import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
 
 import QuestionListView from '@/components/questions/QuestionListView';
 import QuestionTreeView from '@/components/questions/QuestionTreeView';
@@ -15,6 +34,7 @@ import QuestionsPageHeader from './components/QuestionsPageHeader';
 import ConfirmDialog from './components/ConfirmDialog';
 import TemplateListView from './components/TemplateListView';
 import TemplateFormDialog from './components/template/TemplateFormDialog';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import { useQuestionTemplates } from './hooks/useQuestionTemplates';
 import { useQuestionEdit } from './hooks/useQuestionEdit';
 import { useQuestionDelete } from './hooks/useQuestionDelete';
@@ -179,14 +199,105 @@ export default function QuestionsPage({ params }) {
 
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
+  // 页面整体背景：白天模式提升对比度与层次感
+  const pageBackground = isDark
+    ? theme.palette.background.default
+    : 'linear-gradient(180deg, #F6F8FF 0%, #F0F4FF 100%)';
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const questionArray = useMemo(() => {
+    if (Array.isArray(questions?.data)) {
+      return questions.data;
+    }
+    if (Array.isArray(questions?.data?.records)) {
+      return questions.data.records;
+    }
+    return [];
+  }, [questions]);
+
+  const answeredCount = useMemo(() => {
+    return questionArray.filter(question => {
+      if (!question) return false;
+      if (Array.isArray(question.answers) && question.answers.length > 0) return true;
+      if (Array.isArray(question.answerList) && question.answerList.length > 0) return true;
+      return Boolean(
+        question.answer ||
+          question.answerContent ||
+          question.answerText ||
+          question.generatedAnswer ||
+          question.answerDraft
+      );
+    }).length;
+  }, [questionArray]);
+
+  const totalQuestions = questions?.total ?? questionArray.length ?? 0;
+  const unansweredCount = Math.max(totalQuestions - answeredCount, 0);
+  const completionRate = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+  const selectionRate = questionArray.length > 0 ? Math.round((selectedQuestions.length / questionArray.length) * 100) : 0;
+
+  const statsOverview = useMemo(
+    () => [
+      {
+        id: 'total-questions',
+        label: t('questions.stats.total', '问题总数'),
+        value: totalQuestions,
+        caption: t('questions.stats.activeView', { defaultValue: '当前视图统计' }),
+        icon: <InsightsOutlinedIcon sx={{ fontSize: 28 }} />,
+        gradient: 'linear-gradient(135deg, #6366F1 0%, #A855F7 100%)',
+        glow: 'rgba(99, 102, 241, 0.35)'
+      },
+      {
+        id: 'answered-questions',
+        label: t('questions.stats.answered', '已完成回答'),
+        value: answeredCount,
+        caption: t('questions.stats.completionRate', {
+          rate: `${completionRate}%`,
+          defaultValue: `完成度 ${completionRate}%`
+        }),
+        icon: <TaskAltOutlinedIcon sx={{ fontSize: 28 }} />,
+        gradient: 'linear-gradient(135deg, #22D3EE 0%, #0EA5E9 100%)',
+        glow: 'rgba(45, 212, 191, 0.35)'
+      },
+      {
+        id: 'pending-questions',
+        label: t('questions.stats.pending', '待处理'),
+        value: unansweredCount,
+        caption: t('questions.stats.pendingHint', { defaultValue: '优先补全这些问题' }),
+        icon: <BoltOutlinedIcon sx={{ fontSize: 28 }} />,
+        gradient: 'linear-gradient(135deg, #F97316 0%, #FB7185 100%)',
+        glow: 'rgba(249, 115, 22, 0.35)'
+      },
+      {
+        id: 'selection',
+        label: t('questions.stats.batch', '批量选择'),
+        value: selectedQuestions.length,
+        caption: t('questions.stats.selectionRate', {
+          rate: `${selectionRate}%`,
+          defaultValue: `选中占比 ${selectionRate}%`
+        }),
+        icon: <TimelineOutlinedIcon sx={{ fontSize: 28 }} />,
+        gradient: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
+        glow: 'rgba(236, 72, 153, 0.35)'
+      }
+    ], [
+      t,
+      totalQuestions,
+      answeredCount,
+      unansweredCount,
+      completionRate,
+      selectionRate,
+      selectedQuestions.length
+    ]
+  );
+
+  const selectedModelName = model?.modelName || model?.modelId || t('questions.model.unselected', '未选择模型');
 
   if (loading) {
     return (
-      <main style={{ 
-        overflow: 'hidden', 
-        position: 'relative', 
-        background: theme.palette.background.default,
+      <main style={{
+        overflow: 'hidden',
+        position: 'relative',
+        background: pageBackground,
         minHeight: '100vh'
       }}>
         <Container maxWidth="xl" sx={{ 
@@ -203,12 +314,15 @@ export default function QuestionsPage({ params }) {
   }
 
   return (
-    <main style={{ 
-      overflow: 'hidden', 
-      position: 'relative', 
-      background: theme.palette.background.default,
+    <main style={{
+      overflow: 'hidden',
+      position: 'relative',
+      background: pageBackground,
       minHeight: '100vh'
     }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
       {/* Hero Section - 参考首页风格 */}
       <Box
         sx={{
@@ -237,43 +351,28 @@ export default function QuestionsPage({ params }) {
           }}
         />
 
+        {/* 动态能量光晕 */}
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+          sx={{
+            position: 'absolute',
+            top: { xs: '6%', md: '12%' },
+            right: { xs: '-28%', md: '-12%' },
+            width: { xs: 260, md: 360 },
+            height: { xs: 260, md: 360 },
+            background: isDark
+              ? 'radial-gradient(circle at 30% 30%, rgba(99,102,241,0.45), transparent 55%), radial-gradient(circle at 70% 70%, rgba(236,72,153,0.35), transparent 55%)'
+              : 'radial-gradient(circle at 30% 30%, rgba(99,102,241,0.25), transparent 55%), radial-gradient(circle at 70% 70%, rgba(236,72,153,0.2), transparent 55%)',
+            filter: 'blur(42px)',
+            opacity: 0.9,
+            zIndex: 0
+          }}
+        />
+
         <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
-          <Box
-            component={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              mb: 2
-            }}
-          >
-            <QuestionAnswerIcon
-              sx={{
-                fontSize: { xs: 32, md: 40 },
-                mr: 2,
-                color: theme.palette.primary.main,
-                filter: `drop-shadow(0 0 20px ${theme.palette.primary.main}40)`
-              }}
-            />
-            <Typography
-              variant={isMobile ? 'h3' : 'h2'}
-              component="h1"
-              sx={{
-                fontSize: { xs: '1.75rem', md: '2.5rem' },
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                lineHeight: 1.1,
-                background: theme.palette.gradient.primary,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              {t('questions.title') || '问题管理'}
-            </Typography>
-          </Box>
         </Container>
       </Box>
 
@@ -287,75 +386,156 @@ export default function QuestionsPage({ params }) {
           zIndex: 2
         }}
       >
-      {/* 处理中的进度显示 - 全局蒙版样式 */}
-      {processing && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            zIndex: 9999,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
-        >
-          <Paper
-            elevation={6}
+        {/* 处理中的进度显示 - 全局蒙版样式 */}
+        {processing && (
+          <Box
             sx={{
-              width: '90%',
-              maxWidth: 500,
-              p: 3,
-              borderRadius: 2,
-              textAlign: 'center'
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center'
             }}
           >
-            <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
-              {t('datasets.generatingDataset')}
-            </Typography>
+            <Paper
+              elevation={6}
+              sx={{
+                width: '90%',
+                maxWidth: 500,
+                p: 3,
+                borderRadius: 2,
+                textAlign: 'center'
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
+                {t('datasets.generatingDataset')}
+              </Typography>
 
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body1" sx={{ mr: 1 }}>
-                  {progress.percentage}%
-                </Typography>
-                <Box sx={{ width: '100%' }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={progress.percentage}
-                    sx={{ height: 8, borderRadius: 4 }}
-                    color="primary"
-                  />
+              <Box sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="body1" sx={{ mr: 1 }}>
+                    {progress.percentage}%
+                  </Typography>
+                  <Box sx={{ width: '100%' }}>
+                    <LinearProgress
+                      variant="determinate"
+                      value={progress.percentage}
+                      sx={{ height: 8, borderRadius: 4 }}
+                      color="primary"
+                    />
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                  <Typography variant="body2">
+                    {t('questions.generatingProgress', {
+                      completed: progress.completed,
+                      total: progress.total
+                    })}
+                  </Typography>
+                  <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
+                    {t('questions.generatedCount', { count: progress.datasetCount })}
+                  </Typography>
                 </Box>
               </Box>
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                <Typography variant="body2">
-                  {t('questions.generatingProgress', {
-                    completed: progress.completed,
-                    total: progress.total
-                  })}
-                </Typography>
-                <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
-                  {t('questions.generatedCount', { count: progress.datasetCount })}
-                </Typography>
-              </Box>
-            </Box>
+              <CircularProgress size={60} thickness={4} sx={{ mb: 2 }} />
 
-            <CircularProgress size={60} thickness={4} sx={{ mb: 2 }} />
+              <Typography variant="body2" color="text.secondary">
+                {t('questions.pleaseWait')}
+              </Typography>
+            </Paper>
+          </Box>
+        )}
 
-            <Typography variant="body2" color="text.secondary">
-              {t('questions.pleaseWait')}
-            </Typography>
-          </Paper>
-        </Box>
-      )}
+        <Grid container spacing={3} sx={{ mb: 4, position: 'relative' }}>
+          {statsOverview.map(stat => (
+            <Grid item xs={12} sm={6} md={3} key={stat.id}>
+              <Paper
+                component={motion.div}
+                whileHover={{ y: -6, scale: 1.01 }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
+                sx={{
+                  position: 'relative',
+                  p: 3,
+                  borderRadius: '18px',
+                  overflow: 'hidden',
+                  color: '#fff',
+                  background: stat.gradient,
+                  boxShadow: `0 20px 45px ${stat.glow}`,
+                  minHeight: 160
+                }}
+              >
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(140deg, rgba(255,255,255,0.2) 0%, transparent 65%)',
+                    opacity: 0.35,
+                    pointerEvents: 'none'
+                  }}
+                />
+
+                <Stack spacing={2} sx={{ position: 'relative', zIndex: 1 }}>
+                  <Stack direction="row" alignItems="center" spacing={1.5}>
+                    <Box
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: '12px',
+                        backgroundColor: 'rgba(255,255,255,0.18)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff'
+                      }}
+                    >
+                      {stat.icon}
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.85 }}>
+                      {stat.label}
+                    </Typography>
+                  </Stack>
+
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: { xs: '2.1rem', md: '2.4rem' },
+                      lineHeight: 1,
+                      letterSpacing: '-0.03em'
+                    }}
+                  >
+                    {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
+                  </Typography>
+
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255,255,255,0.85)',
+                        boxShadow: '0 0 0 4px rgba(255,255,255,0.18)'
+                      }}
+                    />
+                    <Typography variant="body2" sx={{ fontWeight: 500, opacity: 0.9 }}>
+                      {stat.caption}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -379,6 +559,7 @@ export default function QuestionsPage({ params }) {
             sx={{
               mb: 4,
               borderRadius: '20px',
+              position: 'relative',
               background: isDark
                 ? 'rgba(15, 23, 42, 0.8)'
                 : '#FFFFFF',
@@ -390,7 +571,22 @@ export default function QuestionsPage({ params }) {
               boxShadow: isDark
                 ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)'
                 : '0 4px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05)',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                inset: 0,
+                borderRadius: 'inherit',
+                padding: '1px',
+                background: isDark
+                  ? 'linear-gradient(135deg, rgba(99,102,241,0.45) 0%, rgba(45,212,191,0.25) 100%)'
+                  : 'linear-gradient(135deg, rgba(99,102,241,0.35) 0%, rgba(96,165,250,0.25) 100%)',
+                WebkitMask:
+                  'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+                pointerEvents: 'none'
+              }
             }}
           >
             <Tabs
@@ -423,62 +619,227 @@ export default function QuestionsPage({ params }) {
               <Tab label={t('questions.template.management')} />
               <Tab label={t('questions.treeView')} />
             </Tabs>
+            <Box
+              sx={{
+                position: 'relative',
+                px: { xs: 2, md: 4 },
+                pt: { xs: 3, md: 4 },
+                pb: { xs: 3.5, md: 5 },
+                background: isDark
+                  ? 'linear-gradient(155deg, rgba(6, 10, 26, 0.95) 0%, rgba(18, 30, 58, 0.88) 48%, rgba(37, 99, 235, 0.25) 120%)'
+                  : 'linear-gradient(155deg, rgba(248, 250, 255, 0.96) 0%, rgba(229, 236, 255, 0.88) 50%, rgba(191, 219, 254, 0.55) 120%)',
+                borderTop: `1px solid ${isDark ? 'rgba(99, 102, 241, 0.24)' : 'rgba(148, 163, 184, 0.24)'}`,
+                overflow: 'hidden'
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundSize: '56px 56px',
+                  backgroundImage: isDark
+                    ? `linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.06) 1px, transparent 1px)`
+                    : `linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px)`,
+                  opacity: 0.35,
+                  pointerEvents: 'none'
+                }}
+              />
+              <Box
+                sx={{
+                  position: 'absolute',
+                  width: { xs: 260, md: 400 },
+                  height: { xs: 260, md: 400 },
+                  bottom: { xs: -140, md: -160 },
+                  left: { xs: -120, md: -140 },
+                  background: isDark
+                    ? 'radial-gradient(circle, rgba(14, 165, 233, 0.45), transparent 65%)'
+                    : 'radial-gradient(circle, rgba(56, 189, 248, 0.38), transparent 64%)',
+                  filter: 'blur(42px)',
+                  opacity: 0.8,
+                  pointerEvents: 'none'
+                }}
+              />
 
-        <QuestionsFilter
-          selectedQuestionsCount={selectedQuestions.length}
-          totalQuestions={questions?.total || 0}
-          isAllSelected={selectedQuestions.length > 0 && selectedQuestions.length === questions?.total}
-          isIndeterminate={selectedQuestions.length > 0 && selectedQuestions.length < questions?.total}
-          onSelectAll={handleSelectAll}
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          answerFilter={answerFilter}
-          onFilterChange={handleFilterChange}
-          chunkNameFilter={chunkNameFilter}
-          onChunkNameFilterChange={handleChunkNameFilterChange}
-          sourceTypeFilter={sourceTypeFilter}
-          onSourceTypeFilterChange={handleSourceTypeFilterChange}
-          activeTab={activeTab}
-        />
+              <Box sx={{ position: 'relative', zIndex: 2 }}>
+                <Box sx={{ mb: { xs: 3, md: 4 } }}>
+                  <QuestionsFilter
+                    selectedQuestionsCount={selectedQuestions.length}
+                    totalQuestions={questions?.total || 0}
+                    isAllSelected={selectedQuestions.length > 0 && selectedQuestions.length === questions?.total}
+                    isIndeterminate={selectedQuestions.length > 0 && selectedQuestions.length < questions?.total}
+                    onSelectAll={handleSelectAll}
+                    searchTerm={searchTerm}
+                    onSearchChange={handleSearchChange}
+                    answerFilter={answerFilter}
+                    onFilterChange={handleFilterChange}
+                    chunkNameFilter={chunkNameFilter}
+                    onChunkNameFilterChange={handleChunkNameFilterChange}
+                    sourceTypeFilter={sourceTypeFilter}
+                    onSourceTypeFilterChange={handleSourceTypeFilterChange}
+                    activeTab={activeTab}
+                  />
+                </Box>
 
-        <Divider />
+                <Box
+                  sx={{
+                    position: 'relative',
+                    borderRadius: '22px',
+                    border: isDark
+                      ? '1px solid rgba(129, 140, 248, 0.28)'
+                      : '1px solid rgba(148, 163, 184, 0.35)',
+                    background: isDark
+                      ? 'linear-gradient(180deg, rgba(9, 14, 32, 0.95) 0%, rgba(12, 24, 46, 0.82) 100%)'
+                      : 'linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 255, 0.9) 100%)',
+                    boxShadow: isDark
+                      ? '0 32px 76px -34px rgba(37, 99, 235, 0.52)'
+                      : '0 36px 80px -36px rgba(15, 23, 42, 0.22)',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: isDark
+                        ? 'radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.18), transparent 55%), radial-gradient(circle at 80% 30%, rgba(236, 72, 153, 0.18), transparent 60%)'
+                        : 'radial-gradient(circle at 18% 18%, rgba(99, 102, 241, 0.12), transparent 55%), radial-gradient(circle at 82% 32%, rgba(56, 189, 248, 0.14), transparent 62%)',
+                      opacity: 0.9,
+                      pointerEvents: 'none'
+                    }}
+                  />
 
-        <TabPanel value={activeTab} index={0}>
-          <QuestionListView
-            questions={questions.data}
-            currentPage={currentPage}
-            totalQuestions={Math.ceil(questions.total / pageSize)}
-            handlePageChange={(_, newPage) => setCurrentPage(newPage)}
-            selectedQuestions={selectedQuestions}
-            onSelectQuestion={handleSelectQuestion}
-            onDeleteQuestion={questionId => handleDeleteQuestion(questionId, selectedQuestions, setSelectedQuestions)}
-            onEditQuestion={handleOpenEditDialog}
-            refreshQuestions={getQuestionList}
-            projectId={projectId}
-          />
-        </TabPanel>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      zIndex: 1,
+                      p: { xs: 2.5, md: 3.5 },
+                      minHeight: { xs: '520px', md: '620px' },
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                  >
+                    <TabPanel value={activeTab} index={0}>
+                      <Box
+                        component={motion.div}
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, ease: 'easeOut' }}
+                        sx={{ height: '100%' }}
+                      >
+                        <QuestionListView
+                          questions={questions.data}
+                          currentPage={currentPage}
+                          totalQuestions={Math.ceil(questions.total / pageSize)}
+                          handlePageChange={(_, newPage) => setCurrentPage(newPage)}
+                          selectedQuestions={selectedQuestions}
+                          onSelectQuestion={handleSelectQuestion}
+                          onDeleteQuestion={questionId =>
+                            handleDeleteQuestion(questionId, selectedQuestions, setSelectedQuestions)}
+                          onEditQuestion={handleOpenEditDialog}
+                          refreshQuestions={getQuestionList}
+                          projectId={projectId}
+                        />
+                      </Box>
+                    </TabPanel>
 
-        <TabPanel value={activeTab} index={1}>
-          <TemplateListView
-            templates={templates}
-            onEditTemplate={handleEditTemplate}
-            onDeleteTemplate={handleDeleteTemplate}
-            loading={templatesLoading}
-          />
-        </TabPanel>
+                    <TabPanel value={activeTab} index={1}>
+                      <Box
+                        component={motion.div}
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, ease: 'easeOut' }}
+                      >
+                        <TemplateListView
+                          templates={templates}
+                          onEditTemplate={handleEditTemplate}
+                          onDeleteTemplate={handleDeleteTemplate}
+                          loading={templatesLoading}
+                        />
+                      </Box>
+                    </TabPanel>
 
-        <TabPanel value={activeTab} index={2}>
-          <QuestionTreeView
-            questions={questions.data}
-            tags={tags}
-            selectedQuestions={selectedQuestions}
-            onSelectQuestion={handleSelectQuestion}
-            onDeleteQuestion={questionId => handleDeleteQuestion(questionId, selectedQuestions, setSelectedQuestions)}
-            onEditQuestion={handleOpenEditDialog}
-            projectId={projectId}
-            searchTerm={searchTerm}
-          />
-        </TabPanel>
+                    <TabPanel value={activeTab} index={2}>
+                      <Stack spacing={3} sx={{ height: '100%' }}>
+                        <Stack
+                          direction={{ xs: 'column', md: 'row' }}
+                          spacing={{ xs: 1.5, md: 2 }}
+                          alignItems={{ xs: 'flex-start', md: 'center' }}
+                        >
+                          <Chip
+                            label={t('questions.treeView.totalTags', {
+                              defaultValue: `${tags.length} Tags`,
+                              count: tags.length
+                            })}
+                            sx={{
+                              px: 1.5,
+                              py: 0.5,
+                              fontWeight: 600,
+                              borderRadius: '999px',
+                              color: isDark ? '#E0E7FF' : theme.palette.primary.main,
+                              backgroundColor: isDark
+                                ? 'rgba(59,130,246,0.18)'
+                                : 'rgba(59,130,246,0.12)'
+                            }}
+                          />
+                          <Chip
+                            label={t('questions.treeView.totalQuestions', {
+                              defaultValue: `${totalQuestions} Questions`,
+                              count: totalQuestions
+                            })}
+                            sx={{
+                              px: 1.5,
+                              py: 0.5,
+                              fontWeight: 600,
+                              borderRadius: '999px',
+                              color: isDark ? 'rgba(190, 242, 100, 0.95)' : theme.palette.success.dark,
+                              backgroundColor: isDark
+                                ? 'rgba(74, 222, 128, 0.22)'
+                                : 'rgba(134, 239, 172, 0.18)'
+                            }}
+                          />
+                          <Chip
+                            label={t('questions.treeView.pendingQuestions', {
+                              defaultValue: `${unansweredCount} Pending`,
+                              count: unansweredCount
+                            })}
+                            sx={{
+                              px: 1.5,
+                              py: 0.5,
+                              fontWeight: 600,
+                              borderRadius: '999px',
+                              color: isDark ? 'rgba(251, 191, 36, 0.95)' : '#B45309',
+                              backgroundColor: isDark
+                                ? 'rgba(251, 146, 60, 0.22)'
+                                : 'rgba(253, 186, 116, 0.22)'
+                            }}
+                          />
+                        </Stack>
+
+                        <Box
+                          component={motion.div}
+                          initial={{ opacity: 0, y: 18 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.45, ease: 'easeOut' }}
+                          sx={{ flex: 1, minHeight: { xs: '480px', md: '100%' } }}
+                        >
+                          <QuestionTreeView
+                            questions={questions.data}
+                            tags={tags}
+                            selectedQuestions={selectedQuestions}
+                            onSelectQuestion={handleSelectQuestion}
+                            onDeleteQuestion={questionId =>
+                              handleDeleteQuestion(questionId, selectedQuestions, setSelectedQuestions)}
+                            onEditQuestion={handleOpenEditDialog}
+                            projectId={projectId}
+                            searchTerm={searchTerm}
+                          />
+                        </Box>
+                      </Stack>
+                    </TabPanel>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
       </Paper>
 
       {/* 确认对话框 */}
@@ -499,13 +860,12 @@ export default function QuestionsPage({ params }) {
         mode={editMode}
         projectId={projectId}
       />
-
-          <TemplateFormDialog
-            open={templateDialogOpen}
-            onClose={handleCloseTemplateDialog}
-            onSubmit={handleSubmitTemplate}
-            template={editingTemplate}
-          />
+      <TemplateFormDialog
+        open={templateDialogOpen}
+        onClose={handleCloseTemplateDialog}
+        onSubmit={handleSubmitTemplate}
+        template={editingTemplate}
+      />
         </motion.div>
       </Container>
     </main>
