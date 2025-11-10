@@ -97,7 +97,23 @@ export default function TasksTable({
   return (
     <React.Fragment>
       <TableContainer component={Paper} elevation={1} sx={{ borderRadius: 2, mb: 2 }}>
-        <Table>
+        <Table
+          sx={{
+            '& tbody tr': {
+              transition: 'background-color 0.2s ease',
+            },
+            '& tbody tr:hover': {
+              backgroundColor: theme => theme.palette.mode === 'dark'
+                ? 'rgba(99, 102, 241, 0.06)'
+                : 'rgba(99, 102, 241, 0.04)'
+            },
+            '& tbody .MuiTableCell-root': {
+              borderBottom: theme => theme.palette.mode === 'dark'
+                ? '1px dashed rgba(99, 102, 241, 0.18)'
+                : '1px solid rgba(226, 232, 240, 0.8)'
+            }
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell>{t('tasks.table.type')}</TableCell>

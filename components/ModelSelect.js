@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { FormControl, Select, MenuItem, useTheme, ListSubheader, Box } from '@mui/material';
+import { FormControl, Select, MenuItem, useTheme, ListSubheader, Box, Fade } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue } from 'jotai/index';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/lib/store';
@@ -155,41 +155,115 @@ export default function ModelSelect({
         onBlur={validateModel}
         renderValue={renderSelectedValue}
         sx={{
-          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-          color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-          borderRadius: '8px',
+          bgcolor: theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',
+          color: theme.palette.mode === 'dark' ? theme.palette.text.primary : '#1E293B',
+          borderRadius: '12px',
+          fontWeight: 600,
+          fontSize: '0.875rem',
           '& .MuiSelect-select': {
             display: 'flex',
             alignItems: 'center',
             padding: '6px 32px 6px 12px'
           },
           '& .MuiSelect-icon': {
-            color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-            right: '8px'
+            color: theme.palette.primary.main,
+            right: '8px',
+            transition: 'transform 0.3s ease'
+          },
+          '&.Mui-expanded .MuiSelect-icon': {
+            transform: 'rotate(180deg)'
           },
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'transparent'
+            borderColor: theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.3)',
+            borderWidth: '1.5px'
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'transparent'
+            borderColor: theme.palette.primary.main
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'primary.main'
+            borderColor: theme.palette.primary.main,
+            borderWidth: '2px',
+            boxShadow: `0 0 0 3px ${theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.15)'}`
+          },
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            bgcolor: theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.12)' : '#F8F9FA',
+            transform: 'translateY(-1px)',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 4px 12px rgba(99, 102, 241, 0.25)'
+              : '0 4px 12px rgba(99, 102, 241, 0.2)'
           },
           marginRight: '-14px',
           minHeight: '36px'
         }}
         MenuProps={{
           PaperProps: {
-            elevation: 2,
+            elevation: 0,
             sx: {
               mt: 1,
-              borderRadius: 2,
+              borderRadius: '16px',
+              background: theme.palette.mode === 'dark' ? '#1E293B' : '#FFFFFF',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              border: theme.palette.mode === 'dark'
+                ? '1px solid rgba(99, 102, 241, 0.3)'
+                : '1px solid rgba(99, 102, 241, 0.25)',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 12px 48px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1)',
+              overflow: 'hidden',
+              maxHeight: '400px',
+              '& .MuiListSubheader-root': {
+                color: theme.palette.mode === 'dark' ? '#CBD5E1' : '#475569',
+                fontWeight: 700,
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)',
+                borderBottom: theme.palette.mode === 'dark' ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid rgba(99, 102, 241, 0.12)',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+                py: 1
+              },
               '& .MuiMenuItem-root': {
-                minHeight: '30px'
+                minHeight: '48px',
+                color: theme.palette.mode === 'dark' ? '#F8FAFC' : '#0F172A',
+                borderRadius: '10px',
+                mx: 0.75,
+                my: 0.5,
+                px: 2,
+                py: 1.25,
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                lineHeight: 1.6,
+                letterSpacing: '0.01em',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.12)',
+                  color: theme.palette.mode === 'dark' ? '#FFFFFF' : theme.palette.primary.main,
+                  transform: 'translateX(4px)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(99, 102, 241, 0.18)'
+                },
+                '&.Mui-selected': {
+                  bgcolor: theme.palette.gradient?.primary || 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
+                  '&:hover': {
+                    opacity: 0.95,
+                    transform: 'translateX(4px) scale(1.02)'
+                  }
+                }
               }
             }
-          }
+          },
+          TransitionComponent: Fade,
+          transitionDuration: 200
         }}
       >
         <MenuItem value="" disabled>
@@ -255,7 +329,17 @@ export default function ModelSelect({
                       e.target.src = '/imgs/models/default.svg';
                     }}
                   />
-                  <Box component="span" sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <Box 
+                    component="span" 
+                    sx={{ 
+                      flex: 1, 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis',
+                      fontWeight: 600,
+                      fontSize: '0.9375rem',
+                      letterSpacing: '0.01em'
+                    }}
+                  >
                     {model.modelName}
                   </Box>
                 </MenuItem>

@@ -9,6 +9,9 @@
     "switchToLight": "Switch to Light Mode",
     "switchToDark": "Switch to Dark Mode"
   },
+  "nav": {
+    "publicDatasets": "Public Datasets"
+  },
   "settings": {
     "promptConfig": "Prompt Configuration",
     "promptsDescription": "Configure prompt used in the project, supporting global prompts and scenario-specific prompts.",
@@ -274,8 +277,14 @@
     "detailInfo": "Detail Info"
   },
   "home": {
-    "title": "Easy Dataset",
-    "subtitle": "A powerful tool for creating fine-tuning datasets for Large Language Models",
+    "title": "HKGAI Dataset Generation",
+    "subtitle": "A powerful tool for creating datasets for Large Language Models",
+    "badge": "AI-Powered Dataset Generation Platform",
+    "features": {
+      "smartChunking": "Smart Chunking",
+      "autoQA": "Auto Q&A Generation",
+      "oneClickExport": "One-Click Export"
+    },
     "createProject": "Create Project",
     "searchDataset": "Search Public Datasets"
   },
@@ -305,7 +314,10 @@
     "deleteSuccess": "Project deleted successfully",
     "deleteFailed": "Failed to delete project",
     "backToHome": "Back to Home",
-    "deleteConfirmTitle": "Confirm Delete"
+    "deleteConfirmTitle": "Confirm Delete",
+    "title": "My Projects",
+    "subtitle": "Manage and view all your projects",
+    "noProjectsDesc": "Start creating your first project and experience powerful dataset generation features"
   },
   "textSplit": {
     "dragToUpload": "Drag files to upload",
@@ -371,6 +383,12 @@
     "tabs": {
       "smartSplit": "Smart Split",
       "domainAnalysis": "Domain Analysis"
+    },
+    "stats": {
+      "files": "Uploaded Files",
+      "chunks": "Text Chunks",
+      "processed": "Processed",
+      "totalWords": "Total Words"
     },
     "loading": "Loading...",
     "fetchingDocuments": "Fetching document data",
@@ -620,6 +638,15 @@
     "tokenHelp": "You can get your token from HuggingFace settings page"
   },
   "datasets": {
+    "title": "Datasets Management",
+    "subtitle": "Efficiently manage and organize your AI training datasets",
+    "stats": {
+      "totalDatasets": "Total Datasets",
+      "confirmedDatasets": "Confirmed Data",
+      "avgScore": "Average Score",
+      "highQuality": "High Quality Data"
+    },
+    "noDataHint": "No data available, please create a new dataset",
     "loadingDataset": "Loading Dataset...",
     "datasetNotFound": "Dataset Not Found",
     "optimizeTitle": "AI Optimize",
@@ -880,10 +907,12 @@
     "refresh": "Refresh Models"
   },
   "stats": {
+    "title": "Data Overview",
+    "subtitle": "Monitor your project data in real-time",
     "ongoingProjects": "Ongoing Projects",
     "questionCount": "Question Count",
     "generatedDatasets": "Generated Datasets",
-    "supportedModels": "Supported Models"
+    "supportedModels": "Connected Models"
   },
   "migration": {
     "title": "Project Migration",
@@ -909,7 +938,8 @@
     "deleteDirectoryFailed": "Failed to delete project directory"
   },
   "distill": {
-    "title": "Distill",
+    "title": "Data Distillation",
+    "subtitle": "Intelligently build domain knowledge systems and efficiently generate high-quality Q&A data",
     "generateRootTags": "Generate Root Tags",
     "generateSubTags": "Generate Sub Tags",
     "generateQuestions": "Generate Questions",
@@ -1047,6 +1077,70 @@
     "createSuccess": "Task created successfully",
     "createFailed": "Failed to create task",
     "multiTurnCreateSuccess": "Multi-turn conversation dataset task created successfully"
+  },
+  "userManagement": {
+    "title": "User Management",
+    "onlyAdmin": "Only administrators can access the user management page",
+    "fetchUserFailed": "Failed to get user information",
+    "fetchListFailed": "Failed to load user list",
+    "usernameRequired": "Username cannot be empty",
+    "updateSuccess": "User updated successfully",
+    "createSuccess": "User created successfully",
+    "generalError": "Operation failed",
+    "deleteAdminForbidden": "The default admin user cannot be deleted",
+    "deleteSelfForbidden": "You cannot delete the currently logged-in user",
+    "deleteSuccess": "User deleted successfully",
+    "deleteFailed": "Failed to delete user",
+    "addUser": "Add User",
+    "username": "Username",
+    "email": "Email",
+    "role": "Role",
+    "createdAt": "Created At",
+    "roleAdmin": "Administrator",
+    "roleUser": "Standard User",
+    "editDialogTitle": "Edit User",
+    "createDialogTitle": "Add User",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "newPasswordLabel": "New Password (leave empty to keep current)",
+    "roleLabel": "Role",
+    "adminProtected": "Some admin fields are protected and cannot be modified",
+    "deleteDialogTitle": "Confirm Deletion",
+    "deleteDialogContent": "Are you sure you want to delete user {{username}}? This action cannot be undone.",
+    "loading": "Loading...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "firstLoginTitle": "First Login - Set Password",
+    "firstLoginWarning": "For account security, please set your login password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "newPasswordRequired": "Please enter a new password",
+    "currentPasswordRequired": "Please enter your current password",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match",
+    "changeSuccess": "Password changed successfully",
+    "changeFailed": "Failed to change password, please try again",
+    "changing": "Changing...",
+    "confirm": "Confirm Change",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "userMenu": {
+    "currentUser": "Current User: {{username}}",
+    "loginOrSwitch": "Login/Switch User",
+    "admin": "Administrator",
+    "changePassword": "Change Password",
+    "switchUser": "Switch User",
+    "userManagement": "User Management",
+    "logout": "Logout",
+    "login": "Login",
+    "logoutSuccess": "Logged out successfully",
+    "logoutFailed": "Failed to logout",
+    "fetchUserFailed": "Failed to fetch user information"
   },
   "gaPairs": {
     "title": "Genre-Audience Pairs Management",

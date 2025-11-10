@@ -202,12 +202,15 @@ export default function ChunkCard({
                   <Chip
                     label={`${chunk.fileName || t('textSplit.unknownFile')}`}
                     size="small"
-                    color="primary"
                     variant="outlined"
                     sx={{
                       borderRadius: 1,
                       fontWeight: 500,
-                      '& .MuiChip-label': { px: 1 }
+                      maxWidth: 360,
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(99,102,241,0.22)' : 'rgba(99,102,241,0.10)',
+                      color: theme.palette.mode === 'dark' ? '#E0E7FF' : theme.palette.primary.dark,
+                      borderColor: 'rgba(99,102,241,0.35)',
+                      '& .MuiChip-label': { px: 1, overflow: 'hidden', textOverflow: 'ellipsis' }
                     }}
                   />
                   <Chip

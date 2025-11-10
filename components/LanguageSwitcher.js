@@ -18,16 +18,41 @@ export default function LanguageSwitcher() {
         onClick={toggleLanguage}
         size="small"
         sx={{
-          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-          color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-          p: 1,
-          borderRadius: 1.5,
+          bgcolor: theme.palette.mode === 'dark' 
+            ? 'rgba(99, 102, 241, 0.08)' 
+            : '#FFFFFF',
+          color: theme.palette.mode === 'dark' 
+            ? theme.palette.text.primary 
+            : '#1E293B',
+          p: 1.25,
+          borderRadius: '12px',
+          border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.25)'}`,
+          fontWeight: 600,
+          minWidth: 40,
+          width: '40px',
+          height: '40px',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
-            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
+            bgcolor: theme.palette.mode === 'dark' 
+              ? 'rgba(99, 102, 241, 0.15)' 
+              : '#F8F9FA',
+            borderColor: theme.palette.primary.main,
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 4px 16px rgba(99, 102, 241, 0.35), 0 0 0 3px rgba(99, 102, 241, 0.1)'
+              : '0 4px 16px rgba(99, 102, 241, 0.25), 0 0 0 3px rgba(99, 102, 241, 0.1)',
+            transform: 'translateY(-2px)'
           }
         }}
       >
-        <Typography variant="body2" fontWeight="medium">
+        <Typography 
+          variant="body2" 
+          fontWeight={700}
+          sx={{
+            fontSize: '0.75rem',
+            letterSpacing: '0.5px',
+            color: 'inherit'
+          }}
+        >
           {i18n.language === 'zh-CN' ? 'EN' : '中'}
         </Typography>
       </IconButton>

@@ -15,6 +15,7 @@ import {
   CircularProgress,
   TextField
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import EditIcon from '@mui/icons-material/Edit';
@@ -37,6 +38,8 @@ export default function QuestionListView({
   refreshQuestions
 }) {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   // 处理状态
   const [processingQuestions, setProcessingQuestions] = useState({});
   const { generateSingleDataset } = useGenerateDataset();
@@ -260,11 +263,18 @@ export default function QuestionListView({
                       }
                       size="small"
                       variant="outlined"
-                      color="info"
                       sx={{
                         fontSize: '0.75rem',
                         maxWidth: '100%',
-                        textOverflow: 'ellipsis'
+                        textOverflow: 'ellipsis',
+                        bgcolor: isDark ? 'rgba(99,102,241,0.22)' : 'rgba(99,102,241,0.10)',
+                        color: isDark ? '#E0E7FF' : theme.palette.primary.dark,
+                        borderColor: 'rgba(99,102,241,0.35)',
+                        '& .MuiChip-label': {
+                          maxWidth: '100%',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }
                       }}
                     />
                   </Tooltip>

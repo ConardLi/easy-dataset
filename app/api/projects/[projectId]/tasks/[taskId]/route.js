@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -118,6 +118,18 @@ export async function PATCH(request, { params }) {
     });
   } catch (error) {
     console.error('更新任务状态失败:', String(error));
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json(
+        {
+          code: 404,
+          error: '任务不存在',
+          message: '请求的任务不存在或已被删除'
+        },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json(
       {
         code: 500,
@@ -159,6 +171,17 @@ export async function DELETE(request, { params }) {
     });
   } catch (error) {
     console.error('删除任务失败:', String(error));
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json(
+        {
+          code: 404,
+          error: '任务不存在',
+          message: '请求的任务不存在或已被删除'
+        },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json(
       {
         code: 500,

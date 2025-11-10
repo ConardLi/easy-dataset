@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -17,17 +17,18 @@ import {
   Menu,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  Fade
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import ModelSelect from './ModelSelect';
 import LanguageSwitcher from './LanguageSwitcher';
 import UpdateChecker from './UpdateChecker';
 import TaskIcon from './TaskIcon';
+import UserMenu from './UserMenu';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 // 图标
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
@@ -45,21 +46,35 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ChatIcon from '@mui/icons-material/Chat';
 import ImageIcon from '@mui/icons-material/Image';
 import SourceIcon from '@mui/icons-material/Source';
+import SearchIcon from '@mui/icons-material/Search';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useSetAtom } from 'jotai/index';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/lib/store';
 
-export default function Navbar({ projects = [], currentProject }) {
+export default function Navbar({ projects = [], currentProject, forceProjectNavigation = false }) {
   const [selectedProject, setSelectedProject] = useState(currentProject || '');
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const pathname = usePathname();
   const theme = useMuiTheme();
   const { resolvedTheme, setTheme } = useTheme();
   const setConfigList = useSetAtom(modelConfigListAtom);
   const setSelectedModelInfo = useSetAtom(selectedModelInfoAtom);
+  useEffect(() => {
+    if (currentProject) {
+      setSelectedProject(currentProject);
+    }
+  }, [currentProject]);
+
+  useEffect(() => {
+    if (!currentProject && !selectedProject && projects.length) {
+      setSelectedProject(projects[0]?.id);
+    }
+  }, [projects, currentProject, selectedProject]);
+
   // 只在项目详情页显示模块选项卡
   const isProjectDetail = pathname.includes('/projects/') && pathname.split('/').length > 3;
+  const hasProjectContext = (forceProjectNavigation || isProjectDetail) && Boolean(selectedProject);
   // 更多菜单状态
   const [moreMenuAnchor, setMoreMenuAnchor] = useState(null);
   const isMoreMenuOpen = Boolean(moreMenuAnchor);
@@ -72,55 +87,108 @@ export default function Navbar({ projects = [], currentProject }) {
   const [sourceMenuAnchor, setSourceMenuAnchor] = useState(null);
   const isSourceMenuOpen = Boolean(sourceMenuAnchor);
 
-  // 处理更多菜单打开
-  const handleMoreMenuOpen = event => {
-    setMoreMenuAnchor(event.currentTarget);
+  // 延迟关闭的定时器
+  const closeTimeoutRef = useRef(null);
+  const sourceTimeoutRef = useRef(null);
+  const datasetTimeoutRef = useRef(null);
+  const moreTimeoutRef = useRef(null);
+
+  // 清除所有定时器
+  const clearAllTimeouts = () => {
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    if (sourceTimeoutRef.current) clearTimeout(sourceTimeoutRef.current);
+    if (datasetTimeoutRef.current) clearTimeout(datasetTimeoutRef.current);
+    if (moreTimeoutRef.current) clearTimeout(moreTimeoutRef.current);
+  };
+
+  // 关闭所有菜单
+  const closeAllMenus = () => {
+    clearAllTimeouts();
+    setSourceMenuAnchor(null);
+    setDatasetMenuAnchor(null);
+    setMoreMenuAnchor(null);
   };
 
   // 处理更多菜单悬浮打开
   const handleMoreMenuHover = event => {
+    clearAllTimeouts();
+    // 先关闭其他菜单
+    setSourceMenuAnchor(null);
+    setDatasetMenuAnchor(null);
+    // 然后打开当前菜单
     setMoreMenuAnchor(event.currentTarget);
+  };
+
+  // 处理更多菜单离开
+  const handleMoreMenuLeave = () => {
+    moreTimeoutRef.current = setTimeout(() => {
+      setMoreMenuAnchor(null);
+    }, 200);
   };
 
   // 关闭更多菜单
   const handleMoreMenuClose = () => {
-    setMoreMenuAnchor(null);
-  };
-
-  // 处理菜单区域的鼠标离开
-  const handleMenuMouseLeave = () => {
+    clearAllTimeouts();
     setMoreMenuAnchor(null);
   };
 
   // 处理数据集菜单悬浮打开
   const handleDatasetMenuHover = event => {
+    clearAllTimeouts();
+    // 先关闭其他菜单
+    setSourceMenuAnchor(null);
+    setMoreMenuAnchor(null);
+    // 然后打开当前菜单
     setDatasetMenuAnchor(event.currentTarget);
+  };
+
+  // 处理数据集菜单离开
+  const handleDatasetMenuLeave = () => {
+    datasetTimeoutRef.current = setTimeout(() => {
+      setDatasetMenuAnchor(null);
+    }, 200);
   };
 
   // 关闭数据集菜单
   const handleDatasetMenuClose = () => {
-    setDatasetMenuAnchor(null);
-  };
-
-  // 处理数据集菜单区域的鼠标离开
-  const handleDatasetMenuMouseLeave = () => {
+    clearAllTimeouts();
     setDatasetMenuAnchor(null);
   };
 
   // 处理数据源菜单悬浮打开
   const handleSourceMenuHover = event => {
+    clearAllTimeouts();
+    // 先关闭其他菜单
+    setDatasetMenuAnchor(null);
+    setMoreMenuAnchor(null);
+    // 然后打开当前菜单
     setSourceMenuAnchor(event.currentTarget);
+  };
+
+  // 处理数据源菜单离开
+  const handleSourceMenuLeave = () => {
+    sourceTimeoutRef.current = setTimeout(() => {
+      setSourceMenuAnchor(null);
+    }, 200);
   };
 
   // 关闭数据源菜单
   const handleSourceMenuClose = () => {
+    clearAllTimeouts();
     setSourceMenuAnchor(null);
   };
 
-  // 处理数据源菜单区域的鼠标离开
-  const handleSourceMenuMouseLeave = () => {
-    setSourceMenuAnchor(null);
+  // 菜单保持打开
+  const handleMenuEnter = () => {
+    clearAllTimeouts();
   };
+
+  // 组件卸载时清除定时器
+  useEffect(() => {
+    return () => {
+      clearAllTimeouts();
+    };
+  }, []);
 
   const handleProjectChange = event => {
     const newProjectId = event.target.value;
@@ -146,14 +214,38 @@ export default function Navbar({ projects = [], currentProject }) {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
+  const isDark = theme.palette.mode === 'dark';
+
   return (
     <AppBar
-      position="static"
+      position="sticky"
       elevation={0}
-      color={theme.palette.mode === 'dark' ? 'transparent' : 'primary'}
+      color="transparent"
       sx={{
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : 'primary.main'
+        borderBottom: isDark
+          ? '1px solid rgba(99, 102, 241, 0.15)'
+          : '1px solid rgba(99, 102, 241, 0.15)',
+        background: isDark
+          ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.85) 100%)'
+          : 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        boxShadow: isDark
+          ? '0 1px 0 0 rgba(99, 102, 241, 0.1) inset, 0 8px 32px rgba(0, 0, 0, 0.3)'
+          : '0 1px 0 0 rgba(255, 255, 255, 0.8) inset, 0 8px 32px rgba(15, 23, 42, 0.08)',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '1px',
+          background: isDark
+            ? 'linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent)'
+            : 'linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent)',
+          opacity: 0.6
+        }
       }}
       style={{ borderRadius: 0, zIndex: 99000 }}
     >
@@ -163,7 +255,8 @@ export default function Navbar({ projects = [], currentProject }) {
           minHeight: '56px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          px: { xs: 2, md: 3 }
         }}
         style={{ zIndex: 99000 }}
       >
@@ -181,60 +274,143 @@ export default function Navbar({ projects = [], currentProject }) {
               window.location.href = '/';
             }}
           >
-            <Box
-              component="img"
-              src="/imgs/logo.svg"
-              alt="Easy Dataset Logo"
-              sx={{
-                width: 28,
-                height: 28,
-                mr: 1.5
-              }}
-            />
+            {/* logo removed per rebrand */}
             <Typography
               variant="h6"
               component="div"
               sx={{
-                fontWeight: 600,
-                letterSpacing: '-0.5px'
+                fontWeight: 700,
+                letterSpacing: '-0.5px',
+                background: theme.palette.gradient.primary,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textFillColor: 'transparent'
               }}
               style={{ fontSize: '1.1rem' }}
-              className={theme.palette.mode === 'dark' ? 'gradient-text' : ''}
-              color={theme.palette.mode === 'dark' ? 'inherit' : 'white'}
             >
-              Easy DataSet
+              HKGAI Dataset Generation
             </Typography>
           </Box>
 
-          {isProjectDetail && (
-            <FormControl size="small" sx={{ minWidth: 100 }}>
+          {hasProjectContext && (
+            <FormControl size="small" sx={{ minWidth: 120, ml: 2 }}>
               <Select
                 value={selectedProject}
                 onChange={handleProjectChange}
                 displayEmpty
                 variant="outlined"
                 sx={{
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                  borderRadius: '8px',
-                  color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',
+                  borderRadius: '12px',
+                  color: isDark ? theme.palette.text.primary : '#1E293B',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  height: '36px',
                   '& .MuiSelect-icon': {
-                    color: theme.palette.mode === 'dark' ? 'inherit' : 'white'
+                    color: theme.palette.primary.main,
+                    transition: 'transform 0.3s ease'
+                  },
+                  '&.Mui-expanded .MuiSelect-icon': {
+                    transform: 'rotate(180deg)'
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'transparent'
+                    borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.3)',
+                    borderWidth: '1.5px'
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'transparent'
+                    borderColor: theme.palette.primary.main
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main'
+                    borderColor: theme.palette.primary.main,
+                    borderWidth: '2px',
+                    boxShadow: `0 0 0 3px ${isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(99, 102, 241, 0.15)'}`
+                  },
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.12)' : '#F8F9FA',
+                    transform: 'translateY(-1px)',
+                    boxShadow: isDark
+                      ? '0 4px 12px rgba(99, 102, 241, 0.25)'
+                      : '0 4px 12px rgba(99, 102, 241, 0.2)'
                   }
                 }}
                 MenuProps={{
                   PaperProps: {
-                    elevation: 2,
-                    sx: { mt: 1, borderRadius: 2 }
-                  }
+                    elevation: 0,
+                    sx: {
+                      mt: 1.5,
+                      borderRadius: '16px',
+                      minWidth: 180,
+                      background: isDark
+                        ? '#1E293B'
+                        : '#FFFFFF !important',
+                      backdropFilter: 'blur(24px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                      border: isDark
+                        ? '1px solid rgba(99, 102, 241, 0.35)'
+                        : '1px solid rgba(99, 102, 241, 0.3)',
+                      boxShadow: isDark
+                        ? '0 12px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.15)'
+                        : '0 12px 48px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(99, 102, 241, 0.15)',
+                      overflow: 'hidden',
+                      py: 1,
+                      '& .MuiList-root': {
+                        py: 0.5,
+                        bgcolor: 'transparent'
+                      },
+                      '& .MuiMenuItem-root': {
+                        borderRadius: '10px',
+                        mx: 1,
+                        my: 0.5,
+                        minHeight: '52px',
+                        px: 2.5,
+                        py: 1.5,
+                        color: isDark ? '#F8FAFC' : '#0F172A !important',
+                        fontSize: '1rem',
+                        fontWeight: 700,
+                        lineHeight: 1.6,
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        letterSpacing: '0.02em',
+                        bgcolor: 'transparent',
+                        '&:hover': {
+                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.22)' : 'rgba(99, 102, 241, 0.14)',
+                          color: isDark ? '#FFFFFF !important' : `${theme.palette.primary.main} !important`,
+                          transform: 'translateX(4px)',
+                          boxShadow: isDark
+                            ? '0 2px 10px rgba(99, 102, 241, 0.3)'
+                            : '0 2px 10px rgba(99, 102, 241, 0.2)',
+                          fontWeight: 700
+                        },
+                        '&.Mui-selected': {
+                          bgcolor: `${theme.palette.gradient.primary} !important`,
+                          color: '#FFFFFF !important',
+                          fontWeight: 700,
+                          boxShadow: isDark
+                            ? '0 4px 16px rgba(99, 102, 241, 0.45)'
+                            : '0 4px 16px rgba(99, 102, 241, 0.4)',
+                          '&:hover': {
+                            bgcolor: `${theme.palette.gradient.primary} !important`,
+                            opacity: 0.95,
+                            transform: 'translateX(4px) scale(1.02)',
+                            color: '#FFFFFF !important'
+                          }
+                        },
+                        '&.Mui-disabled': {
+                          color: `${isDark ? '#94A3B8' : '#475569'} !important`,
+                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.05)' : 'rgba(99, 102, 241, 0.03)',
+                          opacity: 1,
+                          fontWeight: 600,
+                          fontSize: '0.875rem'
+                        }
+                      }
+                    }
+                  },
+                  TransitionComponent: Fade,
+                  transitionDuration: 200
                 }}
               >
                 <MenuItem value="" disabled>
@@ -251,7 +427,7 @@ export default function Navbar({ projects = [], currentProject }) {
         </Box>
 
         {/* 中间的功能模块导航 - 使用Flex布局居中 */}
-        {isProjectDetail && (
+        {hasProjectContext && (
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', ml: 2, mr: 2 }}>
             <Tabs
               value={
@@ -268,26 +444,101 @@ export default function Navbar({ projects = [], currentProject }) {
               textColor="inherit"
               indicatorColor="secondary"
               sx={{
+                '& .MuiTabs-indicator': {
+                  display: 'none'
+                },
                 '& .MuiTab-root': {
                   minWidth: 100,
-                  fontSize: '0.85rem',
-                  transition: 'all 0.2s',
-                  color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                  opacity: theme.palette.mode === 'dark' ? 0.7 : 0.8,
-                  padding: '6px 16px',
-                  minHeight: '48px',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  color: isDark ? '#E2E8F0' : '#1E293B',
+                  padding: '10px 18px',
+                  minHeight: '40px',
+                  borderRadius: '14px',
+                  mx: 0.5,
+                  position: 'relative',
+                  background: isDark
+                    ? 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(14,165,233,0.08) 100%)'
+                    : 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(14,165,233,0.06) 100%)',
+                  border: isDark
+                    ? '1px solid rgba(148, 163, 255, 0.35)'
+                    : '1px solid rgba(99, 102, 241, 0.2)',
+                  boxShadow: isDark
+                    ? 'inset 0 1px 0 rgba(148, 163, 255, 0.35), 0 4px 14px rgba(15, 23, 42, 0.4)'
+                    : 'inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 4px 14px rgba(148, 163, 255, 0.22)',
+                  backdropFilter: 'blur(18px)',
+                  WebkitBackdropFilter: 'blur(18px)',
+                  '& .MuiTab-iconWrapper svg': {
+                    transition: 'all 0.2s ease',
+                    filter: 'drop-shadow(0 2px 4px rgba(15, 23, 42, 0.2))',
+                    color: isDark ? '#C7D2FE' : '#4C51BF'
+                  },
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 0,
+                    height: '2px',
+                    background: theme.palette.gradient.primary,
+                    transition: 'width 0.3s ease',
+                    borderRadius: '2px'
+                  },
                   '&:hover': {
-                    color: theme.palette.mode === 'dark' ? theme.palette.secondary.main : 'white',
-                    opacity: 1
+                    color: theme.palette.primary.main,
+                    transform: 'translateY(-2px)',
+                    boxShadow: isDark
+                      ? 'inset 0 1px 0 rgba(148, 163, 255, 0.45), 0 8px 18px rgba(15, 23, 42, 0.55)'
+                      : 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 20px rgba(99, 102, 241, 0.28)',
+                    borderColor: theme.palette.primary.main,
+                    '&::before': {
+                      width: '60%'
+                    },
+                    '& .MuiTab-iconWrapper svg': {
+                      color: theme.palette.primary.main,
+                      filter: 'drop-shadow(0 4px 8px rgba(99, 102, 241, 0.35))'
+                    }
                   }
                 },
                 '& .Mui-selected': {
-                  color: theme.palette.mode === 'dark' ? theme.palette.secondary.main : 'white',
-                  opacity: 1,
-                  fontWeight: 600
-                },
-                '& .MuiTabs-indicator': {
-                  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : 'white'
+                  color: '#FFFFFF !important',
+                  // 白天模式下使用更深的蓝色渐变，确保白色文字有足够的对比度
+                  background: isDark
+                    ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 55%, #0EA5E9 100%)'
+                    : 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #0891B2 100%)',
+                  border: '1px solid rgba(148, 163, 255, 0.6)',
+                  backgroundColor: theme.palette.primary.main,
+                  boxShadow: isDark
+                    ? '0 10px 28px rgba(99, 102, 241, 0.55), 0 0 0 1px rgba(99, 102, 241, 0.3)'
+                    : '0 12px 32px rgba(79, 70, 229, 0.45), 0 0 0 1px rgba(99, 102, 241, 0.28)',
+                  transform: 'translateY(-1.5px)',
+                  textShadow: isDark
+                    ? '0 4px 12px rgba(15, 23, 42, 0.35)'
+                    : '0 2px 8px rgba(15, 23, 42, 0.5)',
+                  '&::before': {
+                    width: '80%'
+                  },
+                  '&:hover': {
+                    background: isDark
+                      ? theme.palette.gradient.primary
+                      : 'linear-gradient(135deg, #4338CA 0%, #6D28D9 50%, #0E7490 100%)',
+                    backgroundColor: theme.palette.primary.main,
+                    opacity: 0.95,
+                    transform: 'translateY(-2.5px)',
+                    boxShadow: isDark
+                      ? '0 14px 34px rgba(99, 102, 241, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.35)'
+                      : '0 16px 36px rgba(79, 70, 229, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.3)',
+                    '& .MuiTab-iconWrapper svg': {
+                      filter: 'drop-shadow(0 6px 16px rgba(14, 165, 233, 0.55))'
+                    }
+                  },
+                  '& .MuiTab-iconWrapper svg': {
+                    color: '#FFFFFF !important',
+                    filter: 'drop-shadow(0 4px 10px rgba(14, 165, 233, 0.45))'
+                  }
                 }
               }}
             >
@@ -301,6 +552,7 @@ export default function Navbar({ projects = [], currentProject }) {
                 label={t('common.dataSource')}
                 value="source"
                 onMouseEnter={handleSourceMenuHover}
+                onMouseLeave={handleSourceMenuLeave}
               />
               <Tab
                 icon={
@@ -336,6 +588,7 @@ export default function Navbar({ projects = [], currentProject }) {
                 label={t('datasets.management')}
                 value="datasets"
                 onMouseEnter={handleDatasetMenuHover}
+                onMouseLeave={handleDatasetMenuLeave}
               />
               <Tab
                 icon={
@@ -346,28 +599,113 @@ export default function Navbar({ projects = [], currentProject }) {
                 iconPosition="start"
                 label={t('common.more')}
                 onMouseEnter={handleMoreMenuHover}
+                onMouseLeave={handleMoreMenuLeave}
                 value="more"
               />
             </Tabs>
           </Box>
         )}
-
-        {/* 数据源菜单 */}
-        <Menu
+        {hasProjectContext && (
+          <>
+            {/* 数据源菜单 */}
+            <Menu
           anchorEl={sourceMenuAnchor}
           open={isSourceMenuOpen}
           onClose={handleSourceMenuClose}
+          onMouseEnter={handleMenuEnter}
+          onMouseLeave={handleSourceMenuLeave}
+          TransitionComponent={Fade}
+          transitionDuration={200}
+          MenuListProps={{
+            dense: true,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleSourceMenuLeave,
+            sx: { py: 1 }
+          }}
           PaperProps={{
-            elevation: 2,
-            sx: { mt: 1.5, borderRadius: 2, minWidth: 180 },
-            onMouseLeave: handleSourceMenuMouseLeave
+            elevation: 0,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleSourceMenuLeave,
+            sx: {
+              mt: 1,
+              borderRadius: '16px',
+              minWidth: 200,
+              background: isDark
+                ? '#1E293B'
+                : '#FFFFFF',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.3)'
+                : '1px solid rgba(99, 102, 241, 0.25)',
+              boxShadow: isDark
+                ? '0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 12px 48px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1)',
+              overflow: 'hidden',
+              '& .MuiMenuItem-root': {
+                borderRadius: '10px',
+                mx: 0.75,
+                my: 0.5,
+                minHeight: '48px',
+                px: 2,
+                py: 1.25,
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                lineHeight: 1.6,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                letterSpacing: '0.01em',
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.12)',
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main,
+                  transform: 'translateX(4px)',
+                  boxShadow: isDark
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(99, 102, 241, 0.18)'
+                },
+                '&.Mui-selected': {
+                  background: theme.palette.gradient.primary,
+                  backgroundColor: theme.palette.primary.main,
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
+                  '&:hover': {
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
+                    opacity: 0.95,
+                    transform: 'translateX(4px) scale(1.02)'
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: '#FFFFFF'
+                  }
+                },
+                '& .MuiListItemIcon-root': {
+                  minWidth: 40,
+                  color: isDark ? '#CBD5E1' : '#475569',
+                  transition: 'color 0.2s ease'
+                },
+                '&:hover .MuiListItemIcon-root': {
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main
+                },
+                '& .MuiListItemText-primary': {
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  lineHeight: 1.6,
+                  color: 'inherit',
+                  letterSpacing: '0.01em'
+                }
+              },
+              '& .MuiDivider-root': {
+                borderColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)',
+                mx: 1,
+                my: 0.5
+              }
+            }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-          MenuListProps={{
-            dense: true,
-            onMouseLeave: handleSourceMenuMouseLeave
-          }}
         >
           <MenuItem
             component={Link}
@@ -392,24 +730,107 @@ export default function Navbar({ projects = [], currentProject }) {
             </ListItemIcon>
             <ListItemText primary={t('images.title')} />
           </MenuItem>
-        </Menu>
+            </Menu>
 
-        {/* 数据集菜单 */}
-        <Menu
+            {/* 数据集菜单 */}
+            <Menu
           anchorEl={datasetMenuAnchor}
           open={isDatasetMenuOpen}
           onClose={handleDatasetMenuClose}
+          onMouseEnter={handleMenuEnter}
+          onMouseLeave={handleDatasetMenuLeave}
+          TransitionComponent={Fade}
+          transitionDuration={200}
+          MenuListProps={{
+            dense: true,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleDatasetMenuLeave,
+            sx: { py: 1 }
+          }}
           PaperProps={{
-            elevation: 2,
-            sx: { mt: 1.5, borderRadius: 2, minWidth: 200 },
-            onMouseLeave: handleDatasetMenuMouseLeave
+            elevation: 0,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleDatasetMenuLeave,
+            sx: {
+              mt: 1,
+              borderRadius: '16px',
+              minWidth: 220,
+              background: isDark
+                ? '#1E293B'
+                : '#FFFFFF',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.3)'
+                : '1px solid rgba(99, 102, 241, 0.25)',
+              boxShadow: isDark
+                ? '0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 12px 48px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1)',
+              overflow: 'hidden',
+              '& .MuiMenuItem-root': {
+                borderRadius: '10px',
+                mx: 0.75,
+                my: 0.5,
+                minHeight: '48px',
+                px: 2,
+                py: 1.25,
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                lineHeight: 1.6,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                letterSpacing: '0.01em',
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.12)',
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main,
+                  transform: 'translateX(4px)',
+                  boxShadow: isDark
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(99, 102, 241, 0.18)'
+                },
+                '&.Mui-selected': {
+                  background: theme.palette.gradient.primary,
+                  backgroundColor: theme.palette.primary.main,
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
+                  '&:hover': {
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
+                    opacity: 0.95,
+                    transform: 'translateX(4px) scale(1.02)'
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: '#FFFFFF'
+                  }
+                },
+                '& .MuiListItemIcon-root': {
+                  minWidth: 40,
+                  color: isDark ? '#CBD5E1' : '#475569',
+                  transition: 'color 0.2s ease'
+                },
+                '&:hover .MuiListItemIcon-root': {
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main
+                },
+                '& .MuiListItemText-primary': {
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  lineHeight: 1.6,
+                  color: 'inherit',
+                  letterSpacing: '0.01em'
+                }
+              },
+              '& .MuiDivider-root': {
+                borderColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)',
+                mx: 1,
+                my: 0.5
+              }
+            }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-          MenuListProps={{
-            dense: true,
-            onMouseLeave: handleDatasetMenuMouseLeave
-          }}
         >
           <MenuItem
             component={Link}
@@ -446,24 +867,119 @@ export default function Navbar({ projects = [], currentProject }) {
             </ListItemIcon>
             <ListItemText primary={t('datasets.imageQA', '图片问答数据集')} />
           </MenuItem>
-        </Menu>
+          <Divider />
+          <MenuItem
+            component={Link}
+            href="/dataset-square"
+            onClick={handleDatasetMenuClose}
+            selected={pathname === '/dataset-square'}
+          >
+            <ListItemIcon>
+              <SearchIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary={t('nav.publicDatasets', '公开数据集')} />
+          </MenuItem>
+            </Menu>
 
-        {/* 更多菜单 */}
-        <Menu
+            {/* 更多菜单 */}
+            <Menu
           anchorEl={moreMenuAnchor}
           open={isMoreMenuOpen}
           onClose={handleMoreMenuClose}
+          onMouseEnter={handleMenuEnter}
+          onMouseLeave={handleMoreMenuLeave}
+          TransitionComponent={Fade}
+          transitionDuration={200}
+          MenuListProps={{
+            dense: true,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleMoreMenuLeave,
+            sx: { py: 1 }
+          }}
           PaperProps={{
-            elevation: 2,
-            sx: { mt: 1.5, borderRadius: 2, minWidth: 180 },
-            onMouseLeave: handleMenuMouseLeave
+            elevation: 0,
+            onMouseEnter: handleMenuEnter,
+            onMouseLeave: handleMoreMenuLeave,
+            sx: {
+              mt: 1,
+              borderRadius: '16px',
+              minWidth: 200,
+              background: isDark
+                ? '#1E293B'
+                : '#FFFFFF',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              border: isDark
+                ? '1px solid rgba(99, 102, 241, 0.3)'
+                : '1px solid rgba(99, 102, 241, 0.25)',
+              boxShadow: isDark
+                ? '0 12px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+                : '0 12px 48px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.1)',
+              overflow: 'hidden',
+              '& .MuiMenuItem-root': {
+                borderRadius: '10px',
+                mx: 0.75,
+                my: 0.5,
+                minHeight: '48px',
+                px: 2,
+                py: 1.25,
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                lineHeight: 1.6,
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                letterSpacing: '0.01em',
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.12)',
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main,
+                  transform: 'translateX(4px)',
+                  boxShadow: isDark
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(99, 102, 241, 0.18)'
+                },
+                '&.Mui-selected': {
+                  background: theme.palette.gradient.primary,
+                  backgroundColor: theme.palette.primary.main,
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.4)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.35)',
+                  '&:hover': {
+                    background: theme.palette.gradient.primary,
+                    backgroundColor: theme.palette.primary.main,
+                    opacity: 0.95,
+                    transform: 'translateX(4px) scale(1.02)'
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: '#FFFFFF'
+                  }
+                },
+                '& .MuiListItemIcon-root': {
+                  minWidth: 40,
+                  color: isDark ? '#CBD5E1' : '#475569',
+                  transition: 'color 0.2s ease'
+                },
+                '&:hover .MuiListItemIcon-root': {
+                  color: isDark ? '#FFFFFF' : theme.palette.primary.main
+                },
+                '& .MuiListItemText-primary': {
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  lineHeight: 1.6,
+                  color: 'inherit',
+                  letterSpacing: '0.01em'
+                }
+              },
+              '& .MuiDivider-root': {
+                borderColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.2)',
+                mx: 1,
+                my: 0.5
+              }
+            }
           }}
           transformOrigin={{ horizontal: 'center', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-          MenuListProps={{
-            dense: true,
-            onMouseLeave: handleMenuMouseLeave
-          }}
         >
           <MenuItem
             component={Link}
@@ -488,43 +1004,54 @@ export default function Navbar({ projects = [], currentProject }) {
             </ListItemIcon>
             <ListItemText primary={t('playground.title')} />
           </MenuItem>
-          <Divider />
-          <MenuItem
-            component={Link}
-            href="/dataset-square"
-            onClick={handleMoreMenuClose}
-            selected={pathname === `/dataset-square`}
-          >
-            <ListItemIcon>
-              <StorageIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary={t('datasetSquare.title')} />
-          </MenuItem>
         </Menu>
+        </>
+        )}
 
         {/* 右侧操作区 - 使用Flex布局 */}
         <Box sx={{ display: 'flex', flexGrow: 0, alignItems: 'center', gap: 1.5 }}>
           {/* 模型选择 */}
-          {location.pathname.includes('/projects/') && <ModelSelect projectId={selectedProject} />}
+          {hasProjectContext && <ModelSelect projectId={selectedProject} />}
           {/* 任务图标 - 仅在项目页面显示 */}
-          {location.pathname.includes('/projects/') && <TaskIcon theme={theme} projectId={selectedProject} />}
+          {hasProjectContext && <TaskIcon theme={theme} projectId={selectedProject} />}
 
           {/* 语言切换器 */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <LanguageSwitcher />
           </Box>
           {/* 主题切换按钮 */}
-          <Tooltip title={resolvedTheme === 'dark' ? t('theme.switchToLight') : t('theme.switchToDark')}>
+          <Tooltip
+            title={resolvedTheme === 'dark' ? t('theme.switchToLight') : t('theme.switchToDark')}
+            arrow
+            placement="bottom"
+          >
             <IconButton
               onClick={toggleTheme}
               size="small"
               sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                p: 1,
-                borderRadius: 1.5,
+                bgcolor: isDark ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',
+                color: isDark ? theme.palette.text.primary : '#1E293B',
+                p: 1.25,
+                borderRadius: '12px',
+                border: isDark
+                  ? '1px solid rgba(99, 102, 241, 0.2)'
+                  : '1px solid rgba(99, 102, 241, 0.25)',
+                width: '40px',
+                height: '40px',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
+                  bgcolor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#F8F9FA',
+                  borderColor: theme.palette.primary.main,
+                  boxShadow: isDark
+                    ? '0 4px 16px rgba(99, 102, 241, 0.35), 0 0 0 3px rgba(99, 102, 241, 0.1)'
+                    : '0 4px 16px rgba(99, 102, 241, 0.25), 0 0 0 3px rgba(99, 102, 241, 0.1)',
+                  transform: 'translateY(-2px) rotate(15deg)',
+                  '& svg': {
+                    filter: `drop-shadow(0 0 8px ${theme.palette.primary.main}60)`
+                  }
+                },
+                '& svg': {
+                  transition: 'all 0.3s ease'
                 }
               }}
             >
@@ -536,49 +1063,10 @@ export default function Navbar({ projects = [], currentProject }) {
             </IconButton>
           </Tooltip>
 
-          {/* 文档链接 */}
-          <Tooltip title={t('documentation')}>
-            <IconButton
-              href={
-                i18n.language === 'zh-CN' ? 'https://docs.easy-dataset.com/' : 'https://docs.easy-dataset.com/ed/en'
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              size="small"
-              sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                p: 1,
-                borderRadius: 1.5,
-                '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
-                },
-                mr: 1,
-                marginRight: 0
-              }}
-            >
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          
 
-          {/* GitHub链接 */}
-          <Tooltip title={t('common.visitGitHub')}>
-            <IconButton
-              onClick={() => window.open('https://github.com/ConardLi/easy-dataset', '_blank')}
-              size="small"
-              sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-                color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
-                p: 1,
-                borderRadius: 1.5,
-                '&:hover': {
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
-                }
-              }}
-            >
-              <GitHubIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          {/* 用户菜单 */}
+          <UserMenu />
 
           {/* 更新检查器 */}
           <UpdateChecker />

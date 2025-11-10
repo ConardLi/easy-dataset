@@ -18,13 +18,13 @@ a {
   text-decoration: none;
 }
 
-/* 渐变文本样式 */
+/* 渐变文本样式 - 科技风格 */
 .gradient-text {
-  background: linear-gradient(90deg, #2a5caa 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
+  font-weight: 700;
 }
 
 /* 页面容器下间距 */
@@ -32,7 +32,7 @@ main {
   min-height: calc(100vh - 64px);
 }
 
-/* 自定义滚动条 */
+/* 自定义滚动条 - 科技风格 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -43,21 +43,24 @@ main {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.5) 0%, rgba(139, 92, 246, 0.5) 100%);
   border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.8) 0%, rgba(139, 92, 246, 0.8) 100%);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 /* 暗色模式滚动条 */
 [data-theme='dark'] ::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.6) 0%, rgba(139, 92, 246, 0.6) 100%);
 }
 
 [data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
 }
 
 /* 方便的间距类 */
@@ -99,18 +102,63 @@ main {
   border-color: transparent !important;
 }
 
-/* 卡片悬停效果 */
+/* 卡片悬停效果 - 科技风格 */
 .hover-card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
 }
 
 .hover-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 [data-theme='dark'] .hover-card:hover {
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.4);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* 亮色模式卡片悬停效果 */
+:not([data-theme='dark']) .hover-card:hover {
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* 科技风格发光效果 */
+.tech-glow {
+  position: relative;
+}
+
+.tech-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6, #06B6D4);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tech-glow:hover::before {
+  opacity: 0.5;
+}
+
+/* 科技风格边框动画 */
+@keyframes tech-border-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.5), 0 0 30px rgba(139, 92, 246, 0.3);
+  }
+}
+
+.tech-border-animated {
+  animation: tech-border-glow 3s ease-in-out infinite;
 }

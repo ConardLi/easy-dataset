@@ -1,8 +1,8 @@
-# Easy Dataset Agent 指南
+# HKGAI Dataset Generation Agent 指南
 
 ## 项目概述
 
-Easy Dataset 是一个专为大型语言模型（LLM）微调数据集创建而设计的应用程序。它提供完整的workflow，从文档处理到数据集导出，支持多种文件格式和AI模型。
+HKGAI Dataset Generation 是一个专为大型语言模型（LLM）微调数据集创建而设计的应用程序。它提供完整的workflow，从文档处理到数据集导出，支持多种文件格式和AI模型。
 
 ## 技术栈
 
@@ -149,8 +149,8 @@ npm run build
 # 打开Prisma Studio
 npm run db:studio
 
-# 查看数据库文件
-sqlite3 prisma/db.sqlite
+# 使用 MySQL CLI 连接（根据实际环境修改）
+mysql -h <HOST> -u <USER> -p <DATABASE_NAME>
 ```
 
 ### 2. LLM API调试
@@ -220,10 +220,10 @@ console.log('Text chunks:', chunks.length, chunks[0]);
 
 ```bash
 # 构建镜像
-docker build -t easy-dataset .
+docker build -t dataset .
 
 # 运行容器
-docker run -d -p 1717:1717 -v ./local-db:/app/local-db easy-dataset
+docker run -d -p 1717:1717 -v ./local-db:/app/local-db dataset
 ```
 
 ### 桌面应用构建

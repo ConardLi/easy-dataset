@@ -97,16 +97,73 @@ export async function POST(request, { params }) {
     }
 
     // 创建新任务
+    // 处理 modelInfo，如果太长则截断或只保存关键信息
+    let processedModelInfo = typeof modelInfo === 'string' ? modelInfo : JSON.stringify(modelInfo);
+    // SQLite TEXT 字段最大约 1GB，但为了性能考虑，限制为 100KB
+    const maxModelInfoLength = 100000;
+    if (processedModelInfo.length > maxModelInfoLength) {
+      console.warn(`modelInfo too long (${processedModelInfo.length} chars), truncating to ${maxModelInfoLength}`);
+      // 如果是 JSON 字符串，尝试只保留关键字段
+      try {
+        const modelInfoObj = JSON.parse(processedModelInfo);
+        const simplified = {
+          providerId: modelInfoObj.providerId,
+          modelName: modelInfoObj.modelName,
+          modelId: modelInfoObj.modelId,
+          endpoint: modelInfoObj.endpoint ? modelInfoObj.endpoint.substring(0, 200) : undefined
+        };
+        processedModelInfo = JSON.stringify(simplified);
+      } catch (e) {
+        // 如果不是 JSON，直接截断
+        processedModelInfo = processedModelInfo.substring(0, maxModelInfoLength);
+      }
+    }
+    
+    // 处理 note，避免过长
+    let processedNote = '';
+    if (note !== undefined && note !== null) {
+      if (typeof note === 'string') {
+        processedNote = note;
+      } else {
+        const simplified = { ...note };
+        if (note?.vsionModel) {
+          simplified.vsionModel = {
+            id: note.vsionModel.id,
+            modelId: note.vsionModel.modelId,
+            modelName: note.vsionModel.modelName,
+            providerId: note.vsionModel.providerId,
+            providerName: note.vsionModel.projectName || note.vsionModel.providerName
+          };
+        }
+        if (Array.isArray(note?.fileList)) {
+          simplified.fileList = note.fileList.map(file => ({
+            id: file.id || file.fileId || file.file_id,
+            fileId: file.fileId || file.id,
+            fileName: file.fileName || file.name,
+            size: file.size,
+            pageCount: file.pageCount
+          }));
+        }
+        processedNote = JSON.stringify(simplified);
+      }
+
+      const maxNoteLength = 100000;
+      if (processedNote.length > maxNoteLength) {
+        console.warn(`note too long (${processedNote.length} chars), truncating to ${maxNoteLength}`);
+        processedNote = processedNote.substring(0, maxNoteLength);
+      }
+    }
+
     const newTask = await db.task.create({
       data: {
         projectId,
         taskType,
         status: 0, // 初始状态: 处理中
-        modelInfo: typeof modelInfo === 'string' ? modelInfo : JSON.stringify(modelInfo),
+        modelInfo: processedModelInfo,
         language: language || 'zh-CN',
         detail: detail || '',
         totalCount,
-        note: note ? JSON.stringify(note) : '',
+        note: processedNote,
         completedCount: 0
       }
     });

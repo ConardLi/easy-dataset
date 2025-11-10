@@ -9,6 +9,7 @@ import StatsCard from '@/components/home/StatsCard';
 import ProjectList from '@/components/home/ProjectList';
 import CreateProjectDialog from '@/components/home/CreateProjectDialog';
 import MigrationDialog from '@/components/home/MigrationDialog';
+import ParticleBackground from '@/components/home/ParticleBackground';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -27,6 +28,12 @@ export default function Home() {
         setLoading(true);
         // 获取用户创建的项目详情
         const response = await fetch(`/api/projects`);
+
+        if (response.status === 401) {
+          // 未登录，重定向到登录页
+          window.location.href = '/login';
+          return;
+        }
 
         if (!response.ok) {
           throw new Error(t('projects.fetchFailed'));
@@ -72,21 +79,29 @@ export default function Home() {
   const theme = useTheme();
 
   return (
-    <main style={{ overflow: 'hidden', position: 'relative' }}>
+    <main style={{ 
+      overflow: 'hidden', 
+      position: 'relative', 
+      background: theme.palette.background.default,
+      minHeight: '100vh'
+    }}>
+      {/* 粒子背景 */}
+      <ParticleBackground />
+      
       <Navbar projects={projects} />
 
       <HeroSection onCreateProject={() => setCreateDialogOpen(true)} />
 
       <Container
-        maxWidth="lg"
+        maxWidth="xl"
         sx={{
-          mt: { xs: 6, md: 8 },
-          mb: { xs: 4, md: 6 },
+          mt: { xs: -4, md: -6 },
+          mb: { xs: 6, md: 8 },
           position: 'relative',
-          zIndex: 1
+          zIndex: 2
         }}
       >
-        {/* <StatsCard projects={projects} /> */}
+        <StatsCard projects={projects} />
 
         {loading && (
           <Box

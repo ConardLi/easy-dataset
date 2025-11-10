@@ -101,10 +101,15 @@ export async function DELETE(request, { params }) {
       const tocPath = path.join(tocDir, `${baseName}-toc.json`);
 
       // 检查文件是否存在再删除
+      await fs.access(tocPath);
       await fs.unlink(tocPath);
       console.log(`成功删除 TOC 文件: ${tocPath}`);
     } catch (error) {
-      console.error(`删除 TOC 文件失败:`, String(error));
+      if (error?.code === 'ENOENT') {
+        console.log('TOC 文件不存在，无需删除');
+      } else {
+        console.error(`删除 TOC 文件失败:`, String(error));
+      }
       // 即使 TOC 文件删除失败，不影响整体结果
     }
 

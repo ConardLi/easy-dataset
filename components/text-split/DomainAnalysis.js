@@ -11,8 +11,6 @@ import {
   Tabs,
   Tab,
   List,
-  ListItem,
-  ListItemText,
   Collapse,
   IconButton,
   TextField,
@@ -26,7 +24,7 @@ import {
   Menu,
   MenuItem
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, alpha } from '@mui/material/styles';
 import TabPanel from './components/TabPanel';
 import ReactMarkdown from 'react-markdown';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -93,42 +91,201 @@ function TreeNode({ node, level = 0, onEdit, onDelete, onAddChild }) {
     handleMenuClose();
   };
 
+  const isRootNode = level === 0;
+  const isDarkMode = theme.palette.mode === 'dark';
+  
+  // 完全重新设计的科技风格配色 - 确保白天模式高对比度
+  // 白天模式：使用深色文字 + 明显的背景色区分
+  // 夜间模式：使用浅色文字 + 深色背景
+  
+  // 根节点背景色 - 白天模式使用明显的蓝色背景，夜间模式使用深色背景
+  const rootIdleBackground = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.14)
+    : '#E0E7FF'; // 白天模式使用明显的浅蓝色背景
+  const rootHoverBackground = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.24)
+    : '#C7D2FE'; // 白天模式hover时使用更深的蓝色
+  const rootActiveBackground = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.32)
+    : '#A5B4FC'; // 白天模式选中时使用更深的蓝色
+  
+  // 子节点背景色 - 白天模式使用白色/浅灰，夜间模式使用透明
+  const nestedIdleBackground = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.06)
+    : '#FFFFFF'; // 白天模式使用纯白背景
+  const nestedHoverBackground = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.12)
+    : '#F8FAFC'; // 白天模式hover时使用浅灰
+  
+  // 文字颜色 - 白天模式使用蓝色系，夜间模式使用浅色
+  const rootTextColor = isDarkMode ? '#E0E7FF' : '#4F46E5'; // 白天模式使用深蓝色文字（不是黑色）
+  const nestedTextColor = isDarkMode ? theme.palette.text.primary : '#6366F1'; // 白天模式使用蓝色文字（不是黑色）
+  
+  // 边框颜色
+  const rootBorderColor = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.3)
+    : '#818CF8'; // 白天模式使用明显的蓝色边框
+  const nestedBorderColor = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.15)
+    : '#E2E8F0'; // 白天模式使用浅灰边框
+  
+  // 连接线颜色
+  const branchColor = isDarkMode
+    ? alpha(theme.palette.primary.main, 0.35)
+    : '#818CF8'; // 白天模式使用明显的蓝色连接线
+
   return (
     <>
-      <ListItem
-        button
-        onClick={handleClick}
+      <Box
         sx={{
-          pl: level * 2 + 1,
-          bgcolor: level === 0 ? theme.palette.primary.light : 'transparent',
-          color: level === 0 ? theme.palette.primary.contrastText : 'inherit',
-          '&:hover': {
-            bgcolor: level === 0 ? theme.palette.primary.main : theme.palette.action.hover
-          },
-          borderRadius: '4px',
-          mb: 0.5,
-          pr: 1
+          mb: 1,
+          pl: level * 2 + 2,
+          position: 'relative'
         }}
       >
-        <ListItemText
-          primary={node.label}
-          primaryTypographyProps={{
-            fontWeight: level === 0 ? 600 : 400,
-            fontSize: level === 0 ? '1rem' : '0.9rem'
+        <Box
+          component="div"
+          onClick={handleClick}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            pl: 2,
+            pr: 1.5,
+            py: 1.25,
+            bgcolor: isRootNode ? rootIdleBackground : nestedIdleBackground,
+            color: isRootNode ? rootTextColor : nestedTextColor,
+            border: isRootNode
+              ? `1.5px solid ${rootBorderColor}`
+              : `1px solid ${nestedBorderColor}`,
+            borderRadius: '14px',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: isRootNode
+              ? isDarkMode
+                ? '0 4px 12px rgba(99, 102, 241, 0.2)'
+                : '0 4px 12px rgba(99, 102, 241, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.1)'
+              : isDarkMode
+                ? 'none'
+                : '0 1px 3px rgba(15, 23, 42, 0.08)',
+            position: 'relative',
+            cursor: 'pointer',
+            '&:hover': {
+              bgcolor: isRootNode ? rootHoverBackground : nestedHoverBackground,
+              transform: 'translateX(4px)',
+              boxShadow: isRootNode
+                ? isDarkMode
+                  ? '0 8px 20px rgba(99, 102, 241, 0.3)'
+                  : '0 8px 20px rgba(99, 102, 241, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.2)'
+                : isDarkMode
+                  ? `0 2px 8px ${alpha(theme.palette.primary.main, 0.2)}`
+                  : '0 4px 12px rgba(15, 23, 42, 0.12)',
+              borderColor: isRootNode
+                ? (isDarkMode ? alpha(theme.palette.primary.main, 0.4) : '#6366F1')
+                : (isDarkMode ? alpha(theme.palette.primary.main, 0.25) : '#CBD5E1')
+            },
+            '&:active': {
+              bgcolor: isRootNode ? rootActiveBackground : nestedHoverBackground
+            },
+            // 左侧连接线指示器
+            '&::before': level > 0 && !isRootNode ? {
+              content: '""',
+              position: 'absolute',
+              left: -2,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '3px',
+              height: '70%',
+              background: branchColor,
+              borderRadius: '0 2px 2px 0',
+              boxShadow: isDarkMode
+                ? `0 0 8px ${alpha(theme.palette.primary.main, 0.3)}`
+                : `0 0 6px ${alpha(theme.palette.primary.main, 0.2)}`
+            } : {}
           }}
-        />
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton
-            size="small"
-            onClick={handleMenuOpen}
+        >
+          <Typography
             sx={{
-              color: level === 0 ? 'inherit' : theme.palette.text.secondary,
-              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
+              fontWeight: level === 0 ? 700 : 600,
+              fontSize: level === 0 ? '1rem' : '0.9375rem',
+              letterSpacing: level === 0 ? '-0.01em' : '0.01em',
+              color: isRootNode ? rootTextColor : nestedTextColor,
+              flex: 1
             }}
           >
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
-          {hasChildren && (open ? <ExpandLess /> : <ExpandMore />)}
+            {node.label}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <IconButton
+              size="small"
+              onClick={handleMenuOpen}
+              sx={{
+                color: isRootNode
+                  ? (isDarkMode ? '#E0E7FF' : '#4F46E5')
+                  : (isDarkMode ? theme.palette.text.secondary : '#64748B'),
+                backgroundColor: isDarkMode
+                  ? alpha(theme.palette.primary.main, 0.12)
+                  : '#FFFFFF',
+                border: `1px solid ${isDarkMode ? alpha(theme.palette.primary.main, 0.2) : '#E2E8F0'}`,
+                borderRadius: '10px',
+                width: 32,
+                height: 32,
+                transition: 'all 0.2s ease',
+                boxShadow: isDarkMode
+                  ? 'none'
+                  : '0 1px 3px rgba(15, 23, 42, 0.08)',
+                '&:hover': {
+                  bgcolor: isDarkMode
+                    ? alpha(theme.palette.primary.main, 0.22)
+                    : '#F1F5F9',
+                  borderColor: isDarkMode
+                    ? alpha(theme.palette.primary.main, 0.3)
+                    : '#CBD5E1',
+                  transform: 'scale(1.05)',
+                  boxShadow: isDarkMode
+                    ? `0 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`
+                    : '0 4px 12px rgba(15, 23, 42, 0.12)'
+                }
+              }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+            {hasChildren && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 30,
+                  height: 30,
+                  borderRadius: '10px',
+                  backgroundColor: isDarkMode
+                    ? alpha(theme.palette.primary.main, 0.15)
+                    : '#FFFFFF',
+                  border: `1px solid ${isDarkMode ? alpha(theme.palette.primary.main, 0.25) : '#E2E8F0'}`,
+                  color: isRootNode
+                    ? (isDarkMode ? '#E0E7FF' : '#4F46E5')
+                    : (isDarkMode ? theme.palette.text.secondary : '#64748B'),
+                  transition: 'all 0.2s ease',
+                  boxShadow: isDarkMode
+                    ? 'none'
+                    : '0 1px 3px rgba(15, 23, 42, 0.08)',
+                  '&:hover': {
+                    backgroundColor: isDarkMode
+                      ? alpha(theme.palette.primary.main, 0.25)
+                      : '#F1F5F9',
+                    borderColor: isDarkMode
+                      ? alpha(theme.palette.primary.main, 0.35)
+                      : '#CBD5E1',
+                    boxShadow: isDarkMode
+                      ? `0 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`
+                      : '0 4px 12px rgba(15, 23, 42, 0.12)'
+                  }
+                }}
+              >
+                {open ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+              </Box>
+            )}
+          </Box>
         </Box>
 
         <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleMenuClose} onClick={e => e.stopPropagation()}>
@@ -147,11 +304,36 @@ function TreeNode({ node, level = 0, onEdit, onDelete, onAddChild }) {
             </MenuItem>
           )}
         </Menu>
-      </ListItem>
+      </Box>
 
       {hasChildren && (
         <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
+          <List
+            component="div"
+            disablePadding
+            sx={{
+              mt: 1,
+              ml: level === 0 ? 2.5 : 0,
+              pl: level === 0 ? 2.5 : 0,
+              borderLeft: level === 0 ? `3px solid ${branchColor}` : 'none',
+              position: 'relative',
+              '&::before': level === 0 ? {
+                content: '""',
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '3px',
+                background: isDarkMode
+                  ? `linear-gradient(180deg, ${branchColor} 0%, transparent 100%)`
+                  : `linear-gradient(180deg, ${branchColor} 0%, ${alpha(theme.palette.primary.main, 0.3)} 50%, transparent 100%)`,
+                borderRadius: '0 2px 2px 0',
+                boxShadow: isDarkMode
+                  ? `0 0 12px ${alpha(theme.palette.primary.main, 0.3)}`
+                  : `0 0 8px ${alpha(theme.palette.primary.main, 0.2)}`
+              } : {}
+            }}
+          >
             {node.child.map((childNode, index) => (
               <TreeNode
                 key={index}
@@ -386,9 +568,12 @@ export default function DomainAnalysis({ projectId, toc = '', loading = false })
         sx={{
           p: 0,
           mb: 3,
-          border: `1px solid ${theme.palette.divider}`,
+          border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(148, 163, 255, 0.24)' : theme.palette.divider}`,
           borderRadius: 2,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          background: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255,255,255,0.9)',
+          backdropFilter: theme.palette.mode === 'dark' ? 'blur(12px)' : 'none',
+          WebkitBackdropFilter: theme.palette.mode === 'dark' ? 'blur(12px)' : 'none',
         }}
       >
         <Tabs
@@ -399,7 +584,9 @@ export default function DomainAnalysis({ projectId, toc = '', loading = false })
           sx={{
             borderBottom: 1,
             borderColor: 'divider',
-            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+            bgcolor:
+              theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(248, 250, 252, 0.8)',
+            backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
             borderTopLeftRadius: 2,
             borderTopRightRadius: 2
           }}
@@ -411,10 +598,10 @@ export default function DomainAnalysis({ projectId, toc = '', loading = false })
         <Box
           sx={{
             p: 3,
-            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.8)',
+            bgcolor: theme.palette.mode === 'dark' ? 'rgba(2, 6, 23, 0.65)' : 'rgba(255, 255, 255, 0.9)',
             borderBottomLeftRadius: 2,
             borderBottomRightRadius: 2,
-            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)'
+            boxShadow: theme.palette.mode === 'dark' ? 'inset 0 0 0 1px rgba(148,163,255,0.18)' : 'inset 0 2px 4px rgba(0,0,0,0.03)'
           }}
         >
           <TabPanel value={activeTab} index={0}>
@@ -430,11 +617,35 @@ export default function DomainAnalysis({ projectId, toc = '', loading = false })
               <Divider sx={{ mb: 2 }} />
               <Box
                 sx={{
-                  p: 2,
-                  bgcolor: theme.palette.background.paper,
-                  borderRadius: 1,
+                  p: 3,
+                  bgcolor: theme.palette.mode === 'dark'
+                    ? 'rgba(2, 6, 23, 0.65)'
+                    : '#FFFFFF', // 白天模式使用纯白背景，确保高对比度
+                  border: theme.palette.mode === 'dark'
+                    ? '1px solid rgba(148,163,255,0.18)'
+                    : `1.5px solid ${alpha(theme.palette.primary.main, 0.2)}`, // 白天模式使用更明显的边框
+                  borderRadius: 2,
                   maxHeight: '800px',
-                  overflow: 'auto'
+                  overflow: 'auto',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? 'inset 0 2px 8px rgba(99, 102, 241, 0.1)'
+                    : '0 4px 16px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)', // 白天模式添加外阴影和内高光
+                  position: 'relative',
+                  background: theme.palette.mode === 'dark'
+                    ? undefined
+                    : 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)', // 白天模式使用微妙的渐变
+                  '&::-webkit-scrollbar': {
+                    width: 10
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.3 : 0.25),
+                    borderRadius: 5,
+                    border: theme.palette.mode === 'dark' ? 'none' : '2px solid #FFFFFF'
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : '#F1F5F9',
+                    borderRadius: 5
+                  }
                 }}
               >
                 {tags && tags.length > 0 ? (
@@ -472,13 +683,23 @@ export default function DomainAnalysis({ projectId, toc = '', loading = false })
               <Box
                 sx={{
                   p: 2,
-                  bgcolor: theme.palette.background.paper,
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(2, 6, 23, 0.65)' : theme.palette.background.paper,
+                  border: theme.palette.mode === 'dark' ? '1px solid rgba(148,163,255,0.18)' : `1px solid ${theme.palette.divider}`,
                   borderRadius: 1,
                   maxHeight: '600px',
                   overflow: 'auto'
                 }}
               >
-                <div className="markdown-body">
+                <div
+                  className="markdown-body"
+                  style={
+                    theme.palette.mode === 'dark'
+                      ? {
+                          color: 'rgba(226,232,255,0.9)'
+                        }
+                      : {}
+                  }
+                >
                   <ReactMarkdown
                     components={{
                       root: ({ children }) => (

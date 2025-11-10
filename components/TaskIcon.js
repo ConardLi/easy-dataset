@@ -81,7 +81,16 @@ export default function TaskIcon({ projectId, theme }) {
     }
 
     // 没有处理中的任务时，显示完成图标
-    return <TaskAltIcon fontSize="small" />;
+    return (
+      <TaskAltIcon 
+        fontSize="small" 
+        sx={{
+          color: theme.palette.mode === 'dark' 
+            ? 'inherit' 
+            : theme.palette.text.primary || '#1E293B'
+        }} 
+      />
+    );
   };
 
   // 悬停提示文本
@@ -103,12 +112,22 @@ export default function TaskIcon({ projectId, theme }) {
         onClick={handleOpenTaskList}
         size="small"
         sx={{
-          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.15)',
-          color: theme.palette.mode === 'dark' ? 'inherit' : 'white',
+          bgcolor:
+            theme.palette.mode === 'dark'
+              ? 'rgba(255, 255, 255, 0.05)'
+              : theme.palette.action.hover,
+          color:
+            theme.palette.mode === 'dark'
+              ? 'inherit'
+              : theme.palette.primary.main,
           p: 1,
           borderRadius: 1.5,
+          border: theme.palette.mode === 'dark' ? 'none' : `1px solid ${theme.palette.primary.main}20`,
           '&:hover': {
-            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.25)'
+            bgcolor:
+              theme.palette.mode === 'dark'
+                ? 'rgba(255, 255, 255, 0.1)'
+                : theme.palette.action.selected
           },
           ml: 2
         }}
