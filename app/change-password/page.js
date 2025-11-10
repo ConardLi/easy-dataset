@@ -21,6 +21,7 @@ import ParticleBackground from '@/components/home/ParticleBackground';
 import Navbar from '@/components/Navbar';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useTranslation } from 'react-i18next';
 
 export default function ChangePasswordPage() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -36,6 +37,7 @@ export default function ChangePasswordPage() {
   });
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation();
   const isDark = theme.palette.mode === 'dark';
   const searchParams = useSearchParams();
   const forceParam = searchParams.get('force');
@@ -75,24 +77,24 @@ export default function ChangePasswordPage() {
     e.preventDefault();
     // 验证新密码
     if (!newPassword.trim()) {
-      toast.error('请输入新密码');
+      toast.error(t('changePassword.newPasswordRequired'));
       return;
     }
 
     if (newPassword.length < 6) {
-      toast.error('密码长度至少为6位');
+      toast.error(t('changePassword.passwordMinLength'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error('两次输入的密码不一致');
+      toast.error(t('changePassword.passwordMismatch'));
       return;
     }
 
     // 如果不是首次登录，需要验证当前密码
     if (!isFirstLogin) {
       if (!currentPassword.trim()) {
-        toast.error('请输入当前密码');
+        toast.error(t('changePassword.currentPasswordRequired'));
         return;
       }
     }
@@ -105,7 +107,7 @@ export default function ChangePasswordPage() {
         newPassword: newPassword
       });
 
-      toast.success('密码修改成功');
+      toast.success(t('changePassword.changeSuccess'));
       
       // 如果是首次登录，修改密码后跳转到首页
       if (isFirstLogin) {
@@ -115,7 +117,7 @@ export default function ChangePasswordPage() {
         router.back();
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.error || '修改密码失败，请重试';
+      const errorMessage = error.response?.data?.error || t('changePassword.changeFailed');
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -172,11 +174,11 @@ export default function ChangePasswordPage() {
                   backgroundClip: 'text'
                 }}
               >
-                {isFirstLogin ? '首次登录，请设置密码' : '修改密码'}
+                {isFirstLogin ? t('changePassword.firstLoginTitle') : t('changePassword.title')}
               </Typography>
               {isFirstLogin && (
                 <Alert severity="warning" sx={{ mt: 2, borderRadius: '12px' }}>
-                  为了账户安全，请设置您的登录密码
+                  {t('changePassword.firstLoginWarning')}
                 </Alert>
               )}
             </Box>
@@ -186,7 +188,7 @@ export default function ChangePasswordPage() {
                 <Box sx={{ mb: 2 }}>
                   <TextField
                     fullWidth
-                    label="当前密码"
+                    label={t('changePassword.currentPassword')}
                     type={passwordVisibility.current ? 'text' : 'password'}
                     variant="outlined"
                     value={currentPassword}
@@ -197,7 +199,7 @@ export default function ChangePasswordPage() {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            aria-label={passwordVisibility.current ? '隐藏密码' : '显示密码'}
+                            aria-label={passwordVisibility.current ? t('changePassword.hidePassword') : t('changePassword.showPassword')}
                             onClick={() => toggleVisibility('current')}
                             onMouseDown={(e) => e.preventDefault()}
                             edge="end"
@@ -219,19 +221,19 @@ export default function ChangePasswordPage() {
               <Box sx={{ mb: 2 }}>
                 <TextField
                   fullWidth
-                  label="新密码"
+                  label={t('changePassword.newPassword')}
                   type={passwordVisibility.new ? 'text' : 'password'}
                   variant="outlined"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={loading}
                   autoFocus={isFirstLogin}
-                  helperText="密码长度至少为6位"
+                  helperText={t('changePassword.passwordMinLength')}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
-                          aria-label={passwordVisibility.new ? '隐藏密码' : '显示密码'}
+                          aria-label={passwordVisibility.new ? t('changePassword.hidePassword') : t('changePassword.showPassword')}
                           onClick={() => toggleVisibility('new')}
                           onMouseDown={(e) => e.preventDefault()}
                           edge="end"
@@ -252,7 +254,7 @@ export default function ChangePasswordPage() {
               <Box sx={{ mb: 3 }}>
                 <TextField
                   fullWidth
-                  label="确认新密码"
+                  label={t('changePassword.confirmPassword')}
                   type={passwordVisibility.confirm ? 'text' : 'password'}
                   variant="outlined"
                   value={confirmPassword}
@@ -267,7 +269,7 @@ export default function ChangePasswordPage() {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
-                          aria-label={passwordVisibility.confirm ? '隐藏密码' : '显示密码'}
+                          aria-label={passwordVisibility.confirm ? t('changePassword.hidePassword') : t('changePassword.showPassword')}
                           onClick={() => toggleVisibility('confirm')}
                           onMouseDown={(e) => e.preventDefault()}
                           edge="end"
@@ -307,7 +309,7 @@ export default function ChangePasswordPage() {
                   transition: 'all 0.3s ease'
                 }}
               >
-                {loading ? '修改中...' : '确认修改'}
+                {loading ? t('changePassword.changing') : t('changePassword.confirm')}
               </Button>
             </form>
           </Paper>

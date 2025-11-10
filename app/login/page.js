@@ -277,25 +277,6 @@ export default function LoginPage() {
             </form>
 
             <Box sx={{ mt: 3, textAlign: 'center' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
-                首次部署请手动初始化数据库：
-                <Box
-                  component="code"
-                  sx={{
-                    display: 'block',
-                    mt: 0.5,
-                    p: 1,
-                    borderRadius: 1,
-                    bgcolor: alpha(theme.palette.primary.main, 0.08),
-                    color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.75rem'
-                  }}
-                >
-                  curl -X POST http://localhost:1717/api/users/init
-                </Box>
-                或运行 <Box component="span" sx={{ fontFamily: 'JetBrains Mono, monospace' }}>node scripts/migrate-add-users.js</Box>
-              </Typography>
               <Typography variant="caption" color="text.secondary">
                 如需帮助，请联系管理员：{' '}
                 <Typography

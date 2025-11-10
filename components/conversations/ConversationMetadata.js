@@ -19,7 +19,23 @@ export default function ConversationMetadata({ conversation }) {
         {t('datasets.metadata')}
       </Typography>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        <Chip label={`${t('datasets.modelUsed')}: ${conversation.model}`} variant="outlined" size="small" />
+        <Chip
+          label={`${t('datasets.modelUsed')}: ${conversation.model}`}
+          variant="outlined"
+          size="small"
+          sx={{
+            backgroundColor: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.primary.main, 0.15)
+              : alpha(theme.palette.primary.main, 0.1),
+            borderColor: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.primary.main, 0.35)
+              : alpha(theme.palette.primary.main, 0.3),
+            color: theme.palette.mode === 'dark'
+              ? theme.palette.primary.light
+              : theme.palette.primary.dark,
+            fontWeight: 600
+          }}
+        />
 
         {conversation.scenario && (
           <Chip

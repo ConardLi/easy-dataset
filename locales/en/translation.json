@@ -1111,6 +1111,37 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password"
   },
+  "changePassword": {
+    "title": "Change Password",
+    "firstLoginTitle": "First Login - Set Password",
+    "firstLoginWarning": "For account security, please set your login password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "newPasswordRequired": "Please enter a new password",
+    "currentPasswordRequired": "Please enter your current password",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match",
+    "changeSuccess": "Password changed successfully",
+    "changeFailed": "Failed to change password, please try again",
+    "changing": "Changing...",
+    "confirm": "Confirm Change",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "userMenu": {
+    "currentUser": "Current User: {{username}}",
+    "loginOrSwitch": "Login/Switch User",
+    "admin": "Administrator",
+    "changePassword": "Change Password",
+    "switchUser": "Switch User",
+    "userManagement": "User Management",
+    "logout": "Logout",
+    "login": "Login",
+    "logoutSuccess": "Logged out successfully",
+    "logoutFailed": "Failed to logout",
+    "fetchUserFailed": "Failed to fetch user information"
+  },
   "gaPairs": {
     "title": "Genre-Audience Pairs Management",
     "loading": "Loading GA pairs...",

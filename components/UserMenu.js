@@ -22,12 +22,14 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LockIcon from '@mui/icons-material/Lock';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function UserMenu() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
+  const { t } = useTranslation();
   const isDark = theme.palette.mode === 'dark';
 
   const open = Boolean(anchorEl);
@@ -51,7 +53,7 @@ export default function UserMenu() {
         // 未登录，重定向到登录页
         window.location.href = '/login';
       } else {
-        console.error('获取用户信息失败:', error);
+        console.error(t('userMenu.fetchUserFailed'), error);
       }
     }
   };
@@ -74,12 +76,12 @@ export default function UserMenu() {
     try {
       await axios.post('/api/users/logout');
       handleClose();
-      toast.success('已退出登录');
+      toast.success(t('userMenu.logoutSuccess'));
       setTimeout(() => {
         window.location.href = '/login';
       }, 500);
     } catch (error) {
-      toast.error('退出登录失败');
+      toast.error(t('userMenu.logoutFailed'));
     }
   };
 
@@ -87,19 +89,19 @@ export default function UserMenu() {
     try {
       const response = await axios.post('/api/users/logout');
       handleClose();
-      toast.success('已退出登录');
+      toast.success(t('userMenu.logoutSuccess'));
       // 重定向到登录页面
       setTimeout(() => {
         window.location.href = '/login';
       }, 500);
     } catch (error) {
-      toast.error('退出登录失败');
+      toast.error(t('userMenu.logoutFailed'));
     }
   };
 
   return (
     <>
-      <Tooltip title={user ? `当前用户: ${user.username}` : '登录/切换用户'}>
+      <Tooltip title={user ? t('userMenu.currentUser', { username: user.username }) : t('userMenu.loginOrSwitch')}>
         <IconButton
           onClick={handleClick}
           size="small"
@@ -229,7 +231,7 @@ export default function UserMenu() {
                 </Box>
                 {user.role === 'admin' && (
                   <Chip
-                    label="管理员"
+                    label={t('userMenu.admin')}
                     size="small"
                     icon={<AdminPanelSettingsIcon sx={{ fontSize: '0.875rem !important' }} />}
                     sx={{
@@ -253,13 +255,13 @@ export default function UserMenu() {
               <ListItemIcon>
                 <LockIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="修改密码" />
+              <ListItemText primary={t('userMenu.changePassword')} />
             </MenuItem>
             <MenuItem onClick={handleSwitchUser}>
               <ListItemIcon>
                 <LoginIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="切换用户" />
+              <ListItemText primary={t('userMenu.switchUser')} />
             </MenuItem>
             {user.role === 'admin' && (
               <>
@@ -273,7 +275,7 @@ export default function UserMenu() {
                   <ListItemIcon>
                     <AdminPanelSettingsIcon fontSize="small" />
                   </ListItemIcon>
-                  <ListItemText primary="用户管理" />
+                  <ListItemText primary={t('userMenu.userManagement')} />
                 </MenuItem>
               </>
             )}
@@ -281,7 +283,7 @@ export default function UserMenu() {
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="退出登录" />
+              <ListItemText primary={t('userMenu.logout')} />
             </MenuItem>
           </>
         ) : (
@@ -289,7 +291,7 @@ export default function UserMenu() {
             <ListItemIcon>
               <LoginIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText primary="登录" />
+            <ListItemText primary={t('userMenu.login')} />
           </MenuItem>
         )}
       </Menu>

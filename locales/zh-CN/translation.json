@@ -1097,6 +1097,37 @@
     "showPassword": "显示密码",
     "hidePassword": "隐藏密码"
   },
+  "changePassword": {
+    "title": "修改密码",
+    "firstLoginTitle": "首次登录，请设置密码",
+    "firstLoginWarning": "为了账户安全，请设置您的登录密码",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "confirmPassword": "确认新密码",
+    "newPasswordRequired": "请输入新密码",
+    "currentPasswordRequired": "请输入当前密码",
+    "passwordMinLength": "密码长度至少为6位",
+    "passwordMismatch": "两次输入的密码不一致",
+    "changeSuccess": "密码修改成功",
+    "changeFailed": "修改密码失败，请重试",
+    "changing": "修改中...",
+    "confirm": "确认修改",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码"
+  },
+  "userMenu": {
+    "currentUser": "当前用户: {{username}}",
+    "loginOrSwitch": "登录/切换用户",
+    "admin": "管理员",
+    "changePassword": "修改密码",
+    "switchUser": "切换用户",
+    "userManagement": "用户管理",
+    "logout": "退出登录",
+    "login": "登录",
+    "logoutSuccess": "已退出登录",
+    "logoutFailed": "退出登录失败",
+    "fetchUserFailed": "获取用户信息失败"
+  },
   "gaPairs": {
     "title": "文体-受众对管理",
     "loading": "正在加载文体-受众对...",

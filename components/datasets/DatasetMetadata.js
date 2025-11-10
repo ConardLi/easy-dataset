@@ -18,9 +18,40 @@ export default function DatasetMetadata({ currentDataset, onViewChunk }) {
         {t('datasets.metadata')}
       </Typography>
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <Chip label={`${t('datasets.model')}: ${currentDataset.model}`} variant="outlined" />
+        <Chip
+          label={`${t('datasets.model')}: ${currentDataset.model}`}
+          variant="outlined"
+          sx={{
+            backgroundColor: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.primary.main, 0.15)
+              : alpha(theme.palette.primary.main, 0.1),
+            borderColor: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.primary.main, 0.35)
+              : alpha(theme.palette.primary.main, 0.3),
+            color: theme.palette.mode === 'dark'
+              ? theme.palette.primary.light
+              : theme.palette.primary.dark,
+            fontWeight: 600
+          }}
+        />
         {currentDataset.questionLabel && (
-          <Chip label={`${t('common.label')}: ${currentDataset.questionLabel}`} color="primary" variant="outlined" />
+          <Chip
+            label={`${t('common.label')}: ${currentDataset.questionLabel}`}
+            color="primary"
+            variant="outlined"
+            sx={{
+              backgroundColor: theme.palette.mode === 'dark'
+                ? alpha(theme.palette.primary.main, 0.15)
+                : alpha(theme.palette.primary.main, 0.1),
+              borderColor: theme.palette.mode === 'dark'
+                ? alpha(theme.palette.primary.main, 0.35)
+                : alpha(theme.palette.primary.main, 0.3),
+              color: theme.palette.mode === 'dark'
+                ? theme.palette.primary.light
+                : theme.palette.primary.dark,
+              fontWeight: 600
+            }}
+          />
         )}
         <Chip
           label={`${t('datasets.createdAt')}: ${new Date(currentDataset.createAt).toLocaleString('zh-CN')}`}
