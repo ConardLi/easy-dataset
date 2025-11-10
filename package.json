@@ -1,5 +1,5 @@
 {
-  "name": "easy-dataset",
+  "name": "dataset",
   "version": "1.6.0",
   "private": true,
   "author": {
@@ -7,7 +7,7 @@
     "email": "1009903985@qq.com",
     "url": "https://github.com/ConardLi"
   },
-  "homepage": "https://github.com/ConardLi/easy-dataset",
+  "homepage": "https://github.com/ConardLi/dataset",
   "scripts": {
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
@@ -24,7 +24,7 @@
     "electron-build-mac": "pnpm clean-dist && prisma db push && next build && electron-builder --mac",
     "electron-build-win": "pnpm clean-dist && prisma db push && next build && electron-builder --win",
     "electron-build-linux": "pnpm clean-dist && prisma db push && next build && electron-builder --linux",
-    "docker": "docker build -t easy-dataset .",
+    "docker": "docker build -t dataset .",
     "prettier": "npx prettier --write .",
     "migrate-api-keys": "node scripts/migrate-api-keys-to-env.js",
     "generate-encryption-key": "node scripts/generate-encryption-key.js",

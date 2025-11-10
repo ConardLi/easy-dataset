@@ -6,11 +6,9 @@ import StorageIcon from '@mui/icons-material/Storage';
 import { useTranslation } from 'react-i18next';
 
 export function DatasetSiteCard({ site }) {
-  const { name, link, description, image, labels } = site;
+  const { name, link, description, labels } = site;
   const theme = useTheme();
-
-  // 处理图片路径，如果没有图片则使用默认图片
-  const imageUrl = image || `/imgs/default-dataset.png`;
+  const isDark = theme.palette.mode === 'dark';
   const { t } = useTranslation();
 
   // 处理卡片点击
@@ -58,27 +56,99 @@ export function DatasetSiteCard({ site }) {
         {/* 网站截图 */}
         <Box sx={{ position: 'relative', width: '100%', height: 160, overflow: 'hidden' }}>
           <CardMedia
-            component="img"
-            height="160"
-            image={imageUrl}
-            alt={name}
+            component="div"
+            role="img"
+            aria-label={name}
             sx={{
-              objectFit: 'cover',
-              bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.100',
-              transition: 'transform 0.5s ease'
-            }}
-          />
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
               height: '100%',
-              background: `linear-gradient(to bottom, transparent 70%, ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)'})`,
-              zIndex: 1
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+              px: 3,
+              textAlign: 'center',
+              transition: 'transform 0.5s ease',
+              borderBottom: `1px solid ${alpha(theme.palette.divider, 0.4)}`,
+              background: isDark
+                ? `radial-gradient(circle at 20% 20%, ${alpha(theme.palette.primary.light, 0.25)}, transparent 55%),
+                   radial-gradient(circle at 80% 0%, ${alpha(theme.palette.secondary.light, 0.35)}, transparent 45%),
+                   linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.45)}, ${alpha(
+                    theme.palette.secondary.dark,
+                    0.35
+                  )})`
+                : `radial-gradient(circle at 15% 20%, ${alpha(theme.palette.primary.light, 0.35)}, transparent 60%),
+                   radial-gradient(circle at 85% 0%, ${alpha(theme.palette.secondary.light, 0.25)}, transparent 55%),
+                   linear-gradient(120deg, ${alpha(theme.palette.background.default, 1)}, ${alpha(
+                    theme.palette.primary.light,
+                    0.45
+                  )})`,
+              color: isDark ? theme.palette.primary.contrastText : theme.palette.primary.dark,
+              letterSpacing: 0.4,
+              fontWeight: 700,
+              fontSize: '1.05rem',
+              textTransform: 'uppercase'
             }}
-          />
+          >
+            <Box
+              component="span"
+              sx={{
+                position: 'relative',
+                zIndex: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+                alignItems: 'center'
+              }}
+            >
+              <Box
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  letterSpacing: 1.5,
+                  textTransform: 'uppercase',
+                  color: isDark
+                    ? alpha(theme.palette.common.white, 0.85)
+                    : alpha(theme.palette.primary.dark, 0.8)
+                }}
+              >
+                Dataset Portal
+              </Box>
+              <Box
+                component="span"
+                sx={{
+                  fontSize: '1.05rem',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  color: isDark ? theme.palette.common.white : theme.palette.primary.dark
+                }}
+              >
+                {name}
+              </Box>
+              <Box
+                sx={{
+                  width: 64,
+                  height: 2,
+                  borderRadius: 1,
+                  bgcolor: isDark
+                    ? alpha(theme.palette.common.white, 0.7)
+                    : alpha(theme.palette.primary.main, 0.6)
+                }}
+              />
+            </Box>
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: isDark
+                  ? 'linear-gradient(45deg, rgba(255,255,255,0.08) 0%, transparent 40%), linear-gradient(-45deg, rgba(255,255,255,0.06) 0%, transparent 40%)'
+                  : 'linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 45%), linear-gradient(-45deg, rgba(255,255,255,0.25) 0%, transparent 40%)',
+                backgroundSize: '140px 140px',
+                opacity: isDark ? 0.5 : 0.4,
+                zIndex: 1
+              }}
+            />
+          </CardMedia>
           <Chip
             icon={<StorageIcon fontSize="small" />}
             label={t('datasetSquare.dataset')}

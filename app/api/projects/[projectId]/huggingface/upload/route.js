@@ -302,7 +302,7 @@ ${projectDescription || 'This dataset was created using the HKGAI Dataset Genera
 This dataset is in ${formatType} format.
 
 ## Creation Method
-This dataset was created using the [HKGAI Dataset Generation](https://github.com/ConardLi/easy-dataset) tool.
+This dataset was created using the [HKGAI Dataset Generation](https://github.com/ConardLi/dataset) tool.
 
 > HKGAI Dataset Generation is a specialized application designed to streamline the creation of fine-tuning datasets for Large Language Models (LLMs). It offers an intuitive interface for uploading domain-specific files, intelligently splitting content, generating questions, and producing high-quality training data for model fine-tuning.
 

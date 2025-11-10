@@ -2,23 +2,23 @@
 
 ![](./public//imgs/bg2.png)
 
-<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ConardLi/easy-dataset">
-<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/ConardLi/easy-dataset/total">
-<img alt="GitHub Release" src="https://img.shields.io/github/v/release/ConardLi/easy-dataset">
+<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ConardLi/dataset">
+<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/ConardLi/dataset/total">
+<img alt="GitHub Release" src="https://img.shields.io/github/v/release/ConardLi/dataset">
 <img src="https://img.shields.io/badge/license-AGPL--3.0-green.svg" alt="AGPL 3.0 License"/>
-<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/ConardLi/easy-dataset">
-<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/ConardLi/easy-dataset">
+<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/ConardLi/dataset">
+<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/ConardLi/dataset">
 <a href="https://arxiv.org/abs/2507.04009v1" target="_blank">
   <img src="https://img.shields.io/badge/arXiv-2507.04009-b31b1b.svg" alt="arXiv:2507.04009">
 </a>
 
-<a href="https://trendshift.io/repositories/13944" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13944" alt="ConardLi%2Feasy-dataset | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+<a href="https://trendshift.io/repositories/13944" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13944" alt="ConardLi%2Fdataset | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
 **A powerful tool for creating datasets for Large Language Models**
 
 [简体中文](./README.zh-CN.md) | [English](./README.md)
 
-[Features](#features) • [Quick Start](#local-run) • [Documentation](https://docs.easy-dataset.com/ed/en) • [Contributing](#contributing) • [License](#license)
+[Features](#features) • [Quick Start](#local-run) • [Documentation](https://docs.dataset.com/ed/en) • [Contributing](#contributing) • [License](#license)
 
 If you like this project, please give it a Star⭐️, or buy the author a coffee => [Donate](./public/imgs/aw.jpg) ❤️!
 
@@ -67,28 +67,28 @@ https://github.com/user-attachments/assets/6ddb1225-3d1b-4695-90cd-aa4cb01376a8
   </tr>
   <tr style="text-align: center">
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/windows.png' style="height:24px; width: 24px" />
         <br />
         <b>Setup.exe</b>
       </a>
     </td>
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/mac.png' style="height:24px; width: 24px" />
         <br />
         <b>Intel</b>
       </a>
     </td>
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/mac.png' style="height:24px; width: 24px" />
         <br />
         <b>M</b>
       </a>
     </td>
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/linux.png' style="height:24px; width: 24px" />
         <br />
         <b>AppImage</b>
@@ -102,8 +102,8 @@ https://github.com/user-attachments/assets/6ddb1225-3d1b-4695-90cd-aa4cb01376a8
 1. Clone the repository:
 
 ```bash
-   git clone https://github.com/ConardLi/easy-dataset.git
-   cd easy-dataset
+   git clone https://github.com/ConardLi/dataset.git
+   cd dataset
 ```
 
 2. Install dependencies:
@@ -127,17 +127,17 @@ https://github.com/user-attachments/assets/6ddb1225-3d1b-4695-90cd-aa4cb01376a8
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/ConardLi/easy-dataset.git
-cd easy-dataset
+git clone https://github.com/ConardLi/dataset.git
+cd dataset
 ```
 
 2. Modify the `docker-compose.yml` file:
 
 ```yml
 services:
-  easy-dataset:
-    image: ghcr.io/conardli/easy-dataset
-    container_name: easy-dataset
+  dataset:
+    image: ghcr.io/conardli/dataset
+    container_name: dataset
     ports:
       - '1717:1717'
     volumes:
@@ -165,14 +165,14 @@ If you want to build the image yourself, use the Dockerfile in the project root 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/ConardLi/easy-dataset.git
-cd easy-dataset
+git clone https://github.com/ConardLi/dataset.git
+cd dataset
 ```
 
 2. Build the Docker image:
 
 ```bash
-docker build -t easy-dataset .
+docker build -t dataset .
 ```
 
 3. Run the container:
@@ -182,8 +182,8 @@ docker run -d \
   -p 1717:1717 \
   -v {YOUR_LOCAL_DB_PATH}:/app/local-db \
   -v {LOCAL_PRISMA_PATH}:/app/prisma \
-  --name easy-dataset \
-  easy-dataset
+  --name dataset \
+  dataset
 ```
 
 > **Note:** Replace `{YOUR_LOCAL_DB_PATH}` and `{LOCAL_PRISMA_PATH}` with the actual paths where you want to store the local database. It is recommended to use the `local-db` and `prisma` folders in the current code repository directory to maintain consistency with the database paths when starting via NPM.
@@ -262,7 +262,7 @@ docker run -d \
 ## Documentation
 
 - View the demo video of this project: [HKGAI Dataset Generation Demo Video](https://www.bilibili.com/video/BV1y8QpYGE57/)
-- For detailed documentation on all features and APIs, visit our [Documentation Site](https://docs.easy-dataset.com/ed/en)
+- For detailed documentation on all features and APIs, visit our [Documentation Site](https://docs.dataset.com/ed/en)
 - View the paper of this project: [Easy Dataset: A Unified and Extensible Framework for Synthesizing LLM Fine-Tuning Data from Unstructured Documents](https://arxiv.org/abs/2507.04009v1)
 
 ## Community Practice
@@ -270,7 +270,7 @@ docker run -d \
 - [HKGAI Dataset Generation × LLaMA Factory: Enabling LLMs to Efficiently Learn Domain Knowledge](https://buaa-act.feishu.cn/wiki/GVzlwYcRFiR8OLkHbL6cQpYin7g)
 - [HKGAI Dataset Generation Practical Guide: How to Build High-Quality Datasets?](https://www.bilibili.com/video/BV1MRMnz1EGW)
 - [Interpretation of Key Feature Updates in HKGAI Dataset Generation](https://www.bilibili.com/video/BV1fyJhzHEb7/)
-- [Foundation Models Fine-tuning Datasets: Basic Knowledge Popularization](https://docs.easy-dataset.com/zhi-shi-ke-pu)
+- [Foundation Models Fine-tuning Datasets: Basic Knowledge Popularization](https://docs.dataset.com/zhi-shi-ke-pu)
 
 ## Contributing
 
@@ -287,7 +287,7 @@ Please ensure that tests are appropriately updated and adhere to the existing co
 
 ## Join Discussion Group & Contact the Author
 
-https://docs.easy-dataset.com/geng-duo/lian-xi-wo-men
+https://docs.dataset.com/geng-duo/lian-xi-wo-men
 
 ## License
 
@@ -311,7 +311,7 @@ If this work is helpful, please kindly cite as:
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ConardLi/easy-dataset&type=Date)](https://www.star-history.com/#ConardLi/easy-dataset&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=ConardLi/dataset&type=Date)](https://www.star-history.com/#ConardLi/dataset&Date)
 
 <div align="center">
   <sub>Built with ❤️ by <a href="https://github.com/ConardLi">ConardLi</a> • Follow me: <a href="./public/imgs/weichat.jpg">WeChat Official Account</a>｜<a href="https://space.bilibili.com/474921808">Bilibili</a>｜<a href="https://juejin.cn/user/3949101466785709">Juejin</a>｜<a href="https://www.zhihu.com/people/wen-ti-chao-ji-duo-de-xiao-qi">Zhihu</a>｜<a href="https://www.youtube.com/@garden-conard">Youtube</a></sub>

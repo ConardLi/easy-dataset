@@ -2,23 +2,23 @@
 
 ![](./public//imgs/bg2.png)
 
-<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ConardLi/easy-dataset">
-<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/ConardLi/easy-dataset/total">
-<img alt="GitHub Release" src="https://img.shields.io/github/v/release/ConardLi/easy-dataset">
+<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ConardLi/dataset">
+<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/ConardLi/dataset/total">
+<img alt="GitHub Release" src="https://img.shields.io/github/v/release/ConardLi/dataset">
 <img src="https://img.shields.io/badge/license-AGPL--3.0-green.svg" alt="AGPL 3.0 License"/>
-<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/ConardLi/easy-dataset">
-<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/ConardLi/easy-dataset">
+<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/ConardLi/dataset">
+<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/ConardLi/dataset">
 <a href="https://arxiv.org/abs/2507.04009v1" target="_blank">
   <img src="https://img.shields.io/badge/arXiv-2507.04009-b31b1b.svg" alt="arXiv:2507.04009">
 </a>
 
-<a href="https://trendshift.io/repositories/13944" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13944" alt="ConardLi%2Feasy-dataset | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+<a href="https://trendshift.io/repositories/13944" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13944" alt="ConardLi%2Fdataset | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
 **一个强大的大型语言模型数据集创建工具**
 
 [简体中文](./README.zh-CN.md) | [English](./README.md)
 
-[功能特点](#功能特点) • [快速开始](#本地运行) • [使用文档](https://docs.easy-dataset.com/) • [贡献](#贡献) • [许可证](#许可证)
+[功能特点](#功能特点) • [快速开始](#本地运行) • [使用文档](https://docs.dataset.com/) • [贡献](#贡献) • [许可证](#许可证)
 
 如果喜欢本项目，请给本项目留下 Star⭐️，或者请作者喝杯咖啡呀 => [打赏作者](./public/imgs/aw.jpg) ❤️！
 
@@ -67,28 +67,28 @@ https://github.com/user-attachments/assets/6ddb1225-3d1b-4695-90cd-aa4cb01376a8
   </tr>
   <tr style="text-align: center">
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/windows.png' style="height:24px; width: 24px" />
         <br />
         <b>Setup.exe</b>
       </a>
     </td>
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/mac.png' style="height:24px; width: 24px" />
         <br />
         <b>Intel</b>
       </a>
     </td>
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/mac.png' style="height:24px; width: 24px" />
         <br />
         <b>M</b>
       </a>
     </td>
     <td align="center" valign="middle">
-      <a href='https://github.com/ConardLi/easy-dataset/releases/latest'>
+      <a href='https://github.com/ConardLi/dataset/releases/latest'>
         <img src='./public/imgs/linux.png' style="height:24px; width: 24px" />
         <br />
         <b>AppImage</b>
@@ -102,8 +102,8 @@ https://github.com/user-attachments/assets/6ddb1225-3d1b-4695-90cd-aa4cb01376a8
 1. 克隆仓库：
 
 ```bash
-   git clone https://github.com/ConardLi/easy-dataset.git
-   cd easy-dataset
+   git clone https://github.com/ConardLi/dataset.git
+   cd dataset
 ```
 
 2. 安装依赖：
@@ -127,17 +127,17 @@ https://github.com/user-attachments/assets/6ddb1225-3d1b-4695-90cd-aa4cb01376a8
 1. 克隆仓库：
 
 ```bash
-git clone https://github.com/ConardLi/easy-dataset.git
-cd easy-dataset
+git clone https://github.com/ConardLi/dataset.git
+cd dataset
 ```
 
 2. 更改 `docker-compose.yml` 文件：
 
 ```yml
 services:
-  easy-dataset:
-    image: ghcr.io/conardli/easy-dataset
-    container_name: easy-dataset
+  dataset:
+    image: ghcr.io/conardli/dataset
+    container_name: dataset
     ports:
       - '1717:1717'
     volumes:
@@ -165,14 +165,14 @@ docker-compose up -d
 1. 克隆仓库：
 
 ```bash
-git clone https://github.com/ConardLi/easy-dataset.git
-cd easy-dataset
+git clone https://github.com/ConardLi/dataset.git
+cd dataset
 ```
 
 2. 构建 Docker 镜像：
 
 ```bash
-docker build -t easy-dataset .
+docker build -t dataset .
 ```
 
 3. 运行容器：
@@ -182,8 +182,8 @@ docker run -d \
   -p 1717:1717 \
   -v {YOUR_LOCAL_DB_PATH}:/app/local-db \
   -v {LOCAL_PRISMA_PATH}:/app/prisma \
-  --name easy-dataset \
-  easy-dataset
+  --name dataset \
+  dataset
 ```
 
 > **注意：** 请将 `{YOUR_LOCAL_DB_PATH}`、`{LOCAL_PRISMA_PATH}` 替换为你希望存储本地数据库的实际路径，建议直接使用当前代码仓库目录下的 `local-db` 和 `prisma` 文件夹，这样可以和 NPM 启动时的数据库路径保持一致。
@@ -263,7 +263,7 @@ docker run -d \
 
 ## 文档
 
-- 有关所有功能和 API 的详细文档，请访问我们的 [文档站点](https://docs.easy-dataset.com/)
+- 有关所有功能和 API 的详细文档，请访问我们的 [文档站点](https://docs.dataset.com/)
 - 查看本项目的演示视频：[HKGAI Dataset Generation 演示视频](https://www.bilibili.com/video/BV1y8QpYGE57/)
 - 查看本项目的论文：[Easy Dataset: A Unified and Extensible Framework for Synthesizing LLM Fine-Tuning Data from Unstructured Documents](https://arxiv.org/abs/2507.04009v1)
 
@@ -272,7 +272,7 @@ docker run -d \
 - [HKGAI Dataset Generation × LLaMA Factory: 让大模型高效学习领域知识](https://buaa-act.feishu.cn/wiki/KY9xwTGs1iqHrRkjXBwcZP9WnL9)
 - [HKGAI Dataset Generation 使用实战: 如何构建高质量数据集？](https://www.bilibili.com/video/BV1MRMnz1EGW)
 - [HKGAI Dataset Generation 重点功能更新解读](https://www.bilibili.com/video/BV1fyJhzHEb7/)
-- [大模型微调数据集: 基础知识科普](https://docs.easy-dataset.com/zhi-shi-ke-pu)
+- [大模型微调数据集: 基础知识科普](https://docs.dataset.com/zhi-shi-ke-pu)
 
 ## 贡献
 
@@ -289,7 +289,7 @@ docker run -d \
 
 ## 加交流群 & 联系作者
 
-https://docs.easy-dataset.com/geng-duo/lian-xi-wo-men
+https://docs.dataset.com/geng-duo/lian-xi-wo-men
 
 ## 许可证
 
@@ -313,7 +313,7 @@ https://docs.easy-dataset.com/geng-duo/lian-xi-wo-men
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ConardLi/easy-dataset&type=Date)](https://www.star-history.com/#ConardLi/easy-dataset&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=ConardLi/dataset&type=Date)](https://www.star-history.com/#ConardLi/dataset&Date)
 
 <div align="center">
   <sub>由 <a href="https://github.com/ConardLi">ConardLi</a> 用 ❤️ 构建 • 关注我：<a href="./public/imgs/weichat.jpg">公众号</a>｜<a href="https://space.bilibili.com/474921808">B站</a>｜<a href="https://juejin.cn/user/3949101466785709">掘金</a>｜<a href="https://www.zhihu.com/people/wen-ti-chao-ji-duo-de-xiao-qi">知乎</a>｜<a href="https://www.youtube.com/@garden-conard">Youtube</a></sub>

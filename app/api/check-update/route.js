@@ -18,7 +18,7 @@ function getCurrentVersion() {
 async function getLatestVersion() {
   try {
     const owner = 'ConardLi';
-    const repo = 'easy-dataset';
+    const repo = 'dataset';
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`);
 
     if (!response.ok) {
@@ -55,7 +55,7 @@ export async function GET() {
       hasUpdate,
       currentVersion,
       latestVersion,
-      releaseUrl: hasUpdate ? `https://github.com/ConardLi/easy-dataset/releases/tag/v${latestVersion}` : null
+      releaseUrl: hasUpdate ? `https://github.com/ConardLi/dataset/releases/tag/v${latestVersion}` : null
     });
   } catch (error) {
     console.error('检查更新失败:', String(error));

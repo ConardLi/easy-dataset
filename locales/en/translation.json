@@ -9,6 +9,9 @@
     "switchToLight": "Switch to Light Mode",
     "switchToDark": "Switch to Dark Mode"
   },
+  "nav": {
+    "publicDatasets": "Public Datasets"
+  },
   "settings": {
     "promptConfig": "Prompt Configuration",
     "promptsDescription": "Configure prompt used in the project, supporting global prompts and scenario-specific prompts.",

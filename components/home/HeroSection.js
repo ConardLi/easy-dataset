@@ -219,56 +219,6 @@ export default function HeroSection({ onCreateProject }) {
             >
               {t('home.createProject')}
             </Button>
-
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => {
-                window.location.href = '/dataset-square';
-              }}
-              startIcon={<SearchIcon />}
-              sx={{
-                px: 4,
-                py: 1.8,
-                fontSize: '1.1rem',
-                fontWeight: 700,
-                borderRadius: '14px',
-                background: isDark
-                  ? 'linear-gradient(135deg, #0891B2 0%, #06B6D4 50%, #67E8F9 100%)'
-                  : 'linear-gradient(135deg, #0891B2 0%, #06B6D4 50%, #67E8F9 100%)',
-                color: '#FFFFFF',
-                boxShadow: isDark
-                  ? '0 8px 24px rgba(6, 182, 212, 0.4)'
-                  : '0 8px 24px rgba(6, 182, 212, 0.3)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                position: 'relative',
-                overflow: 'hidden',
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: '-100%',
-                  width: '100%',
-                  height: '100%',
-                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                  transition: 'left 0.5s'
-                },
-                '&:hover': {
-                  transform: 'translateY(-4px) scale(1.02)',
-                  boxShadow: isDark
-                    ? '0 12px 32px rgba(6, 182, 212, 0.5)'
-                    : '0 12px 32px rgba(6, 182, 212, 0.4)',
-                  '&::before': {
-                    left: '100%'
-                  }
-                },
-                '&:active': {
-                  transform: 'translateY(-2px) scale(1)'
-                }
-              }}
-            >
-              {t('home.searchDataset')}
-            </Button>
           </Box>
         </Box>
       </Container>

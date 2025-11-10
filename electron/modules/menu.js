@@ -55,7 +55,7 @@ function createMenu(mainWindow, clearCache) {
         {
           label: 'Visit GitHub',
           click: () => {
-            shell.openExternal('https://github.com/ConardLi/easy-dataset');
+            shell.openExternal('https://github.com/ConardLi/dataset');
           }
         }
       ]
@@ -87,7 +87,7 @@ function createMenu(mainWindow, clearCache) {
         {
           label: 'Open Data Directory (History)',
           click: () => {
-            const dataDir = path.join(os.homedir(), '.easy-dataset-db');
+            const dataDir = path.join(os.homedir(), '.dataset-db');
             if (!fs.existsSync(dataDir)) {
               fs.mkdirSync(dataDir, { recursive: true });
             }

@@ -220,10 +220,10 @@ console.log('Text chunks:', chunks.length, chunks[0]);
 
 ```bash
 # 构建镜像
-docker build -t easy-dataset .
+docker build -t dataset .
 
 # 运行容器
-docker run -d -p 1717:1717 -v ./local-db:/app/local-db easy-dataset
+docker run -d -p 1717:1717 -v ./local-db:/app/local-db dataset
 ```
 
 ### 桌面应用构建

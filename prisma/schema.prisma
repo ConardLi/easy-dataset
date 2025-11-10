@@ -8,10 +8,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Users {
+  id        String    @id @default(nanoid(12))
+  username  String    @unique
+  email     String?   @unique
+  role      String    @default("user") // 'admin' | 'user'
+  createAt  DateTime  @default(now())
+  updateAt  DateTime  @updatedAt
+  Projects  Projects[]
+}
+
 model Projects {
   id                   String                 @id @default(nanoid(12))
   name                 String
   description          String
+  userId               String?
+  user                 Users?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   globalPrompt         String                 @default("")
   questionPrompt       String                 @default("")
   answerPrompt         String                 @default("")
@@ -35,6 +47,8 @@ model Projects {
   Images               Images[]
   ImageDatasets        ImageDatasets[]
   QuestionTemplates    QuestionTemplates[]
+
+  @@index([userId])
 }
 
 model UploadFiles {

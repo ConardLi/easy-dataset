@@ -9,6 +9,9 @@
     "switchToLight": "切换到亮色模式",
     "switchToDark": "切换到暗色模式"
   },
+  "nav": {
+    "publicDatasets": "公开数据集"
+  },
   "settings": {
     "promptConfig": "提示词配置",
     "promptsDescription": "配置项目中使用的各类自定义提示词，可用于人工干预数据集的生成效果。",

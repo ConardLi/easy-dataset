@@ -25,6 +25,7 @@ import ModelSelect from './ModelSelect';
 import LanguageSwitcher from './LanguageSwitcher';
 import UpdateChecker from './UpdateChecker';
 import TaskIcon from './TaskIcon';
+import UserMenu from './UserMenu';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -45,12 +46,13 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ChatIcon from '@mui/icons-material/Chat';
 import ImageIcon from '@mui/icons-material/Image';
 import SourceIcon from '@mui/icons-material/Source';
+import SearchIcon from '@mui/icons-material/Search';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useSetAtom } from 'jotai/index';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/lib/store';
 
-export default function Navbar({ projects = [], currentProject }) {
+export default function Navbar({ projects = [], currentProject, forceProjectNavigation = false }) {
   const [selectedProject, setSelectedProject] = useState(currentProject || '');
   const { t } = useTranslation();
   const pathname = usePathname();
@@ -58,8 +60,21 @@ export default function Navbar({ projects = [], currentProject }) {
   const { resolvedTheme, setTheme } = useTheme();
   const setConfigList = useSetAtom(modelConfigListAtom);
   const setSelectedModelInfo = useSetAtom(selectedModelInfoAtom);
+  useEffect(() => {
+    if (currentProject) {
+      setSelectedProject(currentProject);
+    }
+  }, [currentProject]);
+
+  useEffect(() => {
+    if (!currentProject && !selectedProject && projects.length) {
+      setSelectedProject(projects[0]?.id);
+    }
+  }, [projects, currentProject, selectedProject]);
+
   // 只在项目详情页显示模块选项卡
   const isProjectDetail = pathname.includes('/projects/') && pathname.split('/').length > 3;
+  const hasProjectContext = (forceProjectNavigation || isProjectDetail) && Boolean(selectedProject);
   // 更多菜单状态
   const [moreMenuAnchor, setMoreMenuAnchor] = useState(null);
   const isMoreMenuOpen = Boolean(moreMenuAnchor);
@@ -278,7 +293,7 @@ export default function Navbar({ projects = [], currentProject }) {
             </Typography>
           </Box>
 
-          {isProjectDetail && (
+          {hasProjectContext && (
             <FormControl size="small" sx={{ minWidth: 120, ml: 2 }}>
               <Select
                 value={selectedProject}
@@ -412,7 +427,7 @@ export default function Navbar({ projects = [], currentProject }) {
         </Box>
 
         {/* 中间的功能模块导航 - 使用Flex布局居中 */}
-        {isProjectDetail && (
+        {hasProjectContext && (
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', ml: 2, mr: 2 }}>
             <Tabs
               value={
@@ -590,9 +605,10 @@ export default function Navbar({ projects = [], currentProject }) {
             </Tabs>
           </Box>
         )}
-
-        {/* 数据源菜单 */}
-        <Menu
+        {hasProjectContext && (
+          <>
+            {/* 数据源菜单 */}
+            <Menu
           anchorEl={sourceMenuAnchor}
           open={isSourceMenuOpen}
           onClose={handleSourceMenuClose}
@@ -714,10 +730,10 @@ export default function Navbar({ projects = [], currentProject }) {
             </ListItemIcon>
             <ListItemText primary={t('images.title')} />
           </MenuItem>
-        </Menu>
+            </Menu>
 
-        {/* 数据集菜单 */}
-        <Menu
+            {/* 数据集菜单 */}
+            <Menu
           anchorEl={datasetMenuAnchor}
           open={isDatasetMenuOpen}
           onClose={handleDatasetMenuClose}
@@ -851,10 +867,22 @@ export default function Navbar({ projects = [], currentProject }) {
             </ListItemIcon>
             <ListItemText primary={t('datasets.imageQA', '图片问答数据集')} />
           </MenuItem>
-        </Menu>
+          <Divider />
+          <MenuItem
+            component={Link}
+            href="/dataset-square"
+            onClick={handleDatasetMenuClose}
+            selected={pathname === '/dataset-square'}
+          >
+            <ListItemIcon>
+              <SearchIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary={t('nav.publicDatasets', '公开数据集')} />
+          </MenuItem>
+            </Menu>
 
-        {/* 更多菜单 */}
-        <Menu
+            {/* 更多菜单 */}
+            <Menu
           anchorEl={moreMenuAnchor}
           open={isMoreMenuOpen}
           onClose={handleMoreMenuClose}
@@ -977,13 +1005,15 @@ export default function Navbar({ projects = [], currentProject }) {
             <ListItemText primary={t('playground.title')} />
           </MenuItem>
         </Menu>
+        </>
+        )}
 
         {/* 右侧操作区 - 使用Flex布局 */}
         <Box sx={{ display: 'flex', flexGrow: 0, alignItems: 'center', gap: 1.5 }}>
           {/* 模型选择 */}
-          {isProjectDetail && <ModelSelect projectId={selectedProject} />}
+          {hasProjectContext && <ModelSelect projectId={selectedProject} />}
           {/* 任务图标 - 仅在项目页面显示 */}
-          {isProjectDetail && <TaskIcon theme={theme} projectId={selectedProject} />}
+          {hasProjectContext && <TaskIcon theme={theme} projectId={selectedProject} />}
 
           {/* 语言切换器 */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1034,6 +1064,9 @@ export default function Navbar({ projects = [], currentProject }) {
           </Tooltip>
 
           
+
+          {/* 用户菜单 */}
+          <UserMenu />
 
           {/* 更新检查器 */}
           <UpdateChecker />
