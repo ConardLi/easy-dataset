@@ -10,12 +10,6 @@ import {
   Box,
   Divider,
   Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
   ListItemIcon,
   ListItemText,
   Chip
@@ -25,14 +19,13 @@ import PersonIcon from '@mui/icons-material/Person';
 import LoginIcon from '@mui/icons-material/Login';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LockIcon from '@mui/icons-material/Lock';
 import { toast } from 'sonner';
 import axios from 'axios';
 
 export default function UserMenu() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [user, setUser] = useState(null);
-  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
-  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
@@ -49,9 +42,17 @@ export default function UserMenu() {
       const response = await axios.get('/api/users');
       if (response.data && response.data.id) {
         setUser(response.data);
+      } else {
+        // 未登录，重定向到登录页
+        window.location.href = '/login';
       }
     } catch (error) {
-      console.error('获取用户信息失败:', error);
+      if (error.response?.status === 401) {
+        // 未登录，重定向到登录页
+        window.location.href = '/login';
+      } else {
+        console.error('获取用户信息失败:', error);
+      }
     }
   };
 
@@ -64,81 +65,21 @@ export default function UserMenu() {
   };
 
   const handleLoginClick = () => {
-    setLoginDialogOpen(true);
-    handleClose();
+    // 重定向到登录页面
+    window.location.href = '/login';
   };
 
-  const handleLogin = async () => {
-    if (!username.trim()) {
-      toast.error('请输入用户名');
-      return;
-    }
-
-    setLoading(true);
+  const handleSwitchUser = async () => {
+    // 切换用户时退出登录并跳转到登录页
     try {
-      // 先尝试初始化用户体系（如果还没有）
-      try {
-        await axios.post('/api/users/init');
-      } catch (error) {
-        // 忽略初始化错误，可能已经初始化过了
-      }
-
-      // 尝试通过用户名登录（查找现有用户）
-      let userId = null;
-      try {
-        const loginResponse = await axios.post('/api/users/login', {
-          username: username.trim()
-        });
-        userId = loginResponse.data.user.id;
-      } catch (error) {
-        // 如果用户不存在，检查是否是管理员在创建新用户
-        if (error.response?.status === 404) {
-          // 检查当前用户是否为管理员
-          try {
-            const currentUserResponse = await axios.get('/api/users');
-            if (currentUserResponse.data && currentUserResponse.data.role === 'admin') {
-              // 管理员可以创建新用户
-              try {
-                const createResponse = await axios.post('/api/users', {
-                  username: username.trim(),
-                  role: 'user'
-                });
-                userId = createResponse.data.id;
-                toast.success(`已创建新用户: ${username.trim()}`);
-              } catch (createError) {
-                throw new Error(createError.response?.data?.error || '创建用户失败');
-              }
-            } else {
-              throw new Error('用户不存在，只有管理员可以创建新用户');
-            }
-          } catch (checkError) {
-            throw new Error(checkError.message || '登录失败');
-          }
-        } else {
-          throw error;
-        }
-      }
-
-      // 设置当前用户
-      if (userId) {
-        await axios.post('/api/users/set-current', {
-          userId: userId
-        });
-        
-        // 获取用户信息
-        const userResponse = await axios.get('/api/users');
-        setUser(userResponse.data);
-        setLoginDialogOpen(false);
-        setUsername('');
-        toast.success(`已登录为: ${userResponse.data.username}`);
-        
-        // 刷新页面以更新项目列表
-        window.location.reload();
-      }
+      await axios.post('/api/users/logout');
+      handleClose();
+      toast.success('已退出登录');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 500);
     } catch (error) {
-      toast.error(error.response?.data?.error || error.message || '登录失败，请重试');
-    } finally {
-      setLoading(false);
+      toast.error('退出登录失败');
     }
   };
 
@@ -154,10 +95,6 @@ export default function UserMenu() {
     } catch (error) {
       toast.error('退出登录失败');
     }
-  };
-
-  const handleSwitchUser = () => {
-    handleLoginClick();
   };
 
   return (
@@ -307,12 +244,39 @@ export default function UserMenu() {
               </Box>
             </Box>
             <Divider sx={{ mx: 1, my: 0.5 }} />
+            <MenuItem
+              onClick={() => {
+                handleClose();
+                window.location.href = '/change-password';
+              }}
+            >
+              <ListItemIcon>
+                <LockIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="修改密码" />
+            </MenuItem>
             <MenuItem onClick={handleSwitchUser}>
               <ListItemIcon>
                 <LoginIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="切换用户" />
             </MenuItem>
+            {user.role === 'admin' && (
+              <>
+                <Divider sx={{ mx: 1, my: 0.5 }} />
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    window.location.href = '/users';
+                  }}
+                >
+                  <ListItemIcon>
+                    <AdminPanelSettingsIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="用户管理" />
+                </MenuItem>
+              </>
+            )}
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
@@ -329,68 +293,6 @@ export default function UserMenu() {
           </MenuItem>
         )}
       </Menu>
-
-      {/* 登录对话框 */}
-      <Dialog
-        open={loginDialogOpen}
-        onClose={() => {
-          setLoginDialogOpen(false);
-          setUsername('');
-        }}
-        PaperProps={{
-          sx: {
-            borderRadius: '16px',
-            background: isDark ? '#1E293B' : '#FFFFFF',
-            backdropFilter: 'blur(24px)',
-            border: isDark
-              ? '1px solid rgba(99, 102, 241, 0.3)'
-              : '1px solid rgba(99, 102, 241, 0.25)'
-          }
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
-          {user ? '切换用户' : '登录'}
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="用户名"
-            fullWidth
-            variant="outlined"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            onKeyPress={e => {
-              if (e.key === 'Enter') {
-                handleLogin();
-              }
-            }}
-            sx={{ mt: 2 }}
-          />
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            输入用户名登录。只有管理员可以创建新用户。
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => {
-              setLoginDialogOpen(false);
-              setUsername('');
-            }}
-            sx={{ borderRadius: '10px' }}
-          >
-            取消
-          </Button>
-          <Button
-            onClick={handleLogin}
-            variant="contained"
-            disabled={loading || !username.trim()}
-            sx={{ borderRadius: '10px' }}
-          >
-            {loading ? '登录中...' : '登录'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 }

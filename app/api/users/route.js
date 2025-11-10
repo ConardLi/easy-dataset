@@ -32,11 +32,16 @@ export async function POST(request) {
     const newUser = await createUser({
       username: userData.username,
       email: userData.email || null,
+      password: userData.password || null,
       role: userData.role || 'user'
     });
 
     return Response.json(newUser, { status: 201 });
   } catch (error) {
+    const friendlyError = handleUniqueConstraintError(error);
+    if (friendlyError) {
+      return friendlyError;
+    }
     console.error('创建用户出错:', String(error));
     return Response.json({ error: String(error) }, { status: 500 });
   }
@@ -64,3 +69,23 @@ export async function GET(request) {
   }
 }
 
+function handleUniqueConstraintError(error) {
+  if (error?.code !== 'P2002') {
+    return null;
+  }
+  const target = error.meta?.target;
+  const fields = Array.isArray(target) ? target : [target];
+  const normalizedTargets = fields
+    .filter(Boolean)
+    .map((field) => field.toString().toLowerCase());
+
+  if (normalizedTargets.some((field) => field.includes('email'))) {
+    return Response.json({ error: '该邮箱已被使用，请更换一个邮箱' }, { status: 400 });
+  }
+
+  if (normalizedTargets.some((field) => field.includes('username'))) {
+    return Response.json({ error: '用户名已存在' }, { status: 400 });
+  }
+
+  return Response.json({ error: '字段值已存在，请检查输入信息' }, { status: 400 });
+}

@@ -10,15 +10,22 @@ import {
   Button,
   Typography,
   useTheme,
-  Alert
+  Alert,
+  alpha,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import axios from 'axios';
 import ParticleBackground from '@/components/home/ParticleBackground';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -54,18 +61,12 @@ export default function LoginPage() {
     setError('');
     
     try {
-      // 先尝试初始化用户体系（如果还没有）
-      try {
-        await axios.post('/api/users/init');
-      } catch (error) {
-        // 忽略初始化错误，可能已经初始化过了
-      }
-
-      // 尝试通过用户名登录（查找现有用户）
+      // 尝试通过用户名和密码登录
       let userId = null;
       try {
         const loginResponse = await axios.post('/api/users/login', {
-          username: username.trim()
+          username: username.trim(),
+          password: password || undefined
         });
         userId = loginResponse.data.user.id;
       } catch (error) {
@@ -79,6 +80,7 @@ export default function LoginPage() {
               try {
                 const createResponse = await axios.post('/api/users', {
                   username: username.trim(),
+                  password: password || undefined,
                   role: 'user'
                 });
                 userId = createResponse.data.id;
@@ -102,6 +104,18 @@ export default function LoginPage() {
         await axios.post('/api/users/set-current', {
           userId: userId
         });
+        
+        // 检查是否需要修改密码
+        try {
+          const userDetailResponse = await axios.get(`/api/users/${userId}`);
+          if (userDetailResponse.data.needChangePassword) {
+            // 需要修改密码，跳转到修改密码页面
+            router.push('/change-password?force=1');
+            return;
+          }
+        } catch (error) {
+          console.error('检查用户信息失败:', error);
+        }
         
         toast.success('登录成功');
         // 重定向到首页
@@ -177,7 +191,7 @@ export default function LoginPage() {
             </Box>
 
             <form onSubmit={handleLogin}>
-              <Box sx={{ mb: 3 }}>
+              <Box sx={{ mb: 2 }}>
                 <TextField
                   fullWidth
                   label="用户名"
@@ -186,6 +200,42 @@ export default function LoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={loading}
                   autoFocus
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px'
+                    }
+                  }}
+                />
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <TextField
+                  fullWidth
+                  label="密码"
+                  type={showPassword ? 'text' : 'password'}
+                  variant="outlined"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleLogin(e);
+                    }
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={showPassword ? '隐藏密码' : '显示密码'}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          onMouseDown={(e) => e.preventDefault()}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '12px'
@@ -227,8 +277,41 @@ export default function LoginPage() {
             </form>
 
             <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+                首次部署请手动初始化数据库：
+                <Box
+                  component="code"
+                  sx={{
+                    display: 'block',
+                    mt: 0.5,
+                    p: 1,
+                    borderRadius: 1,
+                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                    color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '0.75rem'
+                  }}
+                >
+                  curl -X POST http://localhost:1717/api/users/init
+                </Box>
+                或运行 <Box component="span" sx={{ fontFamily: 'JetBrains Mono, monospace' }}>node scripts/migrate-add-users.js</Box>
+              </Typography>
               <Typography variant="caption" color="text.secondary">
-                输入用户名登录。只有管理员可以创建新用户。
+                如需帮助，请联系管理员：{' '}
+                <Typography
+                  component="a"
+                  href="mailto:guozhenhua@hkgai.org"
+                  variant="caption"
+                  sx={{
+                    color: theme.palette.primary.main,
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  guozhenhua@hkgai.org
+                </Typography>
               </Typography>
             </Box>
           </Paper>
@@ -237,4 +320,3 @@ export default function LoginPage() {
     </main>
   );
 }
-

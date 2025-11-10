@@ -22,7 +22,8 @@ import {
   Tooltip,
   IconButton,
   Chip,
-  useTheme
+  useTheme,
+  InputAdornment
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -35,6 +36,8 @@ import { toast } from 'sonner';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ScienceIcon from '@mui/icons-material/Science';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useRouter } from 'next/navigation';
 import { useAtom } from 'jotai';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/lib/store';
@@ -71,6 +74,7 @@ export default function ModelSettings({ projectId }) {
     topK: 0,
     status: 1
   });
+  const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
     getProvidersList();
@@ -221,6 +225,7 @@ export default function ModelSettings({ projectId }) {
         id: ''
       });
     }
+    setShowApiKey(false);
     setOpenModelDialog(true);
   };
 
@@ -878,10 +883,24 @@ export default function ModelSettings({ projectId }) {
                 fullWidth
                 label={t('models.apiKey')}
                 name="apiKey"
-                type="password"
+                type={showApiKey ? 'text' : 'password'}
                 value={modelConfigForm.apiKey}
                 onChange={handleModelFormChange}
                 placeholder="例如: sk-..."
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showApiKey ? '隐藏密钥' : '显示密钥'}
+                        onClick={() => setShowApiKey(prev => !prev)}
+                        onMouseDown={e => e.preventDefault()}
+                        edge="end"
+                      >
+                        {showApiKey ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     bgcolor: isDark ? 'rgba(99, 102, 241, 0.08)' : '#FFFFFF',

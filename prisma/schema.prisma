@@ -9,13 +9,15 @@ datasource db {
 }
 
 model Users {
-  id        String    @id @default(nanoid(12))
-  username  String    @unique
-  email     String?   @unique
-  role      String    @default("user") // 'admin' | 'user'
-  createAt  DateTime  @default(now())
-  updateAt  DateTime  @updatedAt
-  Projects  Projects[]
+  id               String    @id @default(nanoid(12))
+  username         String    @unique
+  email            String?   @unique
+  password         String?   // 密码（可选，用于未来扩展）
+  needChangePassword Boolean  @default(true) // 是否需要修改密码（首次登录）
+  role             String    @default("user") // 'admin' | 'user'
+  createAt         DateTime  @default(now())
+  updateAt         DateTime  @updatedAt
+  Projects         Projects[]
 }
 
 model Projects {

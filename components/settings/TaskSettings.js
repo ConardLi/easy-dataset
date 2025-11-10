@@ -19,11 +19,14 @@ import {
   MenuItem,
   Chip,
   FormHelperText,
-  useTheme
+  useTheme,
+  IconButton
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import SaveIcon from '@mui/icons-material/Save';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import useTaskSettings from '@/hooks/useTaskSettings';
 
 export default function TaskSettings({ projectId }) {
@@ -31,6 +34,10 @@ export default function TaskSettings({ projectId }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const { taskSettings, setTaskSettings, loading, error, success, setSuccess } = useTaskSettings(projectId);
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    minerUToken: false,
+    huggingfaceToken: false
+  });
 
   // 确保 multiTurnRounds 有正确的初始值
   useEffect(() => {
@@ -60,6 +67,13 @@ export default function TaskSettings({ projectId }) {
     setTaskSettings(prev => ({
       ...prev,
       [name]: newValue
+    }));
+  };
+
+  const toggleVisibility = field => {
+    setPasswordVisibility(prev => ({
+      ...prev,
+      [field]: !prev[field]
     }));
   };
 
@@ -812,8 +826,22 @@ export default function TaskSettings({ projectId }) {
                 name="minerUToken"
                 value={taskSettings.minerUToken}
                 onChange={handleSettingChange}
-                type="password"
+                type={passwordVisibility.minerUToken ? 'text' : 'password'}
                 helperText={t('settings.minerUHelper')}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={passwordVisibility.minerUToken ? '隐藏密钥' : '显示密钥'}
+                        onClick={() => toggleVisibility('minerUToken')}
+                        onMouseDown={e => e.preventDefault()}
+                        edge="end"
+                      >
+                        {passwordVisibility.minerUToken ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
                 sx={textFieldSx}
               />
             </Grid>
@@ -863,7 +891,21 @@ export default function TaskSettings({ projectId }) {
                 name="huggingfaceToken"
                 value={taskSettings.huggingfaceToken || ''}
                 onChange={handleSettingChange}
-                type="password"
+                type={passwordVisibility.huggingfaceToken ? 'text' : 'password'}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={passwordVisibility.huggingfaceToken ? '隐藏密钥' : '显示密钥'}
+                        onClick={() => toggleVisibility('huggingfaceToken')}
+                        onMouseDown={e => e.preventDefault()}
+                        edge="end"
+                      >
+                        {passwordVisibility.huggingfaceToken ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
                 sx={textFieldSx}
               />
             </Grid>

@@ -1,6 +1,8 @@
 import { db } from '@/lib/db/index';
 import { checkIsAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // 检查是否为管理员
@@ -28,4 +30,3 @@ export async function GET() {
     return Response.json({ error: String(error) }, { status: 500 });
   }
 }
-

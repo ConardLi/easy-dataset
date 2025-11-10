@@ -72,7 +72,7 @@ node scripts/migrate-add-users.js
 ```
 
 初始化操作会：
-1. 创建默认用户（username: 'default', role: 'admin'）
+1. 创建默认用户（username: 'admin', password: 'hkgai@123456', role: 'admin'）
 2. 将所有现有项目分配给默认用户
 3. 设置当前会话为默认用户
 
@@ -147,7 +147,7 @@ if (!hasAccess) {
 
 ## 注意事项
 
-1. **默认用户**：系统使用 `'default'` 作为默认用户ID，适用于桌面应用场景
+1. **默认用户**：系统使用 `'admin'` 作为默认管理员账号，默认密码为 `hkgai@123456`
 2. **Cookie 管理**：用户ID存储在 HTTP-only cookie 中，确保安全性
 3. **向后兼容**：如果未设置用户ID，系统会使用默认用户，确保现有功能正常工作
 4. **项目名称唯一性**：项目名称在同一用户下必须唯一，不同用户可以创建同名项目

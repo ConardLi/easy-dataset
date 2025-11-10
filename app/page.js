@@ -29,6 +29,12 @@ export default function Home() {
         // 获取用户创建的项目详情
         const response = await fetch(`/api/projects`);
 
+        if (response.status === 401) {
+          // 未登录，重定向到登录页
+          window.location.href = '/login';
+          return;
+        }
+
         if (!response.ok) {
           throw new Error(t('projects.fetchFailed'));
         }
