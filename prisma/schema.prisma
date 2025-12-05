@@ -76,6 +76,9 @@ model Tags {
   parentId  String?
   parent    Tags?    @relation("Tags", fields: [parentId], references: [id])
   children  Tags[]   @relation("Tags")
+
+  @@index([projectId, label])
+  @@index([projectId, parentId])
 }
 
 model Questions {
@@ -98,6 +101,7 @@ model Questions {
   @@index([projectId])
   @@index([imageId])
   @@index([templateId])
+  @@index([projectId, label])
 }
 
 model Datasets {

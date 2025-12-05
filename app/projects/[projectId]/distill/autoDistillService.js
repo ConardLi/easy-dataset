@@ -173,8 +173,100 @@ class AutoDistillService {
     // 使用已经获取的项目名称，如果未获取到，则使用主题
     const projectName = this.projectName || topic;
 
-    // 递归构建标签树
-    const buildTagsForLevel = async (parentTag = null, parentTagPath = '', level = 1) => {
+    try {
+      // 设置初始阶段
+      if (onProgress) {
+        onProgress({
+          stage: 'level1'
+        });
+      }
+
+      // 获取所有现有标签
+      let allTags = [];
+      try {
+        const response = await axios.get(`/api/projects/${projectId}/distill/tags/all`);
+        allTags = response.data;
+      } catch (error) {
+        console.error('获取标签失败:', error);
+        this.addLog(onLog, `Failed to get tags: ${error.message}`);
+        return;
+      }
+
+      // 获取叶子节点总数，更新进度条
+      const leafTags = Math.pow(tagsPerLevel, levels);
+      if (onProgress) {
+        onProgress({
+          tagsTotal: leafTags
+        });
+      }
+
+      // 批量构建标签树
+      await this.batchBuildTagTree({
+        projectId,
+        topic,
+        levels,
+        tagsPerLevel,
+        model,
+        language,
+        projectName,
+        allTags,
+        onProgress,
+        onLog
+      });
+    } catch (error) {
+      console.error('构建标签树失败:', error);
+      this.addLog(onLog, `Failed to build tag tree: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * 批量构建标签树
+   * @param {Object} config - 配置信息
+   * @returns {Promise<void>}
+   */
+  async batchBuildTagTree(config) {
+    const { 
+      projectId, 
+      topic, 
+      levels, 
+      tagsPerLevel, 
+      model, 
+      language, 
+      projectName, 
+      allTags: initialTags,
+      onProgress, 
+      onLog 
+    } = config;
+
+    // 创建一个本地标签缓存，避免频繁请求服务器
+    let allTags = [...initialTags];
+    
+    // 构建父子关系映射
+    const childrenMap = {};
+    const parentMap = {};
+    allTags.forEach(tag => {
+      parentMap[tag.id] = tag;
+      if (tag.parentId) {
+        if (!childrenMap[tag.parentId]) {
+          childrenMap[tag.parentId] = [];
+        }
+        childrenMap[tag.parentId].push(tag);
+      }
+    });
+
+    // 按层级分组标签，提高查找效率
+    const tagsByLevel = {};
+    allTags.forEach(tag => {
+      const depth = this.getTagDepth(tag, parentMap);
+      if (!tagsByLevel[depth]) {
+        tagsByLevel[depth] = [];
+      }
+      tagsByLevel[depth].push(tag);
+    });
+
+    // 批量创建各层级标签
+    for (let level = 1; level <= levels; level++) {
       // 设置当前阶段
       if (onProgress) {
         onProgress({
@@ -182,117 +274,112 @@ class AutoDistillService {
         });
       }
 
-      // 如果已经达到目标层级，停止递归
-      if (level > levels) {
-        return;
+      // 确定当前层级的父标签
+      let parentTags = [];
+      if (level === 1) {
+        // 第一层标签没有父标签
+        parentTags = [null];
+      } else {
+        // 获取上一层的标签作为父标签
+        parentTags = tagsByLevel[level - 1] || [];
       }
 
-      // 获取当前级别的标签
-      let currentLevelTags = [];
-      try {
-        // 获取所有标签，然后根据父标签ID进行过滤
-        const response = await axios.get(`/api/projects/${projectId}/distill/tags/all`);
+      const batch = parentTags;
+      const creationPromises = [];
 
-        // 如果有父标签，过滤出当前父标签下的子标签
+      for (const parentTag of batch) {
+        // 获取当前父标签下的子标签
+        let currentLevelTags = [];
         if (parentTag) {
-          currentLevelTags = response.data.filter(tag => tag.parentId === parentTag.id);
+          currentLevelTags = childrenMap[parentTag.id] || [];
         } else {
-          // 如果没有父标签，则获取所有根标签（没有parentId的标签）
-          currentLevelTags = response.data.filter(tag => !tag.parentId);
+          // 根标签（没有父标签的标签）
+          currentLevelTags = allTags.filter(tag => !tag.parentId);
         }
-      } catch (error) {
-        console.error(`获取${level}级标签失败:`, error);
-        this.addLog(onLog, `Failed to get ${level} level tags: ${error.message}`);
-        return;
-      }
 
-      // 计算需要创建的标签数量
-      const targetCount = tagsPerLevel;
-      const currentCount = currentLevelTags.length;
-      const needToCreate = Math.max(0, targetCount - currentCount);
-
-      // 如果需要创建标签
-      if (needToCreate > 0) {
-        // 如果是第一级标签，使用配置中的主题名称
-        const parentTagName = level === 1 ? topic : parentTag?.label || '';
-
-        this.addLog(onLog, `Tag tree level ${level}: Creating ${tagsPerLevel} subtags for "${parentTagName}"...`);
-
-        // 构建标签路径，确保以项目名称开头
-        let tagPathWithProjectName;
-        if (level === 1) {
-          // 如果是第一级，使用项目名称
-          tagPathWithProjectName = projectName;
-        } else {
-          // 如果不是第一级，确保标签路径以项目名称开头
-          if (!parentTagPath) {
+        // 计算需要创建的标签数量
+        const needToCreate = Math.max(0, tagsPerLevel - currentLevelTags.length);
+        
+        if (needToCreate > 0) {
+          // 构建标签路径
+          let tagPathWithProjectName;
+          if (level === 1) {
+            // 第一层使用项目名称
             tagPathWithProjectName = projectName;
-          } else if (!parentTagPath.startsWith(projectName)) {
-            tagPathWithProjectName = `${projectName} > ${parentTagPath}`;
           } else {
-            tagPathWithProjectName = parentTagPath;
+            // 其他层构建完整路径
+            const parentTagName = parentTag?.label || '';
+            const parentTagPath = this.getTagPath(parentTag, parentMap);
+            
+            if (!parentTagPath) {
+              tagPathWithProjectName = projectName;
+            } else if (!parentTagPath.startsWith(projectName)) {
+              tagPathWithProjectName = `${projectName} > ${parentTagPath}`;
+            } else {
+              tagPathWithProjectName = parentTagPath;
+            }
           }
-        }
 
-        try {
-          const response = await axios.post(`/api/projects/${projectId}/distill/tags`, {
-            parentTag: parentTagName,
+          // 创建标签的Promise
+          const createPromise = axios.post(`/api/projects/${projectId}/distill/tags`, {
+            parentTag: level === 1 ? topic : parentTag?.label || '',
             parentTagId: parentTag ? parentTag.id : null,
-            tagPath: tagPathWithProjectName || parentTagName,
+            tagPath: tagPathWithProjectName || (level === 1 ? projectName : ''),
             count: needToCreate,
             model,
             language
+          }).then(response => {
+            // 更新本地标签缓存
+            const newTags = response.data;
+            allTags = [...allTags, ...newTags];
+            
+            // 更新父子关系映射
+            if (parentTag) {
+              if (!childrenMap[parentTag.id]) {
+                childrenMap[parentTag.id] = [];
+              }
+              childrenMap[parentTag.id].push(...newTags);
+            }
+            
+            // 更新父标签映射
+            newTags.forEach(tag => {
+              parentMap[tag.id] = tag;
+            });
+            
+            // 更新层级分组
+            if (!tagsByLevel[level]) {
+              tagsByLevel[level] = [];
+            }
+            tagsByLevel[level].push(...newTags);
+
+            // 更新构建的标签数量
+            if (onProgress) {
+              onProgress({
+                tagsBuilt: newTags.length,
+                updateType: 'increment'
+              });
+            }
+
+            // 添加日志
+            this.addLog(
+              onLog,
+              `Successfully created ${newTags.length} tags: ${newTags.map(tag => `"${tag.label}"`).join(', ')}`
+            );
+
+            return newTags;
+          }).catch(error => {
+            console.error(`创建${level}级标签失败:`, error);
+            this.addLog(onLog, `Failed to create ${level} level tags: ${error.message || 'Unknown error'}`);
+            return [];
           });
 
-          // 更新构建的标签数量
-          if (onProgress) {
-            onProgress({
-              tagsBuilt: response.data.length,
-              updateType: 'increment'
-            });
-          }
-
-          // 添加日志
-          this.addLog(
-            onLog,
-            `Successfully created ${response.data.length} tags: ${response.data.map(tag => tag.label).join(', ')}`
-          );
-
-          // 将新创建的标签添加到当前级别标签列表中
-          currentLevelTags = [...currentLevelTags, ...response.data];
-        } catch (error) {
-          console.error(`创建${level}级标签失败:`, error);
-          this.addLog(onLog, `Failed to create ${level} level tags: ${error.message || 'Unknown error'}`);
+          creationPromises.push(createPromise);
         }
       }
 
-      // 如果不是最后一层，继续递归构建下一层标签
-      if (level < levels) {
-        for (const tag of currentLevelTags) {
-          // 构建标签路径，确保以项目名称开头
-          let tagPath;
-          if (parentTagPath) {
-            tagPath = `${parentTagPath} > ${tag.label}`;
-          } else {
-            tagPath = `${projectName} > ${tag.label}`;
-          }
-
-          // 递归构建子标签
-          await buildTagsForLevel(tag, tagPath, level + 1);
-        }
-      }
-    };
-
-    // 获取叶子节点总数，更新进度条
-    const leafTags = Math.pow(tagsPerLevel, levels);
-    if (onProgress) {
-      onProgress({
-        tagsTotal: leafTags
-      });
+      // 并行执行当前批次的所有创建任务
+      await Promise.all(creationPromises);
     }
-
-    // 从第一层开始构建标签树
-    await buildTagsForLevel();
   }
 
   /**
@@ -329,7 +416,9 @@ class AutoDistillService {
 
       // 创建一个映射表，记录每个标签的子标签
       const childrenMap = {};
+      const parentMap = {};
       allTags.forEach(tag => {
+        parentMap[tag.id] = tag;
         if (tag.parentId) {
           if (!childrenMap[tag.parentId]) {
             childrenMap[tag.parentId] = [];
@@ -341,7 +430,7 @@ class AutoDistillService {
       // 找出所有叶子标签
       allTags.forEach(tag => {
         // 如果没有子标签，并且深度是最大层级，则为叶子标签
-        if (!childrenMap[tag.id] && this.getTagDepth(tag, allTags) === levels) {
+        if (!childrenMap[tag.id] && this.getTagDepth(tag, parentMap) === levels) {
           leafTags.push(tag);
         }
       });
@@ -367,7 +456,7 @@ class AutoDistillService {
       // 准备所有需要生成问题的叶子标签任务
       for (const tag of leafTags) {
         // 获取标签路径
-        const tagPath = this.getTagPath(tag, allTags);
+        const tagPath = this.getTagPath(tag, parentMap);
 
         // 计算已有问题数量
         const existingQuestions = allQuestions.filter(q => q.label === tag.label);
@@ -712,35 +801,32 @@ class AutoDistillService {
   /**
    * 获取标签深度
    * @param {Object} tag - 标签信息
-   * @param {Array} allTags - 所有标签
+   * @param {Object} parentMap - 父标签映射
    * @returns {number} - 标签深度
    */
-  getTagDepth(tag, allTags) {
+  getTagDepth(tag, parentMap) {
+    if (!tag) return 0;
+    
     let depth = 1;
     let currentTag = tag;
 
-    while (currentTag.parentId) {
+    while (currentTag && currentTag.parentId) {
       depth++;
-      currentTag = allTags.find(t => t.id === currentTag.parentId);
-      if (!currentTag) break;
+      currentTag = parentMap[currentTag.parentId];
     }
 
     return depth;
   }
 
   /**
-   * 获取标签路径
-   * @param {Object} tag - 标签信息
-   * @param {Array} allTags - 所有标签
-   * @returns {string} - 标签路径
-   */
-  /**
    * 获取标签路径，确保始终以项目名称开头
-   * @param {Object} tag - 标签对象
-   * @param {Array} allTags - 所有标签数组
+   * @param {Object|null} tag - 标签对象
+   * @param {Object} parentMap - 父标签映射
    * @returns {string} 标签路径
    */
-  getTagPath(tag, allTags) {
+  getTagPath(tag, parentMap) {
+    if (!tag) return '';
+    
     // 使用已经获取的项目名称
     const projectName = this.projectName || '';
 
@@ -751,7 +837,7 @@ class AutoDistillService {
     while (currentTag) {
       path.unshift(currentTag.label);
       if (currentTag.parentId) {
-        currentTag = allTags.find(t => t.id === currentTag.parentId);
+        currentTag = parentMap[currentTag.parentId];
       } else {
         currentTag = null;
       }
