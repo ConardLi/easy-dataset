@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import {
@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN, enUS } from 'date-fns/locale';
 
-// 导入子组件
 import TaskStatusChip from './TaskStatusChip';
 import TaskProgress from './TaskProgress';
 import TaskActions from './TaskActions';
@@ -37,7 +36,6 @@ export default function TasksTable({
 }) {
   const { t, i18n } = useTranslation();
 
-  // 格式化日期
   const formatDate = dateString => {
     if (!dateString) return '-';
     const date = new Date(dateString);
@@ -47,59 +45,148 @@ export default function TasksTable({
     });
   };
 
-  // 计算任务运行时间
   const calculateDuration = (startTimeStr, endTimeStr) => {
     if (!startTimeStr || !endTimeStr) return '-';
 
     try {
       const startTime = new Date(startTimeStr);
       const endTime = new Date(endTimeStr);
-
-      // 计算时间差（毫秒）
       const duration = endTime - startTime;
-
-      // 将毫秒转换为人类可读格式
       const seconds = Math.floor(duration / 1000);
 
       if (seconds < 60) {
         return t('tasks.duration.seconds', { seconds });
-      } else if (seconds < 3600) {
+      }
+      if (seconds < 3600) {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
         return t('tasks.duration.minutes', { minutes, seconds: remainingSeconds });
-      } else {
-        const hours = Math.floor(seconds / 3600);
-        const remainingMinutes = Math.floor((seconds % 3600) / 60);
-        return t('tasks.duration.hours', { hours, minutes: remainingMinutes });
       }
+
+      const hours = Math.floor(seconds / 3600);
+      const remainingMinutes = Math.floor((seconds % 3600) / 60);
+      return t('tasks.duration.hours', { hours, minutes: remainingMinutes });
     } catch (error) {
-      console.error('计算运行时间出错:', error);
+      console.error('Failed to calculate duration:', error);
       return '-';
     }
   };
 
-  // 解析模型信息
   const parseModelInfo = modelInfoString => {
     let modelInfo = '';
     try {
       const parsedModel = JSON.parse(modelInfoString);
       modelInfo = parsedModel.modelName || parsedModel.name || '-';
-    } catch (error) {
+    } catch {
       modelInfo = modelInfoString || '-';
     }
     return modelInfo;
   };
 
-  // 任务类型本地化
-  const getLocalizedTaskType = taskType => {
-    return t(`tasks.types.${taskType}`, { defaultValue: taskType });
+  const toTaskTypeLabel = taskType => {
+    if (!taskType) return '-';
+    return String(taskType)
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
-  // 截断 note 内容，只显示前面部分
-  const truncateNote = (note, maxLength = 30) => {
+  const getLocalizedTaskType = taskType => {
+    return t(`tasks.types.${taskType}`, { defaultValue: toTaskTypeLabel(taskType) });
+  };
+
+  const parseJsonSafely = input => {
+    if (!input || typeof input !== 'string') return null;
+    try {
+      return JSON.parse(input);
+    } catch {
+      return null;
+    }
+  };
+
+  const formatTaskNote = task => {
+    const note = String(task?.note || '').trim();
+    if (!note) return '-';
+
+    const noteJson = parseJsonSafely(note);
+    if (noteJson) {
+      if (Array.isArray(noteJson.chunkIds)) {
+        return t('tasks.notes.selectedChunks', { count: noteJson.chunkIds.length });
+      }
+      if (Array.isArray(noteJson.fileList)) {
+        return t('tasks.notes.fileBatch', {
+          count: noteJson.fileList.length,
+          strategy: noteJson.strategy || '-'
+        });
+      }
+      return t('tasks.notes.jsonParams');
+    }
+
+    if (note === 'No chunks require question generation' || note.startsWith('No chunks require question gen')) {
+      return t('tasks.notes.noChunksQuestion');
+    }
+    if (note === 'No chunks require cleaning' || note.startsWith('No chunks require clean')) {
+      return t('tasks.notes.noChunksCleaning');
+    }
+    if (note.startsWith('Processing failed:')) {
+      return t('tasks.notes.processingFailed', {
+        error: note.replace('Processing failed:', '').trim()
+      });
+    }
+
+    const summaryMatch = note.match(/Processed:\s*(\d+)\/(\d+),\s*succeeded:\s*(\d+),\s*failed:\s*(\d+)/i);
+    if (summaryMatch) {
+      const [, processed, total, succeeded, failed] = summaryMatch;
+
+      const questionMatch = note.match(/questions generated:\s*(\d+)/i);
+      if (questionMatch) {
+        return t('tasks.notes.questionSummary', {
+          processed,
+          total,
+          succeeded,
+          failed,
+          generated: questionMatch[1]
+        });
+      }
+
+      const datasetMatch = note.match(/datasets generated:\s*(\d+)/i);
+      if (datasetMatch) {
+        return t('tasks.notes.datasetSummary', {
+          processed,
+          total,
+          succeeded,
+          failed,
+          generated: datasetMatch[1]
+        });
+      }
+
+      const cleaningMatch = note.match(/total original length:\s*(\d+),\s*total cleaned length:\s*(\d+)/i);
+      if (cleaningMatch) {
+        return t('tasks.notes.cleaningSummary', {
+          processed,
+          total,
+          succeeded,
+          failed,
+          original: cleaningMatch[1],
+          cleaned: cleaningMatch[2]
+        });
+      }
+
+      return t('tasks.notes.genericSummary', {
+        processed,
+        total,
+        succeeded,
+        failed
+      });
+    }
+
+    return note;
+  };
+
+  const truncateNote = (note, maxLength = 48) => {
     if (!note) return '-';
     if (note.length <= maxLength) return note;
-    return note.substring(0, maxLength) + '...';
+    return `${note.substring(0, maxLength)}...`;
   };
 
   return (
@@ -137,41 +224,44 @@ export default function TasksTable({
                 </TableCell>
               </TableRow>
             ) : (
-              tasks.map(task => (
-                <TableRow key={task.id}>
-                  <TableCell>{getLocalizedTaskType(task.taskType)}</TableCell>
-                  <TableCell>
-                    <TaskStatusChip status={task.status} />
-                  </TableCell>
-                  <TableCell>
-                    <TaskProgress task={task} />
-                  </TableCell>
+              tasks.map(task => {
+                const noteText = formatTaskNote(task);
+                return (
+                  <TableRow key={task.id}>
+                    <TableCell>{getLocalizedTaskType(task.taskType)}</TableCell>
+                    <TableCell>
+                      <TaskStatusChip status={task.status} />
+                    </TableCell>
+                    <TableCell>
+                      <TaskProgress task={task} />
+                    </TableCell>
 
-                  <TableCell>{formatDate(task.createAt)}</TableCell>
-                  <TableCell>{task.endTime ? calculateDuration(task.startTime, task.endTime) : '-'}</TableCell>
-                  <TableCell>{parseModelInfo(task.modelInfo)}</TableCell>
-                  <TableCell>
-                    {task.note ? (
-                      <Tooltip title={task.note} arrow placement="top">
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            cursor: 'pointer',
-                            '&:hover': { color: 'primary.main' }
-                          }}
-                        >
-                          {truncateNote(task.note)}
-                        </Typography>
-                      </Tooltip>
-                    ) : (
-                      '-'
-                    )}
-                  </TableCell>
-                  <TableCell align="right">
-                    <TaskActions task={task} onAbort={handleAbortTask} onDelete={handleDeleteTask} />
-                  </TableCell>
-                </TableRow>
-              ))
+                    <TableCell>{formatDate(task.createAt)}</TableCell>
+                    <TableCell>{task.endTime ? calculateDuration(task.startTime, task.endTime) : '-'}</TableCell>
+                    <TableCell>{parseModelInfo(task.modelInfo)}</TableCell>
+                    <TableCell>
+                      {noteText !== '-' ? (
+                        <Tooltip title={noteText} arrow placement="top">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              cursor: 'pointer',
+                              '&:hover': { color: 'primary.main' }
+                            }}
+                          >
+                            {truncateNote(noteText)}
+                          </Typography>
+                        </Tooltip>
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                    <TableCell align="right">
+                      <TaskActions task={task} onAbort={handleAbortTask} onDelete={handleDeleteTask} />
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
@@ -187,8 +277,7 @@ export default function TasksTable({
           onRowsPerPageChange={handleChangeRowsPerPage}
           rowsPerPageOptions={[5, 10, 25]}
           labelRowsPerPage={t('datasets.rowsPerPage')}
-          labelDisplayedRows={({ from, to, count }) => {
-            // 根据实际分页操作计算正确的from和to
+          labelDisplayedRows={({ count }) => {
             const calculatedFrom = page * rowsPerPage + 1;
             const calculatedTo = Math.min((page + 1) * rowsPerPage, count);
             return t('datasets.pagination', {

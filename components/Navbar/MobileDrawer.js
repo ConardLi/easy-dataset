@@ -47,9 +47,14 @@ export default function MobileDrawer({
   toggleDrawer,
   expandedMenu,
   toggleMobileSubmenu,
-  currentProject
+  currentProject,
+  onNavigateStart
 }) {
   const { t, i18n } = useTranslation();
+  const handleNavigateStart = () => {
+    onNavigateStart?.();
+    toggleDrawer();
+  };
 
   return (
     <Drawer
@@ -206,7 +211,7 @@ export default function MobileDrawer({
               sx={styles.getDrawerSubmenuItemStyles(theme)}
               component={Link}
               href={`/projects/${currentProject}/multi-turn`}
-              onClick={toggleDrawer}
+              onClick={handleNavigateStart}
             >
               <ListItemIcon sx={styles.smallListItemIconStyles}>
                 <ChatIcon fontSize="small" />
@@ -256,7 +261,7 @@ export default function MobileDrawer({
               sx={styles.getDrawerSubmenuItemStyles(theme)}
               component={Link}
               href={`/projects/${currentProject}/eval-datasets`}
-              onClick={toggleDrawer}
+              onClick={handleNavigateStart}
             >
               <ListItemIcon sx={styles.smallListItemIconStyles}>
                 <AssessmentOutlinedIcon fontSize="small" />
@@ -268,7 +273,7 @@ export default function MobileDrawer({
               sx={styles.getDrawerSubmenuItemStyles(theme)}
               component={Link}
               href={`/projects/${currentProject}/eval-tasks`}
-              onClick={toggleDrawer}
+              onClick={handleNavigateStart}
             >
               <ListItemIcon sx={styles.smallListItemIconStyles}>
                 <PlaylistPlayIcon fontSize="small" />

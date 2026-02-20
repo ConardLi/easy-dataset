@@ -17,15 +17,15 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import * as styles from './styles';
 
 /**
- * DesktopMenus 组件
- * 桌面端悬停菜单，包含数据源、数据集管理、更多三个菜单
+ * DesktopMenus 缂備礁瀚▎?
+ * 婵℃鐭傚鎵博椤栨稑浜鹃柛瀣矎瑜板秹宕￠弴顏嗙闁告牕鎳庨幆鍫ュ极閻楀牆绁︽繝褎鍔戦埀顑跨劍閺嗙喖骞戦鈧▔锔剧不閿涘嫭鍊為柕鍡曠劍濞叉寧寰勫顐ょ憦濞戞搩浜ｈぐ宥夊础?
  */
-export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuClose, currentProject }) {
+export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuClose, currentProject, onNavigateStart }) {
   const { t } = useTranslation();
 
   return (
     <>
-      {/* 数据源菜单 */}
+      {/* 闁轰胶澧楀畵浣糕攦閹邦垰缍呴柛?*/}
       <Menu
         anchorEl={menuState.anchorEl}
         open={isMenuOpen('source')}
@@ -55,7 +55,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/text-split`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           role="menuitem"
           sx={styles.getMenuItemStyles(theme)}
         >
@@ -68,7 +68,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/images`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           role="menuitem"
           sx={styles.getMenuItemStyles(theme)}
         >
@@ -79,7 +79,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         </MenuItem>
       </Menu>
 
-      {/* 数据集管理菜单 */}
+      {/* 闁轰胶澧楀畵渚€姊块崱娆樺悁闁荤偛妫滆ぐ宥夊础?*/}
       <Menu
         anchorEl={menuState.anchorEl}
         open={isMenuOpen('dataset')}
@@ -106,7 +106,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/datasets`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -121,7 +121,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/multi-turn`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -136,7 +136,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/image-datasets`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -149,7 +149,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         </MenuItem>
       </Menu>
 
-      {/* 评估菜单 */}
+      {/* 閻犲洤瀚崣濠囨嚕濠婂啫绀?*/}
       <Menu
         anchorEl={menuState.anchorEl}
         open={isMenuOpen('eval')}
@@ -176,7 +176,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/eval-datasets`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -188,7 +188,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/eval-tasks`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -200,7 +200,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/blind-test-tasks`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -210,7 +210,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         </MenuItem>
       </Menu>
 
-      {/* 更多菜单 */}
+      {/* 闁哄洦娼欓ˇ鍧楁嚕濠婂啫绀?*/}
       <Menu
         anchorEl={menuState.anchorEl}
         open={isMenuOpen('more')}
@@ -237,7 +237,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/settings`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -249,7 +249,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href={`/projects/${currentProject}/playground`}
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>
@@ -261,7 +261,7 @@ export default function DesktopMenus({ theme, menuState, isMenuOpen, handleMenuC
         <MenuItem
           component={Link}
           href="/dataset-square"
-          onClick={handleMenuClose}
+          onClick={() => { onNavigateStart?.(); handleMenuClose(); }}
           sx={styles.getSimpleMenuItemStyles(theme)}
         >
           <ListItemIcon sx={styles.smallListItemIconStyles}>

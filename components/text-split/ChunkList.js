@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Box, Paper, Typography, CircularProgress, Pagination, Grid } from '@mui/material';
 import ChunkListHeader from './ChunkListHeader';
 import ChunkCard from './ChunkCard';
@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
  * @param {Function} props.onDataCleaning - Data cleaning callback
  * @param {string} props.questionFilter - Question filter
  * @param {Function} props.onQuestionFilterChange - Question filter change callback
- * @param {Object} props.selectedModel - 选中的模型信息
+ * @param {Object} props.selectedModel - 閫変腑鐨勬ā鍨嬩俊鎭?
  */
 export default function ChunkList({
   projectId,
@@ -50,26 +50,44 @@ export default function ChunkList({
   const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] = useState(false);
   const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
 
-  // 添加高级筛选状态
+  // 娣诲姞楂樼骇绛涢€夌姸鎬?
   const [advancedFilters, setAdvancedFilters] = useState({
     contentKeyword: '',
     sizeRange: [0, 10000],
     hasQuestions: null
   });
 
-  // 计算活跃筛选条件数
-  const getActiveFilterCount = () => {
+  // 璁＄畻娲昏穬绛涢€夋潯浠舵暟
+  const activeFilterCount = useMemo(() => {
     let count = 0;
     if (advancedFilters.contentKeyword) count++;
     if (advancedFilters.sizeRange[0] > 0 || advancedFilters.sizeRange[1] < 10000) count++;
     if (advancedFilters.hasQuestions !== null) count++;
     return count;
-  };
+  }, [advancedFilters]);
 
-  // 应用所有筛选条件
-  const applyFilters = chunkList => {
-    return chunkList.filter(chunk => {
-      // 内容关键词筛选
+  const sortedChunks = useMemo(
+    () =>
+      [...chunks].sort((a, b) => {
+        if (a.fileId !== b.fileId) {
+          return a.fileId.localeCompare(b.fileId);
+        }
+
+        const getPartNumber = name => {
+          const match = name.match(/part-(\d+)/);
+          return match ? parseInt(match[1], 10) : 0;
+        };
+
+        const numA = getPartNumber(a.name);
+        const numB = getPartNumber(b.name);
+
+        return numA - numB;
+      }),
+    [chunks]
+  );
+
+  const filteredChunks = useMemo(() => {
+    return sortedChunks.filter(chunk => {
       if (advancedFilters.contentKeyword) {
         const keyword = advancedFilters.contentKeyword.toLowerCase();
         if (!chunk.content?.toLowerCase().includes(keyword)) {
@@ -77,13 +95,11 @@ export default function ChunkList({
         }
       }
 
-      // 字数范围筛选
       const size = chunk.size || 0;
       if (size < advancedFilters.sizeRange[0] || size > advancedFilters.sizeRange[1]) {
         return false;
       }
 
-      // 问题状态筛选（如果设置了）
       if (advancedFilters.hasQuestions !== null) {
         const hasQuestions = chunk.Questions && chunk.Questions.length > 0;
         if (advancedFilters.hasQuestions !== hasQuestions) {
@@ -93,41 +109,20 @@ export default function ChunkList({
 
       return true;
     });
-  };
+  }, [sortedChunks, advancedFilters]);
 
-  // 对文本块进行排序，先按文件ID排序，再按part-后面的数字排序
-  const sortedChunks = [...chunks].sort((a, b) => {
-    // 先按fileId排序
-    if (a.fileId !== b.fileId) {
-      return a.fileId.localeCompare(b.fileId);
-    }
-
-    // 同一文件内，再按part-后面的数字排序
-    const getPartNumber = name => {
-      const match = name.match(/part-(\d+)/);
-      return match ? parseInt(match[1], 10) : 0;
-    };
-
-    const numA = getPartNumber(a.name);
-    const numB = getPartNumber(b.name);
-
-    return numA - numB;
-  });
-
-  // 应用高级筛选
-  const filteredChunks = applyFilters(sortedChunks);
-
-  // 当筛选条件变化时，清除不在筛选结果中的选中项
+  // 褰撶瓫閫夋潯浠跺彉鍖栨椂锛屾竻闄や笉鍦ㄧ瓫閫夌粨鏋滀腑鐨勯€変腑椤?
   useEffect(() => {
     const filteredChunkIds = filteredChunks.map(chunk => chunk.id);
     setSelectedChunks(prev => prev.filter(id => filteredChunkIds.includes(id)));
-  }, [advancedFilters.contentKeyword, advancedFilters.sizeRange, advancedFilters.hasQuestions, chunks]);
+  }, [filteredChunks]);
 
   const itemsPerPage = 5;
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const displayedChunks = filteredChunks.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredChunks.length / itemsPerPage);
+  const displayedChunks = useMemo(() => {
+    const startIndex = (page - 1) * itemsPerPage;
+    return filteredChunks.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredChunks, page]);
+  const totalPages = useMemo(() => Math.ceil(filteredChunks.length / itemsPerPage), [filteredChunks.length]);
   const { t } = useTranslation();
 
   const handlePageChange = (event, value) => {
@@ -170,7 +165,7 @@ export default function ChunkList({
     handleCloseDeleteDialog();
   };
 
-  // 处理编辑文本块
+  // 澶勭悊缂栬緫鏂囨湰鍧?
   const handleEditChunk = async (chunkId, newContent) => {
     if (onEdit) {
       onEdit(chunkId, newContent);
@@ -178,7 +173,7 @@ export default function ChunkList({
     }
   };
 
-  // 处理选择文本块
+  // 澶勭悊閫夋嫨鏂囨湰鍧?
   const handleSelectChunk = chunkId => {
     setSelectedChunks(prev => {
       if (prev.includes(chunkId)) {
@@ -207,7 +202,7 @@ export default function ChunkList({
     try {
       setBatchEditLoading(true);
 
-      // 调用批量编辑API
+      // 璋冪敤鎵归噺缂栬緫API
       const response = await fetch(`/api/projects/${projectId}/chunks/batch-edit`, {
         method: 'POST',
         headers: {
@@ -221,42 +216,42 @@ export default function ChunkList({
       });
 
       if (!response.ok) {
-        throw new Error('批量编辑失败');
+        throw new Error('鎵归噺缂栬緫澶辫触');
       }
 
       const result = await response.json();
 
       if (result.success) {
-        // 编辑成功后，刷新文本块数据
+        // 缂栬緫鎴愬姛鍚庯紝鍒锋柊鏂囨湰鍧楁暟鎹?
         if (onChunksUpdate) {
           onChunksUpdate();
         }
 
-        // 清空选中状态
+        // 娓呯┖閫変腑鐘舵€?
         setSelectedChunks([]);
 
-        // 关闭对话框
+        // 鍏抽棴瀵硅瘽妗?
         setBatchEditDialogOpen(false);
 
-        // 显示成功消息
-        console.log(`成功更新了 ${result.updatedCount} 个文本块`);
+        // 鏄剧ず鎴愬姛娑堟伅
+        console.log(`鎴愬姛鏇存柊浜?${result.updatedCount} 涓枃鏈潡`);
       } else {
-        throw new Error(result.message || '批量编辑失败');
+        throw new Error(result.message || '鎵归噺缂栬緫澶辫触');
       }
     } catch (error) {
-      console.error('批量编辑失败:', error);
-      // 这里可以添加错误提示
+      console.error('鎵归噺缂栬緫澶辫触:', error);
+      // 杩欓噷鍙互娣诲姞閿欒鎻愮ず
     } finally {
       setBatchEditLoading(false);
     }
   };
 
-  // 打开批量编辑对话框
+  // 鎵撳紑鎵归噺缂栬緫瀵硅瘽妗?
   const handleOpenBatchEdit = () => {
     setBatchEditDialogOpen(true);
   };
 
-  // 关闭批量编辑对话框
+  // 鍏抽棴鎵归噺缂栬緫瀵硅瘽妗?
   const handleCloseBatchEdit = () => {
     setBatchEditDialogOpen(false);
   };
@@ -269,23 +264,23 @@ export default function ChunkList({
     );
   }
 
-  // 处理筛选变化
+  // 澶勭悊绛涢€夊彉鍖?
   const handleFilterChange = filters => {
     setAdvancedFilters(filters);
-    setPage(1); // 重置到第一页
+    setPage(1); // 閲嶇疆鍒扮涓€椤?
   };
 
-  // 打开批量删除对话框
+  // 鎵撳紑鎵归噺鍒犻櫎瀵硅瘽妗?
   const handleOpenBatchDelete = () => {
     setBatchDeleteDialogOpen(true);
   };
 
-  // 关闭批量删除对话框
+  // 鍏抽棴鎵归噺鍒犻櫎瀵硅瘽妗?
   const handleCloseBatchDelete = () => {
     setBatchDeleteDialogOpen(false);
   };
 
-  // 确认批量删除
+  // 纭鎵归噺鍒犻櫎
   const handleConfirmBatchDelete = async () => {
     if (selectedChunks.length === 0) return;
 
@@ -295,36 +290,36 @@ export default function ChunkList({
       let successCount = 0;
       let failCount = 0;
 
-      // 循环调用单个删除接口
+      // 寰幆璋冪敤鍗曚釜鍒犻櫎鎺ュ彛
       for (const chunkId of selectedChunks) {
         try {
           await onDelete(chunkId);
           successCount++;
         } catch (error) {
-          console.error(`删除文本块 ${chunkId} 失败:`, error);
+          console.error(`鍒犻櫎鏂囨湰鍧?${chunkId} 澶辫触:`, error);
           failCount++;
         }
       }
 
-      // 显示删除结果
+      // 鏄剧ず鍒犻櫎缁撴灉
       if (failCount === 0) {
-        console.log(`成功删除 ${successCount} 个文本块`);
+        console.log(`鎴愬姛鍒犻櫎 ${successCount} 涓枃鏈潡`);
       } else {
         console.log(`删除完成：成功 ${successCount} 个，失败 ${failCount} 个`);
       }
 
-      // 清空选中状态
+      // 娓呯┖閫変腑鐘舵€?
       setSelectedChunks([]);
 
-      // 刷新数据
+      // 鍒锋柊鏁版嵁
       if (onChunksUpdate) {
         onChunksUpdate();
       }
 
-      // 关闭对话框
+      // 鍏抽棴瀵硅瘽妗?
       setBatchDeleteDialogOpen(false);
     } catch (error) {
-      console.error('批量删除失败:', error);
+      console.error('鎵归噺鍒犻櫎澶辫触:', error);
     } finally {
       setBatchDeleteLoading(false);
     }
@@ -345,7 +340,7 @@ export default function ChunkList({
         chunks={chunks}
         selectedModel={selectedModel}
         onFilterChange={handleFilterChange}
-        activeFilterCount={getActiveFilterCount()}
+        activeFilterCount={activeFilterCount}
       />
 
       <Grid container spacing={2}>
@@ -389,13 +384,13 @@ export default function ChunkList({
         </Box>
       )}
 
-      {/* 文本块详情对话框 */}
+      {/* 鏂囨湰鍧楄鎯呭璇濇 */}
       <ChunkViewDialog open={viewDialogOpen} chunk={viewChunk} onClose={handleCloseViewDialog} />
 
-      {/* 删除确认对话框 */}
+      {/* 鍒犻櫎纭瀵硅瘽妗?*/}
       <ChunkDeleteDialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />
 
-      {/* 批量编辑对话框 */}
+      {/* 鎵归噺缂栬緫瀵硅瘽妗?*/}
       <BatchEditChunksDialog
         open={batchEditDialogOpen}
         onClose={handleCloseBatchEdit}
@@ -405,7 +400,7 @@ export default function ChunkList({
         loading={batchEditLoading}
       />
 
-      {/* 批量删除确认对话框 */}
+      {/* 鎵归噺鍒犻櫎纭瀵硅瘽妗?*/}
       <ChunkBatchDeleteDialog
         open={batchDeleteDialogOpen}
         onClose={handleCloseBatchDelete}
@@ -416,3 +411,4 @@ export default function ChunkList({
     </Box>
   );
 }
+

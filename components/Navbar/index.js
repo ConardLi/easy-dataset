@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { AppBar, Toolbar, Box, IconButton, useTheme as useMuiTheme, Tooltip, useMediaQuery } from '@mui/material';
+import { AppBar, Toolbar, Box, IconButton, useTheme as useMuiTheme, Tooltip, useMediaQuery, LinearProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -21,6 +21,7 @@ import ContextBar from './ContextBar';
 export default function Navbar({ projects = [], currentProject }) {
   const { t } = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
   const theme = useMuiTheme();
   const { resolvedTheme, setTheme } = useTheme();
   const isProjectDetail = pathname.includes('/projects/') && pathname.split('/').length > 3;
@@ -34,6 +35,8 @@ export default function Navbar({ projects = [], currentProject }) {
 
   // 桌面端菜单状态
   const [menuState, setMenuState] = useState({ anchorEl: null, menuType: null });
+  const [navLoading, setNavLoading] = useState(false);
+  const navLoadingTimeoutRef = useRef(null);
 
   // ContextBar 悬浮状态
   const [contextBarHovered, setContextBarHovered] = useState(false);
@@ -71,6 +74,43 @@ export default function Navbar({ projects = [], currentProject }) {
       document.removeEventListener('pointerdown', handleOutsideMenuClick, true);
     };
   }, [menuState.anchorEl, menuState.menuType]);
+
+  useEffect(() => {
+    setNavLoading(false);
+    if (navLoadingTimeoutRef.current) {
+      clearTimeout(navLoadingTimeoutRef.current);
+      navLoadingTimeoutRef.current = null;
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isProjectDetail || !currentProject) return;
+    const prefetchRoutes = [
+      `/projects/${currentProject}/multi-turn`,
+      `/projects/${currentProject}/eval-datasets`,
+      `/projects/${currentProject}/eval-tasks`
+    ];
+    prefetchRoutes.forEach(route => router.prefetch(route));
+  }, [router, currentProject, isProjectDetail]);
+
+  useEffect(() => {
+    return () => {
+      if (navLoadingTimeoutRef.current) {
+        clearTimeout(navLoadingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleNavigateStart = () => {
+    setNavLoading(true);
+    if (navLoadingTimeoutRef.current) {
+      clearTimeout(navLoadingTimeoutRef.current);
+    }
+    navLoadingTimeoutRef.current = setTimeout(() => {
+      setNavLoading(false);
+      navLoadingTimeoutRef.current = null;
+    }, 12000);
+  };
 
   const handleMenuOpen = (event, menuType) => {
     setMenuState({ anchorEl: event.currentTarget, menuType });
@@ -142,6 +182,7 @@ export default function Navbar({ projects = [], currentProject }) {
               currentProject={currentProject}
               handleMenuOpen={handleMenuOpen}
               handleMenuClose={handleMenuClose}
+              onNavigateStart={handleNavigateStart}
             />
           )}
 
@@ -155,6 +196,20 @@ export default function Navbar({ projects = [], currentProject }) {
             onActionAreaEnter={!isMobile ? handleMenuClose : undefined}
           />
         </Toolbar>
+        {isProjectDetail && (
+          <LinearProgress
+            color="secondary"
+            sx={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 2,
+              opacity: navLoading ? 1 : 0,
+              transition: 'opacity 180ms ease'
+            }}
+          />
+        )}
       </AppBar>
 
       {/* ContextBar - 在 Logo 或 ContextBar 悬浮时展示 */}
@@ -176,6 +231,7 @@ export default function Navbar({ projects = [], currentProject }) {
         expandedMenu={expandedMenu}
         toggleMobileSubmenu={toggleMobileSubmenu}
         currentProject={currentProject}
+        onNavigateStart={handleNavigateStart}
       />
 
       {/* 桌面端菜单组件 */}
@@ -185,6 +241,7 @@ export default function Navbar({ projects = [], currentProject }) {
         isMenuOpen={isMenuOpen}
         handleMenuClose={handleMenuClose}
         currentProject={currentProject}
+        onNavigateStart={handleNavigateStart}
       />
     </>
   );

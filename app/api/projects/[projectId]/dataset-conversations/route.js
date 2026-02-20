@@ -5,7 +5,7 @@
 import { NextResponse } from 'next/server';
 import {
   getDatasetConversationsByPagination,
-  getAllDatasetConversations,
+  getAllDatasetConversationIds,
   createDatasetConversation
 } from '@/lib/db/dataset-conversations';
 import { generateMultiTurnConversation } from '@/lib/services/multi-turn/index';
@@ -38,8 +38,7 @@ export async function GET(request, { params }) {
 
     // 如果请求获取所有ID
     if (getAllIds) {
-      const allConversations = await getAllDatasetConversations(projectId, filters);
-      const allConversationIds = allConversations.map(conversation => String(conversation.id)) || [];
+      const allConversationIds = await getAllDatasetConversationIds(projectId, filters);
       return NextResponse.json({ allConversationIds });
     }
 

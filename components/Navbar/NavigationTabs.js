@@ -17,7 +17,7 @@ import * as styles from './styles';
  * NavigationTabs 组件
  * 桌面端导航 Tabs，包含数据源、数据蒸馏、问题管理、数据集管理、更多等 Tab
  */
-export default function NavigationTabs({ theme, pathname, currentProject, handleMenuOpen, handleMenuClose }) {
+export default function NavigationTabs({ theme, pathname, currentProject, handleMenuOpen, handleMenuClose, onNavigateStart }) {
   const { t } = useTranslation();
 
   // 计算当前 Tab 值
@@ -68,7 +68,10 @@ export default function NavigationTabs({ theme, pathname, currentProject, handle
           value={`/projects/${currentProject}/distill`}
           component={Link}
           href={`/projects/${currentProject}/distill`}
-          onClick={handleMenuClose}
+          onClick={() => {
+            onNavigateStart?.();
+            handleMenuClose();
+          }}
           sx={styles.tabIconWrapperStyles}
         />
         <Tab
@@ -78,7 +81,10 @@ export default function NavigationTabs({ theme, pathname, currentProject, handle
           value={`/projects/${currentProject}/questions`}
           component={Link}
           href={`/projects/${currentProject}/questions`}
-          onClick={handleMenuClose}
+          onClick={() => {
+            onNavigateStart?.();
+            handleMenuClose();
+          }}
           sx={styles.tabIconWrapperStyles}
         />
         <Tab

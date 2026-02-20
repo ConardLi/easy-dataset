@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Container, IconButton } from '@mui/material';
+import { Box, Typography, Container, LinearProgress, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import TaskIcon from '@mui/icons-material/Task';
 import { toast } from 'sonner';
 
-// 导入任务管理组件
 import TaskFilters from '@/components/tasks/TaskFilters';
 import TasksTable from '@/components/tasks/TasksTable';
 
@@ -15,24 +14,24 @@ export default function TasksPage({ params }) {
   const { projectId } = params;
   const { t } = useTranslation();
 
-  // 状态管理
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
-
-  // 分页相关状态
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
 
-  // 获取任务列表
+  const processingTasks = tasks.filter(task => task.status === 0 && task.totalCount > 0);
+  const totalProgressCount = processingTasks.reduce((sum, task) => sum + task.totalCount, 0);
+  const completedProgressCount = processingTasks.reduce((sum, task) => sum + task.completedCount, 0);
+  const overallProgress = totalProgressCount > 0 ? Math.round((completedProgressCount / totalProgressCount) * 100) : 0;
+
   const fetchTasks = async () => {
     if (!projectId) return;
 
     try {
       setLoading(true);
-      // 构建查询参数
       let url = `/api/projects/${projectId}/tasks/list`;
       const queryParams = [];
 
@@ -44,43 +43,38 @@ export default function TasksPage({ params }) {
         queryParams.push(`taskType=${typeFilter}`);
       }
 
-      // 添加分页参数
       queryParams.push(`page=${page}`);
       queryParams.push(`limit=${rowsPerPage}`);
 
       if (queryParams.length > 0) {
-        url += '?' + queryParams.join('&');
+        url += `?${queryParams.join('&')}`;
       }
 
       const response = await axios.get(url);
       if (response.data?.code === 0) {
         setTasks(response.data.data || []);
-        // 设置总记录数
         setTotalCount(response.data.total || response.data.data?.length || 0);
       }
     } catch (error) {
-      console.error('获取任务列表失败:', error);
+      console.error('Failed to fetch tasks:', error);
       toast.error(t('tasks.fetchFailed'));
     } finally {
       setLoading(false);
     }
   };
 
-  // 初始化和过滤器变更时获取任务列表
   useEffect(() => {
     fetchTasks();
 
-    // 定时刷新处理中的任务
     const intervalId = setInterval(() => {
       if (statusFilter === 'all' || statusFilter === '0') {
         fetchTasks();
       }
-    }, 5000); // 每5秒更新一次处理中的任务
+    }, 5000);
 
     return () => clearInterval(intervalId);
   }, [projectId, statusFilter, typeFilter, page, rowsPerPage]);
 
-  // 删除任务
   const handleDeleteTask = async taskId => {
     if (!confirm(t('tasks.confirmDelete'))) return;
 
@@ -93,18 +87,17 @@ export default function TasksPage({ params }) {
         toast.error(t('tasks.deleteFailed'));
       }
     } catch (error) {
-      console.error('删除任务失败:', error);
+      console.error('Failed to delete task:', error);
       toast.error(t('tasks.deleteFailed'));
     }
   };
 
-  // 中断任务
   const handleAbortTask = async taskId => {
     if (!confirm(t('tasks.confirmAbort'))) return;
 
     try {
       const response = await axios.patch(`/api/projects/${projectId}/tasks/${taskId}`, {
-        status: 3, // 3 表示已中断
+        status: 3,
         note: t('tasks.status.aborted')
       });
 
@@ -115,12 +108,11 @@ export default function TasksPage({ params }) {
         toast.error(t('tasks.abortFailed'));
       }
     } catch (error) {
-      console.error('中断任务失败:', error);
+      console.error('Failed to abort task:', error);
       toast.error(t('tasks.abortFailed'));
     }
   };
 
-  // 分页参数更改处理
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -147,7 +139,6 @@ export default function TasksPage({ params }) {
           {t('tasks.title')}
         </Typography>
 
-        {/* 任务筛选器组件 */}
         <TaskFilters
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
@@ -158,7 +149,15 @@ export default function TasksPage({ params }) {
         />
       </Box>
 
-      {/* 任务表格组件 */}
+      {processingTasks.length > 0 && (
+        <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            {t('tasks.pending', { count: processingTasks.length })} - {completedProgressCount}/{totalProgressCount} ({overallProgress}%)
+          </Typography>
+          <LinearProgress variant="determinate" value={overallProgress} sx={{ height: 8, borderRadius: 4 }} />
+        </Paper>
+      )}
+
       <TasksTable
         tasks={tasks}
         loading={loading}

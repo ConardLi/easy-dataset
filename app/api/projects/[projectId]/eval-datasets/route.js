@@ -26,8 +26,7 @@ export async function GET(request, { params }) {
 
     const includeStats = searchParams.get('includeStats') === 'true';
 
-    // Fetch paginated data
-    const result = await getEvalQuestionsWithPagination(projectId, {
+    const queryOptions = {
       page,
       pageSize,
       questionType: questionType || undefined,
@@ -35,14 +34,18 @@ export async function GET(request, { params }) {
       keyword: keyword || undefined,
       chunkId: chunkId || undefined,
       tags: tags.length > 0 ? tags : undefined
-    });
+    };
 
-    // Attach stats if requested
     if (includeStats) {
-      const stats = await getEvalQuestionsStats(projectId);
+      const [result, stats] = await Promise.all([
+        getEvalQuestionsWithPagination(projectId, queryOptions),
+        getEvalQuestionsStats(projectId)
+      ]);
       result.stats = stats;
+      return NextResponse.json(result);
     }
 
+    const result = await getEvalQuestionsWithPagination(projectId, queryOptions);
     return NextResponse.json(result);
   } catch (error) {
     console.error('Failed to get eval datasets:', error);

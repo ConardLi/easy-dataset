@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { Delete as DeleteIcon, Visibility as ViewIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 import RatingChip from './RatingChip';
 
 const QUESTION_TOOLTIP_THRESHOLD = 80;
@@ -39,15 +40,16 @@ const ConversationTable = ({
   onSelectAll
 }) => {
   const { t } = useTranslation();
+  const [expandedRows, setExpandedRows] = useState({});
   const columnWidths = {
-    checkbox: 56,
-    question: 420,
-    scenario: 520,
-    rounds: 110,
-    model: 160,
-    rating: 110,
-    createdAt: 140,
-    actions: 110
+    checkbox: 52,
+    question: 280,
+    scenario: 340,
+    rounds: 90,
+    model: 120,
+    rating: 100,
+    createdAt: 110,
+    actions: 92
   };
 
   const shouldShowTooltip = (value, threshold) => (value || '').length > threshold;
@@ -72,26 +74,51 @@ const ConversationTable = ({
   };
 
   const isIndeterminate = selectedIds.length > 0 && !isAllSelected;
+  const toggleRowExpanded = conversationId => {
+    setExpandedRows(prev => ({ ...prev, [conversationId]: !prev[conversationId] }));
+  };
 
   return (
     <TableContainer component={Paper} elevation={0} sx={{ overflowX: 'auto' }}>
-      <Table sx={{ tableLayout: 'fixed', minWidth: 1626 }}>
+      <Table
+        sx={{
+          tableLayout: 'fixed',
+          width: '100%',
+          minWidth: 1184,
+          '& .MuiTableCell-root': {
+            px: 1.25,
+            py: 1
+          }
+        }}
+      >
         <TableHead>
           <TableRow sx={{ bgcolor: 'action.hover' }}>
-            <TableCell padding="checkbox" sx={{ width: columnWidths.checkbox }}>
+            <TableCell padding="checkbox" sx={{ width: columnWidths.checkbox, py: 1.25 }}>
               <Checkbox indeterminate={isIndeterminate} checked={isAllSelected} onChange={handleSelectAll} />
             </TableCell>
-            <TableCell sx={{ width: columnWidths.question, minWidth: columnWidths.question }}>
+            <TableCell sx={{ width: columnWidths.question, minWidth: columnWidths.question, py: 1.25 }}>
               {t('datasets.firstQuestion')}
             </TableCell>
-            <TableCell sx={{ width: columnWidths.scenario, minWidth: columnWidths.scenario }}>
+            <TableCell sx={{ width: columnWidths.scenario, minWidth: columnWidths.scenario, py: 1.25 }}>
               {t('datasets.conversationScenario')}
             </TableCell>
-            <TableCell sx={{ width: columnWidths.rounds }}>{t('datasets.conversationRounds')}</TableCell>
-            <TableCell sx={{ width: columnWidths.model }}>{t('datasets.modelUsed')}</TableCell>
-            <TableCell sx={{ width: columnWidths.rating }}>{t('datasets.rating')}</TableCell>
-            <TableCell sx={{ width: columnWidths.createdAt }}>{t('datasets.createTime')}</TableCell>
-            <TableCell align="center" sx={{ width: columnWidths.actions }}>
+            <TableCell sx={{ width: columnWidths.rounds, py: 1.25 }}>{t('datasets.conversationRounds')}</TableCell>
+            <TableCell sx={{ width: columnWidths.model, py: 1.25 }}>{t('datasets.modelUsed')}</TableCell>
+            <TableCell sx={{ width: columnWidths.rating, py: 1.25 }}>{t('datasets.rating')}</TableCell>
+            <TableCell sx={{ width: columnWidths.createdAt, py: 1.25 }}>{t('datasets.createTime')}</TableCell>
+            <TableCell
+              align="center"
+              sx={{
+                width: columnWidths.actions,
+                py: 1.25,
+                position: 'sticky',
+                right: 0,
+                zIndex: 3,
+                bgcolor: 'background.paper',
+                borderLeft: 1,
+                borderColor: 'divider'
+              }}
+            >
               {t('common.actions')}
             </TableCell>
           </TableRow>
@@ -115,13 +142,16 @@ const ConversationTable = ({
             conversations.map(conversation => {
               const questionText = conversation.question || '';
               const scenarioText = conversation.scenario || '';
+              const isExpanded = Boolean(expandedRows[conversation.id]);
+              const canToggleExpand =
+                questionText.length > QUESTION_TOOLTIP_THRESHOLD || scenarioText.length > SCENARIO_TOOLTIP_THRESHOLD;
 
               const questionContent = (
                 <Typography
                   variant="body2"
                   sx={{
                     display: '-webkit-box',
-                    WebkitLineClamp: 3,
+                    WebkitLineClamp: isExpanded ? 'unset' : 2,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                     whiteSpace: 'normal',
@@ -139,7 +169,7 @@ const ConversationTable = ({
                   variant="outlined"
                   sx={{
                     px: 1,
-                    py: 0.75,
+                    py: 0.5,
                     maxWidth: '100%',
                     borderColor: scenarioText ? 'primary.main' : 'divider',
                     backgroundColor: scenarioText ? 'action.selected' : 'background.default'
@@ -149,7 +179,7 @@ const ConversationTable = ({
                     variant="caption"
                     sx={{
                       display: '-webkit-box',
-                      WebkitLineClamp: 2,
+                      WebkitLineClamp: isExpanded ? 'unset' : 1,
                       WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
                       whiteSpace: 'normal',
@@ -188,6 +218,16 @@ const ConversationTable = ({
                         sx={{ mt: 0.5, fontSize: '0.7rem' }}
                       />
                     )}
+                    {canToggleExpand && (
+                      <Typography
+                        variant="caption"
+                        color="primary.main"
+                        sx={{ display: 'block', mt: 0.5, cursor: 'pointer', userSelect: 'none' }}
+                        onClick={() => toggleRowExpanded(conversation.id)}
+                      >
+                        {isExpanded ? t('common.collapse') : t('common.expand')}
+                      </Typography>
+                    )}
                   </TableCell>
                   <TableCell sx={{ verticalAlign: 'top' }}>
                     {shouldShowTooltip(scenarioText, SCENARIO_TOOLTIP_THRESHOLD) ? (
@@ -224,7 +264,18 @@ const ConversationTable = ({
                   <TableCell sx={{ verticalAlign: 'top' }}>
                     <Typography variant="caption">{new Date(conversation.createAt).toLocaleDateString()}</Typography>
                   </TableCell>
-                  <TableCell align="center" sx={{ verticalAlign: 'top' }}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      verticalAlign: 'top',
+                      position: 'sticky',
+                      right: 0,
+                      zIndex: 2,
+                      bgcolor: 'background.paper',
+                      borderLeft: 1,
+                      borderColor: 'divider'
+                    }}
+                  >
                     <Tooltip title={t('datasets.viewDetails')}>
                       <IconButton size="small" color="primary" onClick={() => onView(conversation.id)}>
                         <ViewIcon fontSize="small" />
