@@ -83,7 +83,7 @@ Easy Dataset is an application specifically designed for building large language
 ### 🌐 User Experience
 
 - **User-Friendly Interface**: Modern, intuitive UI designed for both technical and non-technical users
-- **Multi-Language Support**: Complete Chinese, English, and Turkish language support 🇹🇷
+- **Multi-Language Support**: Complete Chinese, English, Turkish and Portuguese language support 🇹🇷
 - **Dataset Square**: Discover and explore public dataset resources
 - **Desktop Clients**: Available for Windows, macOS, and Linux
 

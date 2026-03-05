@@ -174,7 +174,9 @@ easy-dataset/
 ├── locales/              # 国际化资源目录
 │   ├── en/              # 英文翻译
 │   │   └── translation.json
-│   └── zh-CN/           # 中文翻译
+│   ├── zh-CN/           # 中文翻译
+│   │   └── translation.json
+│   └── pt-BR/           # 中文翻译
 │       └── translation.json
 ├── lib/
 │   └── i18n.js          # i18next 配置
