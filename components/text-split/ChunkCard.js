@@ -26,6 +26,7 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import EditIcon from '@mui/icons-material/Edit';
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 
@@ -90,6 +91,8 @@ export default function ChunkCard({
   const [chunkForEdit, setChunkForEdit] = useState(null);
   const [generatingQuestions, setGeneratingQuestions] = useState(false);
   const [generatingEval, setGeneratingEval] = useState(false);
+
+  const isVirtualChunk = chunk.fileId === 'imported';
 
   // 获取文本预览
   const getTextPreview = (content, maxLength = 150) => {
@@ -170,11 +173,20 @@ export default function ChunkCard({
           mb: 1,
           position: 'relative',
           transition: 'all 0.2s ease-in-out',
-          borderColor: selected ? theme.palette.primary.main : theme.palette.divider,
-          bgcolor: selected ? `${theme.palette.primary.main}10` : 'transparent',
+          borderColor: isVirtualChunk
+            ? theme.palette.warning.main
+            : selected
+              ? theme.palette.primary.main
+              : theme.palette.divider,
+          bgcolor: isVirtualChunk
+            ? `${theme.palette.warning.main}08`
+            : selected
+              ? `${theme.palette.primary.main}10`
+              : 'transparent',
           borderRadius: 2,
+          borderStyle: isVirtualChunk ? 'dashed' : 'solid',
           '&:hover': {
-            borderColor: theme.palette.primary.main,
+            borderColor: isVirtualChunk ? theme.palette.warning.dark : theme.palette.primary.main,
             transform: 'translateY(-2px)',
             boxShadow: `0 4px 12px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)'}`
           }
@@ -203,15 +215,29 @@ export default function ChunkCard({
                   gap: 1
                 }}
               >
-                <Typography
-                  variant="subtitle1"
-                  fontWeight="600"
-                  sx={{
-                    color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark
-                  }}
-                >
-                  {chunk.name}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="600"
+                    sx={{
+                      color: isVirtualChunk
+                        ? theme.palette.warning.main
+                        : theme.palette.mode === 'dark'
+                          ? theme.palette.primary.light
+                          : theme.palette.primary.dark
+                    }}
+                  >
+                    {chunk.name}
+                  </Typography>
+                  {isVirtualChunk && (
+                    <Chip
+                      label={t('questions.importedChunk', 'Virtual')}
+                      size="small"
+                      color="warning"
+                      sx={{ borderRadius: 1, fontWeight: 600, '& .MuiChip-label': { px: 1 } }}
+                    />
+                  )}
+                </Box>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Chip
                     label={`${chunk.fileName || t('textSplit.unknownFile')}`}
@@ -286,17 +312,36 @@ export default function ChunkCard({
                 </Box>
               </Box>
 
-              <Typography
-                variant="body2"
-                color="textSecondary"
-                sx={{
-                  mb: 1,
-                  lineHeight: 1.6,
-                  opacity: 0.85
-                }}
-              >
-                {getTextPreview(chunk.content)}
-              </Typography>
+              {isVirtualChunk ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Typography variant="body2" color="warning.main" sx={{ lineHeight: 1.6 }}>
+                    {t('questions.unassignedQuestions', '{{count}} unassigned question(s)', {
+                      count: chunk.Questions?.length || 0
+                    })}
+                  </Typography>
+                  <Button
+                    size="small"
+                    color="warning"
+                    startIcon={<SwapHorizIcon />}
+                    onClick={() => router.push(`/projects/${projectId}/questions`)}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    {t('questions.goReassign', 'Reassign questions')}
+                  </Button>
+                </Box>
+              ) : (
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{
+                    mb: 1,
+                    lineHeight: 1.6,
+                    opacity: 0.85
+                  }}
+                >
+                  {getTextPreview(chunk.content)}
+                </Typography>
+              )}
             </Box>
           </Box>
         </CardContent>
@@ -328,96 +373,100 @@ export default function ChunkCard({
             </IconButton>
           </Tooltip>
 
-          <Tooltip
-            title={
-              selectedModel?.id
-                ? t('textSplit.generateQuestions')
-                : t('textSplit.selectModelFirst', { defaultValue: '请先在右上角选择模型' })
-            }
-          >
-            <span>
-              <IconButton
-                size="small"
-                color="info"
-                onClick={handleGenerateQuestionsClick}
-                disabled={!selectedModel?.id || generatingQuestions}
-                sx={{
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(41, 182, 246, 0.08)' : 'rgba(2, 136, 209, 0.08)',
-                  '&.Mui-disabled': {
-                    opacity: 0.6,
-                    pointerEvents: 'auto' // 允许鼠标悬停显示tooltip
-                  }
-                }}
+          {!isVirtualChunk && (
+            <>
+              <Tooltip
+                title={
+                  selectedModel?.id
+                    ? t('textSplit.generateQuestions')
+                    : t('textSplit.selectModelFirst', { defaultValue: '请先在右上角选择模型' })
+                }
               >
-                {generatingQuestions ? <CircularProgress size={20} color="inherit" /> : <QuizIcon fontSize="small" />}
-              </IconButton>
-            </span>
-          </Tooltip>
+                <span>
+                  <IconButton
+                    size="small"
+                    color="info"
+                    onClick={handleGenerateQuestionsClick}
+                    disabled={!selectedModel?.id || generatingQuestions}
+                    sx={{
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(41, 182, 246, 0.08)' : 'rgba(2, 136, 209, 0.08)',
+                      '&.Mui-disabled': {
+                        opacity: 0.6,
+                        pointerEvents: 'auto'
+                      }
+                    }}
+                  >
+                    {generatingQuestions ? <CircularProgress size={20} color="inherit" /> : <QuizIcon fontSize="small" />}
+                  </IconButton>
+                </span>
+              </Tooltip>
 
-          <Tooltip
-            title={
-              selectedModel?.id
-                ? t('textSplit.generateEvalQuestions', { defaultValue: '生成测试集' })
-                : t('textSplit.selectModelFirst', { defaultValue: '请先在右上角选择模型' })
-            }
-          >
-            <span>
-              <IconButton
-                size="small"
-                color="secondary"
-                onClick={handleGenerateEvalQuestionsClick}
-                disabled={!selectedModel?.id || generatingEval}
-                sx={{
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(156, 39, 176, 0.08)' : 'rgba(123, 31, 162, 0.08)',
-                  '&.Mui-disabled': {
-                    opacity: 0.6,
-                    pointerEvents: 'auto'
-                  }
-                }}
+              <Tooltip
+                title={
+                  selectedModel?.id
+                    ? t('textSplit.generateEvalQuestions', { defaultValue: '生成测试集' })
+                    : t('textSplit.selectModelFirst', { defaultValue: '请先在右上角选择模型' })
+                }
               >
-                {generatingEval ? <CircularProgress size={20} color="inherit" /> : <AssignmentIcon fontSize="small" />}
-              </IconButton>
-            </span>
-          </Tooltip>
+                <span>
+                  <IconButton
+                    size="small"
+                    color="secondary"
+                    onClick={handleGenerateEvalQuestionsClick}
+                    disabled={!selectedModel?.id || generatingEval}
+                    sx={{
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(156, 39, 176, 0.08)' : 'rgba(123, 31, 162, 0.08)',
+                      '&.Mui-disabled': {
+                        opacity: 0.6,
+                        pointerEvents: 'auto'
+                      }
+                    }}
+                  >
+                    {generatingEval ? <CircularProgress size={20} color="inherit" /> : <AssignmentIcon fontSize="small" />}
+                  </IconButton>
+                </span>
+              </Tooltip>
 
-          <Tooltip
-            title={
-              selectedModel?.id
-                ? t('textSplit.dataCleaning', { defaultValue: '数据清洗' })
-                : t('textSplit.selectModelFirst', { defaultValue: '请先在右上角选择模型' })
-            }
-          >
-            <span>
-              <IconButton
-                size="small"
-                color="success"
-                onClick={onDataCleaning}
-                disabled={!selectedModel?.id}
-                sx={{
-                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.08)' : 'rgba(46, 125, 50, 0.08)',
-                  '&.Mui-disabled': {
-                    opacity: 0.6,
-                    pointerEvents: 'auto' // 允许鼠标悬停显示tooltip
-                  }
-                }}
+              <Tooltip
+                title={
+                  selectedModel?.id
+                    ? t('textSplit.dataCleaning', { defaultValue: '数据清洗' })
+                    : t('textSplit.selectModelFirst', { defaultValue: '请先在右上角选择模型' })
+                }
               >
-                <CleaningServicesIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
+                <span>
+                  <IconButton
+                    size="small"
+                    color="success"
+                    onClick={onDataCleaning}
+                    disabled={!selectedModel?.id}
+                    sx={{
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.08)' : 'rgba(46, 125, 50, 0.08)',
+                      '&.Mui-disabled': {
+                        opacity: 0.6,
+                        pointerEvents: 'auto'
+                      }
+                    }}
+                  >
+                    <CleaningServicesIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
 
-          <Tooltip title={t('textSplit.editChunk', { chunkId: chunk.name })}>
-            <IconButton
-              size="small"
-              color="warning"
-              onClick={handleEditClick}
-              sx={{
-                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.08)' : 'rgba(237, 108, 2, 0.08)'
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+              <Tooltip title={t('textSplit.editChunk', { chunkId: chunk.name })}>
+                <IconButton
+                  size="small"
+                  color="warning"
+                  onClick={handleEditClick}
+                  sx={{
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.08)' : 'rgba(237, 108, 2, 0.08)'
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
 
           <Tooltip title={t('common.delete')}>
             <IconButton

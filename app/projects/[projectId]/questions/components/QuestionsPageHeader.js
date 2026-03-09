@@ -12,6 +12,8 @@ import ChatIcon from '@mui/icons-material/Chat';
 import ImageIcon from '@mui/icons-material/Image';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
 export default function QuestionsPageHeader({
   questionsTotal,
@@ -24,6 +26,8 @@ export default function QuestionsPageHeader({
   onAutoGenerateMultiTurnDatasets,
   onAutoGenerateImageDatasets,
   onExportQuestions,
+  onImportQuestions,
+  onReassignChunks,
   activeTab
 }) {
   const { t } = useTranslation();
@@ -79,8 +83,22 @@ export default function QuestionsPageHeader({
         {t('questions.title')} ({questionsTotal})
       </Typography>
       <Box sx={{ display: 'flex', gap: 2 }}>
+        <Button variant="outlined" startIcon={<UploadIcon />} onClick={onImportQuestions}>
+          {t('questions.importQuestions', 'Import')}
+        </Button>
+
         <Button variant="outlined" startIcon={<DownloadIcon />} onClick={onExportQuestions}>
           {t('questions.exportQuestions')}
+        </Button>
+
+        <Button
+          variant="outlined"
+          color="info"
+          startIcon={<SwapHorizIcon />}
+          onClick={onReassignChunks}
+          disabled={selectedQuestionsCount === 0}
+        >
+          {t('questions.reassignChunk', 'Reassign Chunk')}
         </Button>
 
         <Button

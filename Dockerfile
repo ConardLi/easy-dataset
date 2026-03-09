@@ -25,6 +25,8 @@ RUN apk add --no-cache --virtual .build-deps \
 
 # 复制依赖文件和npm配置并安装(.npmrc中可配置国内源加速)
 COPY package.json pnpm-lock.yaml .npmrc ./
+# Electron 바이너리 다운로드 건너뛰기 (웹 서버 모드)
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
 RUN pnpm install
 
 # 复制源代码

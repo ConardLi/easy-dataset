@@ -1,10 +1,18 @@
 services:
-  easy-dataset:
-    image: ghcr.io/conardli/easy-dataset
-    container_name: easy-dataset
+  easy-dataset-dns:
+    build: .
+    container_name: easy-dataset-dns
     ports:
-      - '1717:1717'
+      - '1718:1717'
     volumes:
-      - ./local-db:/app/local-db
-      - ./prisma:/app/prisma
+      - /app/easy-dataset/dns-easy-dataset/local-db:/app/local-db
+      - /app/easy-dataset/dns-easy-dataset/prisma:/app/prisma
     restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 192.168.208.0/28

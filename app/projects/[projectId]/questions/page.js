@@ -21,6 +21,8 @@ import { useQuestionsFilter } from './hooks/useQuestionsFilter';
 import QuestionsFilter from './components/QuestionsFilter';
 import { useQuestionGeneration } from './hooks/useQuestionGeneration';
 import useQuestionExport from './hooks/useQuestionExport';
+import ImportQuestionsDialog from '@/components/questions/import/ImportQuestionsDialog';
+import ReassignChunkDialog from '@/components/questions/ReassignChunkDialog';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useAtomValue } from 'jotai/index';
@@ -49,6 +51,8 @@ export default function QuestionsPage({ params }) {
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
 
   // 使用新的过滤和搜索 Hook
   const {
@@ -301,6 +305,8 @@ export default function QuestionsPage({ params }) {
         onAutoGenerateMultiTurnDatasets={handleAutoGenerateMultiTurnDatasets}
         onAutoGenerateImageDatasets={handleAutoGenerateImageDatasets}
         onExportQuestions={handleOpenExportDialog}
+        onImportQuestions={() => setImportDialogOpen(true)}
+        onReassignChunks={() => setReassignDialogOpen(true)}
       />
 
       <Paper sx={{ mb: 4 }}>
@@ -410,6 +416,28 @@ export default function QuestionsPage({ params }) {
         onExport={handleExportQuestions}
         selectedCount={selectedQuestions.length}
         totalCount={questions.total || 0}
+      />
+
+      <ImportQuestionsDialog
+        open={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        projectId={projectId}
+        onImportSuccess={() => {
+          getQuestionList();
+          toast.success(t('questions.importSuccess', 'Questions imported successfully'));
+        }}
+      />
+
+      <ReassignChunkDialog
+        open={reassignDialogOpen}
+        onClose={() => setReassignDialogOpen(false)}
+        projectId={projectId}
+        selectedQuestionIds={selectedQuestions}
+        onSuccess={() => {
+          getQuestionList();
+          setSelectedQuestions([]);
+          toast.success(t('questions.reassignSuccess', 'Chunks reassigned successfully'));
+        }}
       />
     </Container>
   );
