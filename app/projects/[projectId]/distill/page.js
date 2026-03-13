@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
@@ -18,6 +18,73 @@ import { autoDistillService } from './autoDistillService';
 import axios from 'axios';
 import { toast } from 'sonner';
 
+/**
+ * 将 progressUpdate 转化为带有增量标记的快照对象
+ */
+function buildProgressSnapshot(update) {
+  const snap = { ...update };
+  if (update.updateType === 'increment') {
+    if (update.tagsBuilt != null) snap._tagsBuiltIncrement = true;
+    if (update.questionsBuilt != null) snap._questionsBuiltIncrement = true;
+    if (update.datasetsBuilt != null) snap._datasetsBuiltIncrement = true;
+    if (update.multiTurnDatasetsBuilt != null) snap._multiTurnIncrement = true;
+  }
+  return snap;
+}
+
+/**
+ * 将新的 progressUpdate 合并到已有快照中（累加增量字段，覆盖绝对值字段）
+ */
+function mergeProgressUpdate(prev, update) {
+  const next = { ...prev };
+  if (update.stage) next.stage = update.stage;
+  if (update.tagsTotal) next.tagsTotal = update.tagsTotal;
+  if (update.questionsTotal) next.questionsTotal = update.questionsTotal;
+  if (update.datasetsTotal) next.datasetsTotal = update.datasetsTotal;
+  if (update.multiTurnDatasetsTotal) next.multiTurnDatasetsTotal = update.multiTurnDatasetsTotal;
+
+  const isIncrement = update.updateType === 'increment';
+
+  if (update.tagsBuilt != null) {
+    if (isIncrement) {
+      // 增量模式：无论是否已有增量标记，都累加
+      next.tagsBuilt = (prev.tagsBuilt || 0) + update.tagsBuilt;
+      next._tagsBuiltIncrement = true;
+    } else {
+      next.tagsBuilt = update.tagsBuilt;
+      next._tagsBuiltIncrement = false;
+    }
+  }
+  if (update.questionsBuilt != null) {
+    if (isIncrement) {
+      next.questionsBuilt = (prev.questionsBuilt || 0) + update.questionsBuilt;
+      next._questionsBuiltIncrement = true;
+    } else {
+      next.questionsBuilt = update.questionsBuilt;
+      next._questionsBuiltIncrement = false;
+    }
+  }
+  if (update.datasetsBuilt != null) {
+    if (isIncrement) {
+      next.datasetsBuilt = (prev.datasetsBuilt || 0) + update.datasetsBuilt;
+      next._datasetsBuiltIncrement = true;
+    } else {
+      next.datasetsBuilt = update.datasetsBuilt;
+      next._datasetsBuiltIncrement = false;
+    }
+  }
+  if (update.multiTurnDatasetsBuilt != null) {
+    if (isIncrement) {
+      next.multiTurnDatasetsBuilt = (prev.multiTurnDatasetsBuilt || 0) + update.multiTurnDatasetsBuilt;
+      next._multiTurnIncrement = true;
+    } else {
+      next.multiTurnDatasetsBuilt = update.multiTurnDatasetsBuilt;
+      next._multiTurnIncrement = false;
+    }
+  }
+  return next;
+}
+
 export default function DistillPage() {
   const { t, i18n } = useTranslation();
   const { projectId } = useParams();
@@ -27,6 +94,8 @@ export default function DistillPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [tags, setTags] = useState([]);
+  // 问题列表状态提升到 page 层，供 DistillTreeView 直接使用，避免重复请求
+  const [distillQuestions, setDistillQuestions] = useState(null);
 
   // 标签生成对话框相关状态
   const [tagDialogOpen, setTagDialogOpen] = useState(false);
@@ -58,6 +127,75 @@ export default function DistillPage() {
   });
 
   const treeViewRef = useRef(null);
+
+  // 用于批量缓冲日志和进度更新，避免高并发时频繁 setState 卡死页面
+  const pendingLogsRef = useRef([]);
+  const pendingProgressRef = useRef(null);
+  const batchTimerRef = useRef(null);
+
+  // 启动批量刷新定时器（每300ms合并一次更新到 state）
+  const startBatchTimer = useCallback(() => {
+    if (batchTimerRef.current) return;
+    batchTimerRef.current = setInterval(() => {
+      const hasPendingLogs = pendingLogsRef.current.length > 0;
+      const hasPendingProgress = pendingProgressRef.current !== null;
+      if (!hasPendingLogs && !hasPendingProgress) return;
+
+      const logsSnapshot = pendingLogsRef.current;
+      const progressSnapshot = pendingProgressRef.current;
+      pendingLogsRef.current = [];
+      pendingProgressRef.current = null;
+
+      setDistillProgress(prev => {
+        let next = { ...prev };
+
+        // 合并进度更新
+        if (progressSnapshot) {
+          if (progressSnapshot.stage) next.stage = progressSnapshot.stage;
+          if (progressSnapshot.tagsTotal) next.tagsTotal = progressSnapshot.tagsTotal;
+          if (progressSnapshot.tagsBuilt != null) {
+            next.tagsBuilt = progressSnapshot._tagsBuiltIncrement
+              ? (prev.tagsBuilt || 0) + progressSnapshot.tagsBuilt
+              : progressSnapshot.tagsBuilt;
+          }
+          if (progressSnapshot.questionsTotal) next.questionsTotal = progressSnapshot.questionsTotal;
+          if (progressSnapshot.questionsBuilt != null) {
+            next.questionsBuilt = progressSnapshot._questionsBuiltIncrement
+              ? (prev.questionsBuilt || 0) + progressSnapshot.questionsBuilt
+              : progressSnapshot.questionsBuilt;
+          }
+          if (progressSnapshot.datasetsTotal) next.datasetsTotal = progressSnapshot.datasetsTotal;
+          if (progressSnapshot.datasetsBuilt != null) {
+            next.datasetsBuilt = progressSnapshot._datasetsBuiltIncrement
+              ? (prev.datasetsBuilt || 0) + progressSnapshot.datasetsBuilt
+              : progressSnapshot.datasetsBuilt;
+          }
+          if (progressSnapshot.multiTurnDatasetsTotal) next.multiTurnDatasetsTotal = progressSnapshot.multiTurnDatasetsTotal;
+          if (progressSnapshot.multiTurnDatasetsBuilt != null) {
+            next.multiTurnDatasetsBuilt = progressSnapshot._multiTurnIncrement
+              ? (prev.multiTurnDatasetsBuilt || 0) + progressSnapshot.multiTurnDatasetsBuilt
+              : progressSnapshot.multiTurnDatasetsBuilt;
+          }
+        }
+
+        // 合并日志，最多保留200条
+        if (logsSnapshot.length > 0) {
+          const merged = [...prev.logs, ...logsSnapshot];
+          next.logs = merged.length > 200 ? merged.slice(-200) : merged;
+        }
+
+        return next;
+      });
+    }, 300);
+  }, []);
+
+  // 停止批量刷新定时器
+  const stopBatchTimer = useCallback(() => {
+    if (batchTimerRef.current) {
+      clearInterval(batchTimerRef.current);
+      batchTimerRef.current = null;
+    }
+  }, []);
 
   // 获取项目信息和标签列表
   useEffect(() => {
@@ -114,16 +252,18 @@ export default function DistillPage() {
   // 获取蒸馏统计信息
   const fetchDistillStats = async () => {
     try {
-      // 获取标签数量
+      // 获取标签数量（复用 fetchTags 已有数据时可跳过，此处保留独立请求以保证统计准确）
       const tagsResponse = await axios.get(`/api/projects/${projectId}/distill/tags/all`);
       const tagsCount = tagsResponse.data.length;
 
-      // 获取问题数量
+      // 获取问题数量（同时保存到 distillQuestions，供 DistillTreeView 直接使用）
       const questionsResponse = await axios.get(`/api/projects/${projectId}/questions/tree?isDistill=true`);
-      const questionsCount = questionsResponse.data.length;
+      const questionsData = questionsResponse.data;
+      const questionsCount = questionsData.length;
+      setDistillQuestions(questionsData);
 
       // 获取数据集数量
-      const datasetsCount = questionsResponse.data.filter(q => q.answered).length;
+      const datasetsCount = questionsData.filter(q => q.answered).length;
 
       // 获取多轮对话数据集数量
       let multiTurnDatasetsCount = 0;
@@ -180,14 +320,9 @@ export default function DistillPage() {
     // 关闭对话框
     setQuestionDialogOpen(false);
 
-    // 刷新标签数据
+    // 刷新标签数据和统计信息（fetchDistillStats 内部已同步更新 distillQuestions）
     fetchTags();
     fetchDistillStats();
-
-    // 如果 treeViewRef 存在且有 fetchQuestionsStats 方法，则调用它刷新问题统计信息
-    if (treeViewRef.current && typeof treeViewRef.current.fetchQuestionsStats === 'function') {
-      treeViewRef.current.fetchQuestionsStats();
-    }
   };
 
   // 打开自动蒸馏对话框
@@ -204,6 +339,9 @@ export default function DistillPage() {
     setAutoDistillDialogOpen(false);
     setAutoDistillProgressOpen(true);
     setAutoDistillRunning(true);
+
+    // 启动批量刷新定时器
+    startBatchTimer();
 
     // 初始化进度信息
     setDistillProgress({
@@ -224,6 +362,8 @@ export default function DistillPage() {
       // 检查模型是否存在
       if (!selectedModel || Object.keys(selectedModel).length === 0) {
         addLog(t('distill.selectModelFirst'));
+        stopBatchTimer();
+        flushPendingUpdates();
         setAutoDistillRunning(false);
         return;
       }
@@ -243,11 +383,16 @@ export default function DistillPage() {
         onLog: addLog
       });
 
-      // 更新任务状态
+      // 停止批量刷新定时器，最后flush一次确保所有更新到位
+      stopBatchTimer();
+      // 强制flush剩余缓冲
+      flushPendingUpdates();
       setAutoDistillRunning(false);
     } catch (error) {
       console.error('自动蒸馏任务执行失败:', error);
+      stopBatchTimer();
       addLog(t('distill.taskExecutionError', { error: error.message || t('common.unknownError') }));
+      flushPendingUpdates();
       setAutoDistillRunning(false);
     }
   };
@@ -296,99 +441,69 @@ export default function DistillPage() {
     }
   };
 
-  // 更新进度
-  const updateProgress = progressUpdate => {
+  // 立即将缓冲区剩余内容刷新到 state（任务结束时调用）
+  const flushPendingUpdates = useCallback(() => {
+    const logsSnapshot = pendingLogsRef.current;
+    const progressSnapshot = pendingProgressRef.current;
+    pendingLogsRef.current = [];
+    pendingProgressRef.current = null;
+    if (logsSnapshot.length === 0 && progressSnapshot === null) return;
     setDistillProgress(prev => {
-      const newProgress = { ...prev };
-
-      // 更新阶段
-      if (progressUpdate.stage) {
-        newProgress.stage = progressUpdate.stage;
-      }
-
-      // 更新标签总数
-      if (progressUpdate.tagsTotal) {
-        newProgress.tagsTotal = progressUpdate.tagsTotal;
-      }
-
-      // 更新已构建标签数
-      if (progressUpdate.tagsBuilt) {
-        if (progressUpdate.updateType === 'increment') {
-          newProgress.tagsBuilt += progressUpdate.tagsBuilt;
-        } else {
-          newProgress.tagsBuilt = progressUpdate.tagsBuilt;
+      let next = { ...prev };
+      if (progressSnapshot) {
+        if (progressSnapshot.stage) next.stage = progressSnapshot.stage;
+        if (progressSnapshot.tagsTotal) next.tagsTotal = progressSnapshot.tagsTotal;
+        if (progressSnapshot.tagsBuilt != null) {
+          next.tagsBuilt = progressSnapshot._tagsBuiltIncrement
+            ? (prev.tagsBuilt || 0) + progressSnapshot.tagsBuilt
+            : progressSnapshot.tagsBuilt;
+        }
+        if (progressSnapshot.questionsTotal) next.questionsTotal = progressSnapshot.questionsTotal;
+        if (progressSnapshot.questionsBuilt != null) {
+          next.questionsBuilt = progressSnapshot._questionsBuiltIncrement
+            ? (prev.questionsBuilt || 0) + progressSnapshot.questionsBuilt
+            : progressSnapshot.questionsBuilt;
+        }
+        if (progressSnapshot.datasetsTotal) next.datasetsTotal = progressSnapshot.datasetsTotal;
+        if (progressSnapshot.datasetsBuilt != null) {
+          next.datasetsBuilt = progressSnapshot._datasetsBuiltIncrement
+            ? (prev.datasetsBuilt || 0) + progressSnapshot.datasetsBuilt
+            : progressSnapshot.datasetsBuilt;
+        }
+        if (progressSnapshot.multiTurnDatasetsTotal) next.multiTurnDatasetsTotal = progressSnapshot.multiTurnDatasetsTotal;
+        if (progressSnapshot.multiTurnDatasetsBuilt != null) {
+          next.multiTurnDatasetsBuilt = progressSnapshot._multiTurnIncrement
+            ? (prev.multiTurnDatasetsBuilt || 0) + progressSnapshot.multiTurnDatasetsBuilt
+            : progressSnapshot.multiTurnDatasetsBuilt;
         }
       }
-
-      // 更新问题总数
-      if (progressUpdate.questionsTotal) {
-        newProgress.questionsTotal = progressUpdate.questionsTotal;
+      if (logsSnapshot.length > 0) {
+        const merged = [...prev.logs, ...logsSnapshot];
+        next.logs = merged.length > 200 ? merged.slice(-200) : merged;
       }
-
-      // 更新已生成问题数
-      if (progressUpdate.questionsBuilt) {
-        if (progressUpdate.updateType === 'increment') {
-          newProgress.questionsBuilt += progressUpdate.questionsBuilt;
-        } else {
-          newProgress.questionsBuilt = progressUpdate.questionsBuilt;
-        }
-      }
-
-      // 更新数据集总数
-      if (progressUpdate.datasetsTotal) {
-        newProgress.datasetsTotal = progressUpdate.datasetsTotal;
-      }
-
-      // 更新已生成数据集数
-      if (progressUpdate.datasetsBuilt) {
-        if (progressUpdate.updateType === 'increment') {
-          newProgress.datasetsBuilt += progressUpdate.datasetsBuilt;
-        } else {
-          newProgress.datasetsBuilt = progressUpdate.datasetsBuilt;
-        }
-      }
-
-      // 更新多轮对话数据集总数
-      if (progressUpdate.multiTurnDatasetsTotal) {
-        newProgress.multiTurnDatasetsTotal = progressUpdate.multiTurnDatasetsTotal;
-      }
-
-      // 更新已生成多轮对话数据集数
-      if (progressUpdate.multiTurnDatasetsBuilt) {
-        if (progressUpdate.updateType === 'increment') {
-          newProgress.multiTurnDatasetsBuilt += progressUpdate.multiTurnDatasetsBuilt;
-        } else {
-          newProgress.multiTurnDatasetsBuilt = progressUpdate.multiTurnDatasetsBuilt;
-        }
-      }
-
-      return newProgress;
+      return next;
     });
-  };
+  }, []);
 
-  // 添加日志，最多保留200条
-  const addLog = message => {
-    setDistillProgress(prev => {
-      const newLogs = [...prev.logs, message];
-      // 如果日志超过200条，只保留最新的200条
-      const limitedLogs = newLogs.length > 200 ? newLogs.slice(-200) : newLogs;
-      return {
-        ...prev,
-        logs: limitedLogs
-      };
-    });
-  };
+  // 更新进度 - 写入缓冲区，由定时器批量刷新到 state，避免高并发时频繁渲染
+  const updateProgress = useCallback(progressUpdate => {
+    pendingProgressRef.current = pendingProgressRef.current
+      ? mergeProgressUpdate(pendingProgressRef.current, progressUpdate)
+      : buildProgressSnapshot(progressUpdate);
+  }, []);
+
+  // 添加日志 - 写入缓冲区，由定时器批量刷新
+  const addLog = useCallback(message => {
+    pendingLogsRef.current.push(message);
+  }, []);
 
   // 关闭进度对话框
   const handleCloseProgressDialog = () => {
     if (!autoDistillRunning) {
       setAutoDistillProgressOpen(false);
-      // 刷新数据
+      // 刷新数据（fetchDistillStats 内部已同步更新 distillQuestions）
       fetchTags();
       fetchDistillStats();
-      if (treeViewRef.current && typeof treeViewRef.current.fetchQuestionsStats === 'function') {
-        treeViewRef.current.fetchQuestionsStats();
-      }
     } else {
       // 如果任务还在运行，可以展示一个确认对话框
       // 这里简化处理，直接关闭
@@ -472,6 +587,7 @@ export default function DistillPage() {
               ref={treeViewRef}
               projectId={projectId}
               tags={tags}
+              initialQuestions={distillQuestions}
               onGenerateSubTags={handleOpenTagDialog}
               onGenerateQuestions={handleOpenQuestionDialog}
               onTagsUpdate={setTags}

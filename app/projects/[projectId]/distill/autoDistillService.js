@@ -39,19 +39,6 @@ class AutoDistillService {
     this.projectName = '';
 
     try {
-      // 初始化进度信息
-      if (onProgress) {
-        onProgress({
-          stage: 'initializing',
-          tagsTotal: 0,
-          tagsBuilt: 0,
-          questionsTotal: 0,
-          questionsBuilt: 0,
-          datasetsTotal: 0,
-          datasetsBuilt: 0
-        });
-      }
-
       // 获取项目名称，只需获取一次
       try {
         const projectResponse = await axios.get(`/api/projects/${projectId}`);

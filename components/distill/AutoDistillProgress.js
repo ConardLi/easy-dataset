@@ -10,11 +10,12 @@ import {
   Typography,
   LinearProgress,
   Paper,
-  Divider,
-  IconButton,
-  Button
+  IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+
+// 日志缓冲区大小限制，防止内存溢出
+const MAX_LOGS = 100;
 
 /**
  * 全自动蒸馏进度组件
@@ -26,13 +27,21 @@ import CloseIcon from '@mui/icons-material/Close';
 export default function AutoDistillProgress({ open, onClose, progress = {} }) {
   const { t } = useTranslation();
   const logContainerRef = useRef(null);
+  const [displayLogs, setDisplayLogs] = useState([]);
+
+  // 限制日志数量，只保留最新的MAX_LOGS条
+  useEffect(() => {
+    if (progress.logs) {
+      setDisplayLogs(progress.logs.slice(-MAX_LOGS));
+    }
+  }, [progress.logs]);
 
   // 自动滚动到底部
   useEffect(() => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
-  }, [progress.logs]);
+  }, [displayLogs]);
 
   const getStageText = () => {
     const { stage } = progress;
@@ -182,9 +191,9 @@ export default function AutoDistillProgress({ open, onClose, progress = {} }) {
               }}
               ref={logContainerRef}
             >
-              {progress.logs?.length > 0 ? (
-                progress.logs.map((log, index) => {
-                  // 检测成功日志，显示为绿色  Successfully
+              {displayLogs.length > 0 ? (
+                displayLogs.map((log, index) => {
+                  // 检测成功日志，显示为绿色
                   let color = 'inherit';
                   if (log.includes('成功') || log.includes('完成') || log.includes('Successfully')) {
                     color = '#4caf50';

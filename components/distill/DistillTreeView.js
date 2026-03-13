@@ -21,12 +21,13 @@ import { sortTagsByNumber } from './utils';
  * @param {Object} props
  * @param {string} props.projectId - 项目ID
  * @param {Array} props.tags - 标签列表
+ * @param {Array} props.initialQuestions - 父组件预加载的问题列表（可选），有则跳过自行请求
  * @param {Function} props.onGenerateSubTags - 生成子标签的回调函数
  * @param {Function} props.onGenerateQuestions - 生成问题的回调函数
  * @param {Function} props.onTagsUpdate - 标签更新的回调函数
  */
 const DistillTreeView = forwardRef(function DistillTreeView(
-  { projectId, tags = [], onGenerateSubTags, onGenerateQuestions, onTagsUpdate },
+  { projectId, tags = [], initialQuestions, onGenerateSubTags, onGenerateQuestions, onTagsUpdate },
   ref
 ) {
   const { t } = useTranslation();
@@ -59,7 +60,6 @@ const DistillTreeView = forwardRef(function DistillTreeView(
       setLoading(true);
       const response = await axios.get(`/api/projects/${projectId}/questions/tree?isDistill=true`);
       setAllQuestions(response.data);
-      console.log('获取问题统计信息成功:', { totalQuestions: response.data.length });
     } catch (error) {
       console.error('获取问题统计信息失败:', error);
     } finally {
@@ -71,6 +71,13 @@ const DistillTreeView = forwardRef(function DistillTreeView(
   useImperativeHandle(ref, () => ({
     fetchQuestionsStats
   }));
+
+  // 若父组件已预加载问题数据，直接使用，避免重复请求
+  useEffect(() => {
+    if (initialQuestions) {
+      setAllQuestions(initialQuestions);
+    }
+  }, [initialQuestions]);
 
   // 获取标签下的问题
   const fetchQuestionsByTag = useCallback(
@@ -106,10 +113,12 @@ const DistillTreeView = forwardRef(function DistillTreeView(
     }
   }, [projectId]);
 
-  // 初始化时获取问题统计信息
+  // 初始化时获取问题统计信息（若父组件已传入则跳过）
   useEffect(() => {
-    fetchQuestionsStats();
-  }, [fetchQuestionsStats]);
+    if (!initialQuestions) {
+      fetchQuestionsStats();
+    }
+  }, [fetchQuestionsStats, initialQuestions]);
 
   // 构建标签树
   const tagTree = useMemo(() => {
@@ -132,6 +141,17 @@ const DistillTreeView = forwardRef(function DistillTreeView(
 
     return rootTags;
   }, [tags]);
+
+  // 预建 label -> 问题数量 的 Map，供 TagTreeItem 做 O(1) 查找，避免每次渲染遍历全量问题数组
+  const labelCountMap = useMemo(() => {
+    const map = {};
+    allQuestions.forEach(q => {
+      if (q.label) {
+        map[q.label] = (map[q.label] || 0) + 1;
+      }
+    });
+    return map;
+  }, [allQuestions]);
 
   // 切换标签展开/折叠状态
   const toggleTag = useCallback(
@@ -446,7 +466,7 @@ const DistillTreeView = forwardRef(function DistillTreeView(
             onDeleteQuestion={openDeleteQuestionConfirm}
             onGenerateDataset={handleGenerateDataset}
             onGenerateMultiTurnDataset={handleGenerateMultiTurnDataset}
-            allQuestions={allQuestions}
+            labelCountMap={labelCountMap}
             tagQuestions={tagQuestions}
           >
             {/* 递归渲染子标签 */}

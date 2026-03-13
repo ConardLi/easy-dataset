@@ -41,7 +41,7 @@ import QuestionListItem from './QuestionListItem';
  * @param {Function} props.onGenerateDataset - 生成数据集的回调
  * @param {Function} props.onGenerateMultiTurnDataset - 生成多轮对话数据集的回调
  * @param {Object} props.processingMultiTurnQuestions - 正在生成多轮对话的问题ID映射
- * @param {Array} props.allQuestions - 所有问题列表（用于计算问题数量）
+ * @param {Object} props.labelCountMap - label -> 问题数量的映射（由 DistillTreeView 预建，O(1) 查找）
  * @param {Object} props.tagQuestions - 标签问题映射
  * @param {React.ReactNode} props.children - 子标签内容
  */
@@ -60,7 +60,7 @@ export default function TagTreeItem({
   onGenerateDataset,
   onGenerateMultiTurnDataset,
   processingMultiTurnQuestions = {},
-  allQuestions = [],
+  labelCountMap = {},
   tagQuestions = {},
   children
 }) {
@@ -77,18 +77,15 @@ export default function TagTreeItem({
     return count;
   };
 
-  // 递归获取所有子标签的问题数量
+  // 递归获取所有子标签的问题数量（使用 labelCountMap，O(1) 查找）
   const getChildrenQuestionsCount = childrenTags => {
     let count = 0;
     childrenTags.forEach(childTag => {
-      // 子标签的问题
       if (tagQuestions[childTag.id] && tagQuestions[childTag.id].length > 0) {
         count += tagQuestions[childTag.id].length;
       } else {
-        count += allQuestions.filter(q => q.label === childTag.label).length;
+        count += labelCountMap[childTag.label] || 0;
       }
-
-      // 子标签的子标签的问题
       if (childTag.children && childTag.children.length > 0) {
         count += getChildrenQuestionsCount(childTag.children);
       }
@@ -96,15 +93,12 @@ export default function TagTreeItem({
     return count;
   };
 
-  // 计算当前标签的问题数量
+  // 计算当前标签的问题数量（使用 labelCountMap，O(1) 查找）
   const getCurrentTagQuestionsCount = () => {
-    let currentTagQuestions = 0;
     if (tagQuestions[tag.id] && tagQuestions[tag.id].length > 0) {
-      currentTagQuestions = tagQuestions[tag.id].length;
-    } else {
-      currentTagQuestions = allQuestions.filter(q => q.label === tag.label).length;
+      return tagQuestions[tag.id].length;
     }
-    return currentTagQuestions;
+    return labelCountMap[tag.label] || 0;
   };
 
   // 总问题数量 = 当前标签的问题 + 所有子标签的问题
