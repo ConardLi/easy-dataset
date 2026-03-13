@@ -14,7 +14,8 @@ export default function LanguageSwitcher() {
   const languages = [
     { code: 'en', label: t('language.english', 'English'), short: 'EN' },
     { code: 'zh-CN', label: t('language.chineseSimplified', '简体中文'), short: '中文' },
-    { code: 'tr', label: t('language.turkish', 'Türkçe'), short: 'TR' }
+    { code: 'tr', label: t('language.turkish', 'Türkçe'), short: 'TR' },
+    { code: 'pt-BR', label: t('language.portugues', 'Portugues'), short: 'pt-BR' }
   ];
 
   const normalizedCurrentLanguage =
