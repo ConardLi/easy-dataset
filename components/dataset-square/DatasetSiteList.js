@@ -9,20 +9,21 @@ import { DatasetSiteCard } from './DatasetSiteCard';
 import sites from '@/constant/sites.json';
 import { useTranslation } from 'react-i18next';
 
+// Locale-neutral category keys for filtering (must match label keys in sites.json)
+const CATEGORIES = {
+  ALL: 'all',
+  POPULAR: 'popular',
+  CHINESE: 'chinese_resource',
+  ENGLISH: 'english_resource',
+  RESEARCH: 'research',
+  MULTIMODAL: 'multimodal'
+};
+
 export function DatasetSiteList() {
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const { t } = useTranslation();
 
-  // 定义类别
-  const CATEGORIES = {
-    ALL: t('datasetSquare.categories.all'),
-    POPULAR: t('datasetSquare.categories.popular'),
-    CHINESE: t('datasetSquare.categories.chinese'),
-    ENGLISH: t('datasetSquare.categories.english'),
-    RESEARCH: t('datasetSquare.categories.research'),
-    MULTIMODAL: t('datasetSquare.categories.multimodal')
-  };
   const [activeCategory, setActiveCategory] = useState(CATEGORIES.ALL);
 
   // 模拟加载效果
@@ -43,18 +44,8 @@ export function DatasetSiteList() {
   const getFilteredSites = () => {
     if (activeCategory === CATEGORIES.ALL) {
       return sites;
-    } else if (activeCategory === CATEGORIES.POPULAR) {
-      return sites.filter(site => site.labels && site.labels.includes(t('datasetSquare.categories.popular')));
-    } else if (activeCategory === CATEGORIES.CHINESE) {
-      return sites.filter(site => site.labels && site.labels.includes(t('datasetSquare.categories.chinese')));
-    } else if (activeCategory === CATEGORIES.ENGLISH) {
-      return sites.filter(site => site.labels && site.labels.includes(t('datasetSquare.categories.english')));
-    } else if (activeCategory === CATEGORIES.RESEARCH) {
-      return sites.filter(site => site.labels && site.labels.includes(t('datasetSquare.categories.research')));
-    } else if (activeCategory === CATEGORIES.MULTIMODAL) {
-      return sites.filter(site => site.labels && site.labels.includes(t('datasetSquare.categories.multimodal')));
     }
-    return sites;
+    return sites.filter(site => site.labels && site.labels.includes(activeCategory));
   };
 
   const filteredSites = getFilteredSites();
@@ -109,20 +100,20 @@ export function DatasetSiteList() {
           >
             <Tab
               value={CATEGORIES.ALL}
-              label={CATEGORIES.ALL}
+              label={t('datasetSquare.categories.all')}
               icon={<StorageIcon fontSize="small" />}
               iconPosition="start"
             />
             <Tab
               value={CATEGORIES.POPULAR}
-              label={CATEGORIES.POPULAR}
+              label={t('datasetSquare.categories.popular')}
               icon={<StarIcon fontSize="small" />}
               iconPosition="start"
             />
-            <Tab value={CATEGORIES.CHINESE} label={CATEGORIES.CHINESE} />
-            <Tab value={CATEGORIES.ENGLISH} label={CATEGORIES.ENGLISH} />
-            <Tab value={CATEGORIES.RESEARCH} label={CATEGORIES.RESEARCH} />
-            <Tab value={CATEGORIES.MULTIMODAL} label={CATEGORIES.MULTIMODAL} />
+            <Tab value={CATEGORIES.CHINESE} label={t('datasetSquare.categories.chinese')} />
+            <Tab value={CATEGORIES.ENGLISH} label={t('datasetSquare.categories.english')} />
+            <Tab value={CATEGORIES.RESEARCH} label={t('datasetSquare.categories.research')} />
+            <Tab value={CATEGORIES.MULTIMODAL} label={t('datasetSquare.categories.multimodal')} />
           </Tabs>
         </Paper>
       </Box>
@@ -163,7 +154,7 @@ export function DatasetSiteList() {
 
                 {activeCategory !== CATEGORIES.ALL && (
                   <Chip
-                    label={t('datasetSquare.currentFilter', { category: activeCategory })}
+                    label={t('datasetSquare.currentFilter', { category: t(`datasetSquare.labels.${activeCategory}`, activeCategory) })}
                     size="small"
                     onDelete={() => setActiveCategory(CATEGORIES.ALL)}
                     sx={{ borderRadius: 1.5 }}

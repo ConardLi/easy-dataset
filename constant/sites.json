@@ -1,286 +1,562 @@
 [
   {
-    "name": "HuggingFace开源数据集",
+    "name": {
+      "zh-CN": "HuggingFace开源数据集",
+      "en": "HuggingFace Open Datasets"
+    },
     "link": "https://huggingface.co/datasets",
     "image": "/imgs/huggingface.png",
-    "description": "提供了丰富的开源数据集，涵盖多种领域和语言，支持自然语言处理、计算机视觉等多种任务。",
-    "labels": ["热门推荐", "多模态"]
+    "description": {
+      "zh-CN": "提供了丰富的开源数据集，涵盖多种领域和语言，支持自然语言处理、计算机视觉等多种任务。",
+      "en": "Offers a rich collection of open-source datasets covering multiple domains and languages, supporting NLP, computer vision, and more."
+    },
+    "labels": ["popular", "multimodal"]
   },
   {
-    "name": "OpenDataLab开源数据集",
+    "name": {
+      "zh-CN": "OpenDataLab开源数据集",
+      "en": "OpenDataLab Open Datasets"
+    },
     "link": "https://opendatalab.com/",
     "image": "/imgs/opendatalab.png",
-    "description": "致力于收集和整理高质量的开源数据集，方便研究人员和开发者使用。",
-    "labels": ["热门推荐"]
+    "description": {
+      "zh-CN": "致力于收集和整理高质量的开源数据集，方便研究人员和开发者使用。",
+      "en": "Dedicated to collecting and organizing high-quality open-source datasets for researchers and developers."
+    },
+    "labels": ["popular"]
   },
   {
-    "name": "谷歌开源数据集",
+    "name": {
+      "zh-CN": "谷歌开源数据集",
+      "en": "Google Dataset Search"
+    },
     "link": "https://datasetsearch.research.google.com",
     "image": "/imgs/google.png",
-    "description": "谷歌提供的数据集搜索工具，可帮助用户找到来自不同来源的公开数据集。",
-    "labels": ["热门推荐", "英文资源"]
+    "description": {
+      "zh-CN": "谷歌提供的数据集搜索工具，可帮助用户找到来自不同来源的公开数据集。",
+      "en": "Google's dataset search tool helping users find public datasets from various sources."
+    },
+    "labels": ["popular", "english_resource"]
   },
   {
-    "name": "kaggle开源数据集",
+    "name": {
+      "zh-CN": "kaggle开源数据集",
+      "en": "Kaggle Open Datasets"
+    },
     "link": "https://www.kaggle.com/datasets",
     "image": "/imgs/kaggle.png",
-    "description": "Kaggle平台上的开源数据集，涉及各种领域和任务，常用于数据竞赛和实践。",
-    "labels": ["热门推荐", "英文资源"]
+    "description": {
+      "zh-CN": "Kaggle平台上的开源数据集，涉及各种领域和任务，常用于数据竞赛和实践。",
+      "en": "Open datasets on the Kaggle platform, covering various domains and tasks, commonly used for data competitions and practice."
+    },
+    "labels": ["popular", "english_resource"]
   },
   {
-    "name": "ModelScope开源数据集",
+    "name": {
+      "zh-CN": "ModelScope开源数据集",
+      "en": "ModelScope Open Datasets"
+    },
     "link": "https://modelscope.cn/datasets",
     "image": "/imgs/modelscope.png",
-    "description": "提供了多种开源数据集，支持模型的训练和评估，涵盖多个领域。",
-    "labels": ["中文资源"]
+    "description": {
+      "zh-CN": "提供了多种开源数据集，支持模型的训练和评估，涵盖多个领域。",
+      "en": "Provides various open-source datasets supporting model training and evaluation across multiple domains."
+    },
+    "labels": ["chinese_resource"]
   },
   {
-    "name": "LUGE千言开源数据集",
+    "name": {
+      "zh-CN": "LUGE千言开源数据集",
+      "en": "LUGE Open Datasets"
+    },
     "link": "https://www.luge.ai/",
     "image": "/imgs/lluga.png",
-    "description": "专注于中文领域的开源数据集，包括自然语言处理、语音识别等方向。",
-    "labels": ["中文资源"]
+    "description": {
+      "zh-CN": "专注于中文领域的开源数据集，包括自然语言处理、语音识别等方向。",
+      "en": "Focused on Chinese-language open datasets, including NLP, speech recognition, and more."
+    },
+    "labels": ["chinese_resource"]
   },
   {
-    "name": "GitHub开源数据集",
+    "name": {
+      "zh-CN": "GitHub开源数据集",
+      "en": "GitHub Awesome Public Datasets"
+    },
     "link": "https://github.com/awesomedata/awesome-public-datasets",
     "image": "/imgs/github.png",
-    "description": "在GitHub上整理的优秀的公开数据集资源，涉及多个领域和方向。",
-    "labels": ["热门推荐"]
+    "description": {
+      "zh-CN": "在GitHub上整理的优秀的公开数据集资源，涉及多个领域和方向。",
+      "en": "A curated list of awesome public datasets on GitHub, covering multiple domains and topics."
+    },
+    "labels": ["popular"]
   },
   {
-    "name": "AWS亚马逊开源数据集",
+    "name": {
+      "zh-CN": "AWS亚马逊开源数据集",
+      "en": "AWS Open Data"
+    },
     "link": "https://registry.opendata.aws/",
     "image": "/imgs/aws.png",
-    "description": "提供了大量的公开数据集，涵盖多个领域，可在亚马逊云服务上直接访问和使用。",
-    "labels": ["英文资源"]
+    "description": {
+      "zh-CN": "提供了大量的公开数据集，涵盖多个领域，可在亚马逊云服务上直接访问和使用。",
+      "en": "Provides numerous public datasets across multiple domains, directly accessible on AWS cloud services."
+    },
+    "labels": ["english_resource"]
   },
   {
-    "name": "TIANCHI天池开源数据集",
+    "name": {
+      "zh-CN": "TIANCHI天池开源数据集",
+      "en": "TIANCHI Open Datasets"
+    },
     "link": "https://tianchi.aliyun.com/dataset/",
-    "description": "阿里云天池平台提供的开源数据集，涵盖多个领域的竞赛数据和公开数据。",
-    "labels": ["中文资源"]
+    "description": {
+      "zh-CN": "阿里云天池平台提供的开源数据集，涵盖多个领域的竞赛数据和公开数据。",
+      "en": "Open datasets from Alibaba Cloud's Tianchi platform, covering competition and public data across multiple domains."
+    },
+    "labels": ["chinese_resource"]
   },
   {
-    "name": "UCI开源数据集",
+    "name": {
+      "zh-CN": "UCI开源数据集",
+      "en": "UCI Machine Learning Repository"
+    },
     "link": "https://archive.ics.uci.edu/datasets",
-    "description": "加州大学欧文分校提供的开源数据集，涵盖多个领域，常用于机器学习研究。",
-    "labels": ["研究数据", "英文资源"]
+    "description": {
+      "zh-CN": "加州大学欧文分校提供的开源数据集，涵盖多个领域，常用于机器学习研究。",
+      "en": "Open datasets from UC Irvine, covering multiple domains, widely used for machine learning research."
+    },
+    "labels": ["research", "english_resource"]
   },
   {
-    "name": "计算机视觉开源数据集",
+    "name": {
+      "zh-CN": "计算机视觉开源数据集",
+      "en": "Visual Data Discovery"
+    },
     "link": "https://visualdata.io/discovery",
-    "description": "专注于计算机视觉领域的开源数据集，支持相关模型的训练和评估。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "专注于计算机视觉领域的开源数据集，支持相关模型的训练和评估。",
+      "en": "Open datasets focused on computer vision, supporting related model training and evaluation."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "BAAI开源数据集",
+    "name": {
+      "zh-CN": "BAAI开源数据集",
+      "en": "BAAI Open Datasets"
+    },
     "link": "https://data.baai.ac.cn/data",
-    "description": "北京智源人工智能研究院提供的开源数据集，涵盖多个领域，支持大模型的训练。",
-    "labels": ["中文资源", "研究数据"]
+    "description": {
+      "zh-CN": "北京智源人工智能研究院提供的开源数据集，涵盖多个领域，支持大模型的训练。",
+      "en": "Open datasets from Beijing Academy of Artificial Intelligence, supporting large model training across multiple domains."
+    },
+    "labels": ["chinese_resource", "research"]
   },
   {
-    "name": "百度飞桨开源数据集",
+    "name": {
+      "zh-CN": "百度飞桨开源数据集",
+      "en": "Baidu PaddlePaddle Datasets"
+    },
     "link": "https://aistudio.baidu.com/datasetoverview",
-    "description": "百度飞桨平台提供的开源数据集，支持深度学习模型的训练和评估。",
-    "labels": ["中文资源"]
+    "description": {
+      "zh-CN": "百度飞桨平台提供的开源数据集，支持深度学习模型的训练和评估。",
+      "en": "Open datasets from Baidu's PaddlePaddle platform, supporting deep learning model training and evaluation."
+    },
+    "labels": ["chinese_resource"]
   },
   {
-    "name": "启智开源数据集",
+    "name": {
+      "zh-CN": "启智开源数据集",
+      "en": "OpenI Open Datasets"
+    },
     "link": "https://openi.pcl.ac.cn/explore/datasets",
-    "description": "开源平台提供的多种开源数据集，涵盖多个领域，支持模型的训练和研究。",
-    "labels": ["中文资源"]
+    "description": {
+      "zh-CN": "开源平台提供的多种开源数据集，涵盖多个领域，支持模型的训练和研究。",
+      "en": "Various open datasets from the OpenI platform, covering multiple domains, supporting model training and research."
+    },
+    "labels": ["chinese_resource"]
   },
   {
-    "name": "LAION-2B-en",
+    "name": {
+      "zh-CN": "LAION-2B-en",
+      "en": "LAION-2B-en"
+    },
     "link": "https://laion.ai/",
-    "description": "包含25亿张图像和相应的文本描述，适用于多模态模型的训练。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "包含25亿张图像和相应的文本描述，适用于多模态模型的训练。",
+      "en": "Contains 2.5 billion images with corresponding text descriptions, suitable for multimodal model training."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Common Crawl",
+    "name": {
+      "zh-CN": "Common Crawl",
+      "en": "Common Crawl"
+    },
     "link": "https://commoncrawl.org/",
-    "description": "提供了大量的网页爬取数据，可用于语言模型的训练。",
-    "labels": ["英文资源", "研究数据"]
+    "description": {
+      "zh-CN": "提供了大量的网页爬取数据，可用于语言模型的训练。",
+      "en": "Provides large-scale web crawl data for language model training."
+    },
+    "labels": ["english_resource", "research"]
   },
   {
-    "name": "The Pile",
+    "name": {
+      "zh-CN": "The Pile",
+      "en": "The Pile"
+    },
     "link": "https://github.com/EleutherAI/the-pile",
-    "description": "由多个数据集组成的大型语言模型训练数据集，涵盖多种文本类型。",
-    "labels": ["研究数据", "英文资源"]
+    "description": {
+      "zh-CN": "由多个数据集组成的大型语言模型训练数据集，涵盖多种文本类型。",
+      "en": "A large language model training dataset composed of multiple datasets, covering various text types."
+    },
+    "labels": ["research", "english_resource"]
   },
   {
-    "name": "MuJoCo",
+    "name": {
+      "zh-CN": "MuJoCo",
+      "en": "MuJoCo"
+    },
     "link": "https://mujoco.org/",
-    "description": "用于物理模拟的机器人交互数据集，适用于强化学习和机器人控制任务。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "用于物理模拟的机器人交互数据集，适用于强化学习和机器人控制任务。",
+      "en": "Robot interaction dataset for physics simulation, suitable for reinforcement learning and robot control tasks."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Robotics Datasets",
+    "name": {
+      "zh-CN": "Robotics Datasets",
+      "en": "Robotics Datasets"
+    },
     "link": "https://roboticsdatasets.github.io/",
-    "description": "提供了多种机器人交互数据集，支持机器人学习和控制任务。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "提供了多种机器人交互数据集，支持机器人学习和控制任务。",
+      "en": "Provides various robot interaction datasets, supporting robot learning and control tasks."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Atari Games",
+    "name": {
+      "zh-CN": "Atari Games",
+      "en": "Atari Games"
+    },
     "link": "https://www.atari.com/games",
-    "description": "经典的Atari游戏数据集，用于强化学习算法的基准测试。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "经典的Atari游戏数据集，用于强化学习算法的基准测试。",
+      "en": "Classic Atari game dataset for benchmarking reinforcement learning algorithms."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Web-crawled Interactions",
+    "name": {
+      "zh-CN": "Web-crawled Interactions",
+      "en": "Web-crawled Interactions"
+    },
     "link": "https://commoncrawl.org/",
-    "description": "从网络平台上爬取的用户行为数据，适用于训练交互式代理。",
-    "labels": ["研究数据"]
+    "description": {
+      "zh-CN": "从网络平台上爬取的用户行为数据，适用于训练交互式代理。",
+      "en": "User behavior data crawled from web platforms, suitable for training interactive agents."
+    },
+    "labels": ["research"]
   },
   {
-    "name": "AI2 ARC Dataset",
+    "name": {
+      "zh-CN": "AI2 ARC Dataset",
+      "en": "AI2 ARC Dataset"
+    },
     "link": "https://allenai.org/data/arc",
-    "description": "用于评估AI常识推理和解决问题能力的多选题数据集。",
-    "labels": ["研究数据"]
+    "description": {
+      "zh-CN": "用于评估AI常识推理和解决问题能力的多选题数据集。",
+      "en": "Multiple-choice dataset for evaluating AI common sense reasoning and problem-solving abilities."
+    },
+    "labels": ["research"]
   },
   {
-    "name": "Speech Commands Dataset",
+    "name": {
+      "zh-CN": "Speech Commands Dataset",
+      "en": "Speech Commands Dataset"
+    },
     "link": "https://www.tensorflow.org/datasets/catalog/speech_commands",
-    "description": "包含数千个语音命令的音频数据集，适用于语音识别任务。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "包含数千个语音命令的音频数据集，适用于语音识别任务。",
+      "en": "Audio dataset containing thousands of voice commands, suitable for speech recognition tasks."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Environmental Audio Datasets",
+    "name": {
+      "zh-CN": "Environmental Audio Datasets",
+      "en": "Environmental Audio Datasets"
+    },
     "link": "https://www.tensorflow.org/datasets/catalog/audioset",
-    "description": "包含环境声音事件的音频数据集，适用于音频场景分类任务。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "包含环境声音事件的音频数据集，适用于音频场景分类任务。",
+      "en": "Audio dataset containing environmental sound events, suitable for audio scene classification tasks."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "COVID-19 Open Research Dataset",
+    "name": {
+      "zh-CN": "COVID-19 Open Research Dataset",
+      "en": "COVID-19 Open Research Dataset"
+    },
     "link": "https://www.kaggle.com/allenai/cord-19-research-challenge",
-    "description": "包含45,000篇关于COVID-19的学术文章，适用于医疗AI研究。",
-    "labels": ["研究数据"]
+    "description": {
+      "zh-CN": "包含45,000篇关于COVID-19的学术文章，适用于医疗AI研究。",
+      "en": "Contains 45,000 scholarly articles about COVID-19, suitable for medical AI research."
+    },
+    "labels": ["research"]
   },
   {
-    "name": "Waymo Open Dataset",
+    "name": {
+      "zh-CN": "Waymo Open Dataset",
+      "en": "Waymo Open Dataset"
+    },
     "link": "https://waymo.com/open/",
-    "description": "由Waymo发布的最多样化的自动驾驶数据集。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "由Waymo发布的最多样化的自动驾驶数据集。",
+      "en": "The most diverse autonomous driving dataset released by Waymo."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Labelme",
+    "name": {
+      "zh-CN": "Labelme",
+      "en": "Labelme"
+    },
     "link": "http://labelme.csail.mit.edu/Release3.0/",
-    "description": "包含大量标注图像的数据集，适用于计算机视觉任务。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "包含大量标注图像的数据集，适用于计算机视觉任务。",
+      "en": "Dataset containing a large number of annotated images, suitable for computer vision tasks."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Stanford Dogs Dataset",
+    "name": {
+      "zh-CN": "Stanford Dogs Dataset",
+      "en": "Stanford Dogs Dataset"
+    },
     "link": "http://vision.stanford.edu/aditya86/ImageNetDogs/",
-    "description": "包含20,500多张不同狗品种的图像数据集。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "包含20,500多张不同狗品种的图像数据集。",
+      "en": "Image dataset containing over 20,500 images of different dog breeds."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Flickr Audio Caption Corpus",
+    "name": {
+      "zh-CN": "Flickr Audio Caption Corpus",
+      "en": "Flickr Audio Caption Corpus"
+    },
     "link": "https://www.multispeech.org/2018/challenge.html",
-    "description": "包含超过40,000个口语描述的音频数据集。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "包含超过40,000个口语描述的音频数据集。",
+      "en": "Audio dataset containing over 40,000 spoken descriptions."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Data.gov",
+    "name": {
+      "zh-CN": "Data.gov",
+      "en": "Data.gov"
+    },
     "link": "https://www.data.gov/",
-    "description": "美国政府开放数据平台，涵盖农业、气候、教育、能源等领域的公开数据集。",
-    "labels": ["政府数据", "英文资源"]
+    "description": {
+      "zh-CN": "美国政府开放数据平台，涵盖农业、气候、教育、能源等领域的公开数据集。",
+      "en": "U.S. government open data platform covering public datasets in agriculture, climate, education, energy, and more."
+    },
+    "labels": ["government_data", "english_resource"]
   },
   {
-    "name": "Eurostat",
+    "name": {
+      "zh-CN": "Eurostat",
+      "en": "Eurostat"
+    },
     "link": "https://ec.europa.eu/eurostat",
-    "description": "欧盟统计局提供的经济、人口、社会等多领域统计数据。",
-    "labels": ["研究数据", "英文资源"]
+    "description": {
+      "zh-CN": "欧盟统计局提供的经济、人口、社会等多领域统计数据。",
+      "en": "Statistical data from the EU statistics office covering economics, population, society, and more."
+    },
+    "labels": ["research", "english_resource"]
   },
   {
-    "name": "ImageNet",
+    "name": {
+      "zh-CN": "ImageNet",
+      "en": "ImageNet"
+    },
     "link": "https://www.image-net.org/",
-    "description": "大型图像数据集，包含数百万张标注图像，广泛用于计算机视觉任务。",
-    "labels": ["多模态", "计算机视觉"]
+    "description": {
+      "zh-CN": "大型图像数据集，包含数百万张标注图像，广泛用于计算机视觉任务。",
+      "en": "Large-scale image dataset containing millions of annotated images, widely used for computer vision tasks."
+    },
+    "labels": ["multimodal", "computer_vision"]
   },
   {
-    "name": "COCO Dataset",
+    "name": {
+      "zh-CN": "COCO Dataset",
+      "en": "COCO Dataset"
+    },
     "link": "https://cocodataset.org/",
-    "description": "通用物体识别与分割数据集，适用于目标检测和图像分割任务。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "通用物体识别与分割数据集，适用于目标检测和图像分割任务。",
+      "en": "Common Objects in Context dataset for object detection and image segmentation tasks."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "World Bank Open Data",
+    "name": {
+      "zh-CN": "World Bank Open Data",
+      "en": "World Bank Open Data"
+    },
     "link": "https://data.worldbank.org/",
-    "description": "世界银行提供的全球经济指标、发展数据及统计报告。",
-    "labels": ["研究数据", "英文资源"]
+    "description": {
+      "zh-CN": "世界银行提供的全球经济指标、发展数据及统计报告。",
+      "en": "Global economic indicators, development data, and statistical reports from the World Bank."
+    },
+    "labels": ["research", "english_resource"]
   },
   {
-    "name": "NASA Earth Data",
+    "name": {
+      "zh-CN": "NASA Earth Data",
+      "en": "NASA Earth Data"
+    },
     "link": "https://earthdata.nasa.gov/",
-    "description": "NASA地球科学数据，涵盖气候、地质、环境等领域的遥感数据。",
-    "labels": ["研究数据", "地球科学"]
+    "description": {
+      "zh-CN": "NASA地球科学数据，涵盖气候、地质、环境等领域的遥感数据。",
+      "en": "NASA Earth science data covering climate, geology, and environmental remote sensing data."
+    },
+    "labels": ["research", "earth_science"]
   },
   {
-    "name": "Yelp Open Dataset",
+    "name": {
+      "zh-CN": "Yelp Open Dataset",
+      "en": "Yelp Open Dataset"
+    },
     "link": "https://www.yelp.com/dataset",
-    "description": "包含商家信息、用户评论和图片数据，适用于商业分析和NLP任务。",
-    "labels": ["商业", "英文资源"]
+    "description": {
+      "zh-CN": "包含商家信息、用户评论和图片数据，适用于商业分析和NLP任务。",
+      "en": "Contains business information, user reviews, and image data, suitable for business analytics and NLP tasks."
+    },
+    "labels": ["business", "english_resource"]
   },
   {
-    "name": "CIFAR-10/100",
+    "name": {
+      "zh-CN": "CIFAR-10/100",
+      "en": "CIFAR-10/100"
+    },
     "link": "https://www.cs.toronto.edu/~kriz/cifar.html",
-    "description": "经典的小规模图像分类数据集，包含10或100个类别的标注图像。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "经典的小规模图像分类数据集，包含10或100个类别的标注图像。",
+      "en": "Classic small-scale image classification dataset containing annotated images in 10 or 100 categories."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "Global Health Observatory (WHO)",
+    "name": {
+      "zh-CN": "Global Health Observatory (WHO)",
+      "en": "Global Health Observatory (WHO)"
+    },
     "link": "https://www.who.int/data/gho",
-    "description": "世界卫生组织提供的全球公共卫生统计数据，包括疾病、营养等主题。",
-    "labels": ["医疗健康", "研究数据"]
+    "description": {
+      "zh-CN": "世界卫生组织提供的全球公共卫生统计数据，包括疾病、营养等主题。",
+      "en": "Global public health statistics from WHO, covering topics such as diseases, nutrition, and more."
+    },
+    "labels": ["medical_health", "research"]
   },
   {
-    "name": "arXiv Dataset",
+    "name": {
+      "zh-CN": "arXiv Dataset",
+      "en": "arXiv Dataset"
+    },
     "link": "https://www.kaggle.com/Cornell-University/arxiv",
-    "description": "包含数百万篇arXiv学术论文的元数据和全文，适用于文本挖掘研究。",
-    "labels": ["研究数据", "英文资源"]
+    "description": {
+      "zh-CN": "包含数百万篇arXiv学术论文的元数据和全文，适用于文本挖掘研究。",
+      "en": "Contains metadata and full text of millions of arXiv scholarly papers, suitable for text mining research."
+    },
+    "labels": ["research", "english_resource"]
   },
   {
-    "name": "LibriSpeech",
+    "name": {
+      "zh-CN": "LibriSpeech",
+      "en": "LibriSpeech"
+    },
     "link": "https://www.openslr.org/12",
-    "description": "包含1000小时英语语音数据，适用于语音识别模型训练。",
-    "labels": ["多模态", "语音识别"]
+    "description": {
+      "zh-CN": "包含1000小时英语语音数据，适用于语音识别模型训练。",
+      "en": "Contains 1,000 hours of English speech data, suitable for speech recognition model training."
+    },
+    "labels": ["multimodal", "speech_recognition"]
   },
   {
-    "name": "KITTI Vision Benchmark",
+    "name": {
+      "zh-CN": "KITTI Vision Benchmark",
+      "en": "KITTI Vision Benchmark"
+    },
     "link": "http://www.cvlibs.net/datasets/kitti/",
-    "description": "自动驾驶领域经典数据集，包含立体视觉、激光雷达等多模态数据。",
-    "labels": ["多模态", "自动驾驶"]
+    "description": {
+      "zh-CN": "自动驾驶领域经典数据集，包含立体视觉、激光雷达等多模态数据。",
+      "en": "Classic autonomous driving dataset containing stereo vision, LiDAR, and other multimodal data."
+    },
+    "labels": ["multimodal", "autonomous_driving"]
   },
   {
-    "name": "Cityscapes Dataset",
+    "name": {
+      "zh-CN": "Cityscapes Dataset",
+      "en": "Cityscapes Dataset"
+    },
     "link": "https://www.cityscapes-dataset.com/",
-    "description": "城市街景语义分割数据集，支持自动驾驶和计算机视觉研究。",
-    "labels": ["多模态"]
+    "description": {
+      "zh-CN": "城市街景语义分割数据集，支持自动驾驶和计算机视觉研究。",
+      "en": "Urban street scene semantic segmentation dataset, supporting autonomous driving and computer vision research."
+    },
+    "labels": ["multimodal"]
   },
   {
-    "name": "CDC Data",
+    "name": {
+      "zh-CN": "CDC Data",
+      "en": "CDC Data"
+    },
     "link": "https://data.cdc.gov/",
-    "description": "美国疾病控制与预防中心发布的公共卫生数据集，涵盖疾病追踪和健康统计。",
-    "labels": ["医疗健康", "政府数据"]
+    "description": {
+      "zh-CN": "美国疾病控制与预防中心发布的公共卫生数据集，涵盖疾病追踪和健康统计。",
+      "en": "Public health datasets from the U.S. CDC, covering disease tracking and health statistics."
+    },
+    "labels": ["medical_health", "government_data"]
   },
   {
-    "name": "OpenStreetMap",
+    "name": {
+      "zh-CN": "OpenStreetMap",
+      "en": "OpenStreetMap"
+    },
     "link": "https://www.openstreetmap.org/",
-    "description": "开源地理数据协作项目，提供全球范围的道路、建筑等地理信息数据。",
-    "labels": ["地理信息", "众包数据"]
+    "description": {
+      "zh-CN": "开源地理数据协作项目，提供全球范围的道路、建筑等地理信息数据。",
+      "en": "Open-source geographic data collaboration project providing worldwide road, building, and other geographic information."
+    },
+    "labels": ["geographic_info", "crowdsourced"]
   },
   {
-    "name": "FiveThirtyEight Datasets",
+    "name": {
+      "zh-CN": "FiveThirtyEight Datasets",
+      "en": "FiveThirtyEight Datasets"
+    },
     "link": "https://data.fivethirtyeight.com/",
-    "description": "涵盖政治、体育、文化等领域的数据集，常用于数据新闻分析。",
-    "labels": ["社会趋势", "英文资源"]
+    "description": {
+      "zh-CN": "涵盖政治、体育、文化等领域的数据集，常用于数据新闻分析。",
+      "en": "Datasets covering politics, sports, culture, and more, commonly used for data journalism analysis."
+    },
+    "labels": ["social_trends", "english_resource"]
   },
   {
-    "name": "Human Protein Atlas",
+    "name": {
+      "zh-CN": "Human Protein Atlas",
+      "en": "Human Protein Atlas"
+    },
     "link": "https://www.proteinatlas.org/",
-    "description": "包含人体蛋白质分布的组织图像数据，支持生物医学研究。",
-    "labels": ["医疗健康", "研究数据"]
+    "description": {
+      "zh-CN": "包含人体蛋白质分布的组织图像数据，支持生物医学研究。",
+      "en": "Contains tissue image data on human protein distribution, supporting biomedical research."
+    },
+    "labels": ["medical_health", "research"]
   }
 ]

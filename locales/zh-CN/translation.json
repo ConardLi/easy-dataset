@@ -939,7 +939,24 @@
     "noDatasets": "没有找到符合条件的数据集",
     "tryOtherCategories": "请尝试其他分类或返回全部数据集查看",
     "dataset": "数据集",
-    "viewDataset": "查看数据集"
+    "viewDataset": "查看数据集",
+    "labels": {
+      "popular": "热门推荐",
+      "chinese_resource": "中文资源",
+      "english_resource": "英文资源",
+      "research": "研究数据",
+      "multimodal": "多模态",
+      "computer_vision": "计算机视觉",
+      "autonomous_driving": "自动驾驶",
+      "medical_health": "医疗健康",
+      "government_data": "政府数据",
+      "earth_science": "地球科学",
+      "business": "商业",
+      "social_trends": "社会趋势",
+      "geographic_info": "地理信息",
+      "crowdsourced": "众包数据",
+      "speech_recognition": "语音识别"
+    }
   },
   "playground": {
     "title": "模型测试",

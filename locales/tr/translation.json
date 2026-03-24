@@ -932,7 +932,24 @@
     "noDatasets": "Kriterlerinize uygun veri seti bulunamadı",
     "tryOtherCategories": "Lütfen diğer kategorileri deneyin veya tüm veri setlerini görüntülemek için geri dönün",
     "dataset": "Veri Seti",
-    "viewDataset": "Veri Setini Görüntüle"
+    "viewDataset": "Veri Setini Görüntüle",
+    "labels": {
+      "popular": "Popüler",
+      "chinese_resource": "Çince Kaynaklar",
+      "english_resource": "İngilizce Kaynaklar",
+      "research": "Araştırma Verileri",
+      "multimodal": "Çok Modlu",
+      "computer_vision": "Bilgisayar Görüşü",
+      "autonomous_driving": "Otonom Sürüş",
+      "medical_health": "Tıbbi Sağlık",
+      "government_data": "Devlet Verileri",
+      "earth_science": "Yer Bilimleri",
+      "business": "İş",
+      "social_trends": "Sosyal Eğilimler",
+      "geographic_info": "Coğrafi Bilgi",
+      "crowdsourced": "Kitle Kaynaklı",
+      "speech_recognition": "Konuşma Tanıma"
+    }
   },
   "playground": {
     "title": "Model Testi",

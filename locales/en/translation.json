@@ -953,7 +953,24 @@
     "noDatasets": "No datasets found matching your criteria",
     "tryOtherCategories": "Please try other categories or return to view all datasets",
     "dataset": "Dataset",
-    "viewDataset": "View Dataset"
+    "viewDataset": "View Dataset",
+    "labels": {
+      "popular": "Popular",
+      "chinese_resource": "Chinese Resources",
+      "english_resource": "English Resources",
+      "research": "Research Data",
+      "multimodal": "Multimodal",
+      "computer_vision": "Computer Vision",
+      "autonomous_driving": "Autonomous Driving",
+      "medical_health": "Medical Health",
+      "government_data": "Government Data",
+      "earth_science": "Earth Science",
+      "business": "Business",
+      "social_trends": "Social Trends",
+      "geographic_info": "Geographic Info",
+      "crowdsourced": "Crowdsourced",
+      "speech_recognition": "Speech Recognition"
+    }
   },
   "playground": {
     "title": "Model Testing",

@@ -938,7 +938,24 @@
     "noDatasets": "Nenhum conjunto de dados correspondente encontrado",
     "tryOtherCategories": "Por favor, tente outras categorias ou volte para ver todos os conjuntos de dados",
     "dataset": "Conjunto de Dados",
-    "viewDataset": "Ver Conjunto de Dados"
+    "viewDataset": "Ver Conjunto de Dados",
+    "labels": {
+      "popular": "Recomendações Populares",
+      "chinese_resource": "Recursos em Chinês",
+      "english_resource": "Recursos em Inglês",
+      "research": "Dados de Pesquisa",
+      "multimodal": "Multimodal",
+      "computer_vision": "Visão Computacional",
+      "autonomous_driving": "Direção Autônoma",
+      "medical_health": "Saúde Médica",
+      "government_data": "Dados Governamentais",
+      "earth_science": "Ciências da Terra",
+      "business": "Negócios",
+      "social_trends": "Tendências Sociais",
+      "geographic_info": "Informação Geográfica",
+      "crowdsourced": "Crowdsourced",
+      "speech_recognition": "Reconhecimento de Fala"
+    }
   },
   "playground": {
     "title": "Teste de Modelo",

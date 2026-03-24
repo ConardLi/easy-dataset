@@ -22,6 +22,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
 import sites from '@/constant/sites.json';
 import { useTranslation } from 'react-i18next';
+import { getSiteField } from '@/lib/util/sites-i18n';
 
 export function DatasetSearchBar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,7 +31,7 @@ export function DatasetSearchBar() {
   const searchRef = useRef(null);
   const suggestionsRef = useRef(null);
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // 从 localStorage 加载最近搜索
   useEffect(() => {
@@ -238,7 +239,7 @@ export function DatasetSearchBar() {
                                   <TravelExploreIcon fontSize="small" />
                                 </Avatar>
                                 <Typography>
-                                  {t('datasetSquare.searchVia')} <strong>{site.name}</strong> Search
+                                  {t('datasetSquare.searchVia')} <strong>{getSiteField(site, 'name', i18n.language)}</strong> Search
                                 </Typography>
                               </Box>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>

@@ -4,14 +4,18 @@ import { Card, CardActionArea, CardContent, CardMedia, Typography, Box, Chip, us
 import LaunchIcon from '@mui/icons-material/Launch';
 import StorageIcon from '@mui/icons-material/Storage';
 import { useTranslation } from 'react-i18next';
+import { getSiteField } from '@/lib/util/sites-i18n';
 
 export function DatasetSiteCard({ site }) {
-  const { name, link, description, image, labels } = site;
+  const { link, image, labels } = site;
   const theme = useTheme();
+  const { t, i18n } = useTranslation();
+
+  const name = getSiteField(site, 'name', i18n.language);
+  const description = getSiteField(site, 'description', i18n.language);
 
   // 处理图片路径，如果没有图片则使用默认图片
   const imageUrl = image || `/imgs/default-dataset.png`;
-  const { t } = useTranslation();
 
   // 处理卡片点击
   const handleCardClick = () => {
@@ -156,7 +160,7 @@ export function DatasetSiteCard({ site }) {
                 {labels.map((label, index) => (
                   <Chip
                     key={index}
-                    label={label}
+                    label={t(`datasetSquare.labels.${label}`, label)}
                     size="small"
                     sx={{
                       borderRadius: 1,
