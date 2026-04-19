@@ -21,11 +21,13 @@ export default function useImageDatasetDetails(projectId, datasetId) {
   // 获取数据集列表信息
   const fetchDatasetsList = useCallback(async () => {
     try {
-      // 获取所有数据集以正确统计已确认数量
-      const response = await axios.get(`/api/projects/${projectId}/image-datasets?page=1&pageSize=10000`);
-      const data = response.data;
-      setDatasetsAllCount(data.total || 0);
-      setDatasetsConfirmCount(data.data?.filter(d => d.confirmed).length || 0);
+      // Use two lightweight requests (pageSize=1) to get total and confirmed counts
+      const [allResponse, confirmedResponse] = await Promise.all([
+        axios.get(`/api/projects/${projectId}/image-datasets?page=1&pageSize=1&idsOnly=true`),
+        axios.get(`/api/projects/${projectId}/image-datasets?page=1&pageSize=1&confirmed=true&idsOnly=true`)
+      ]);
+      setDatasetsAllCount(allResponse.data.total || 0);
+      setDatasetsConfirmCount(confirmedResponse.data.total || 0);
     } catch (error) {
       console.error('Failed to fetch datasets list:', error);
     }
@@ -76,8 +78,10 @@ export default function useImageDatasetDetails(projectId, datasetId) {
   const handleNavigate = useCallback(
     async (direction, skipCurrentId = null) => {
       try {
-        // 获取所有数据集（不分页），使用一个足够大的 pageSize
-        const response = await axios.get(`/api/projects/${projectId}/image-datasets?page=1&pageSize=10000`);
+        // Fetch only IDs (no image data) to avoid loading large base64 images for navigation
+        const response = await axios.get(
+          `/api/projects/${projectId}/image-datasets?page=1&pageSize=10000&idsOnly=true`
+        );
         const datasets = response.data.data || [];
 
         if (datasets.length === 0) {

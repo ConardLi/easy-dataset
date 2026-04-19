@@ -32,7 +32,17 @@ export async function GET(request, { params }) {
       filters.maxScore = parseInt(maxScore);
     }
 
+    // When idsOnly=true, skip image loading and return only IDs for navigation
+    const idsOnly = searchParams.get('idsOnly') === 'true';
+
     const result = await getImageDatasetsByProject(projectId, page, pageSize, filters);
+
+    if (idsOnly) {
+      return NextResponse.json({
+        data: result.data.map(d => ({ id: d.id })),
+        total: result.total
+      });
+    }
 
     // 获取项目路径
     const projectPath = await getProjectPath(projectId);
