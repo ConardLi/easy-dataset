@@ -1,5 +1,6 @@
 import { Box, Paper, Typography, Chip, Collapse, IconButton, Avatar, Divider, Grid } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useTranslation } from 'react-i18next';
 import { useTheme, alpha } from '@mui/material/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -137,7 +138,7 @@ function ResultAnswerSection({ title, rawContent, isWinner, modelLabel, t, theme
 
         {/* 正文内容 */}
         <div className="markdown-body" style={{ fontSize: '0.95rem', backgroundColor: 'transparent' }}>
-          <ReactMarkdown>{content || '-'}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content || '-'}</ReactMarkdown>
         </div>
       </Paper>
     </Box>

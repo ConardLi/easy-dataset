@@ -29,6 +29,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import TabPanel from './components/TabPanel';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
@@ -480,6 +481,7 @@ export default function DomainAnalysis({ projectId, toc = '', loading = false })
               >
                 <div className="markdown-body">
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       root: ({ children }) => (
                         <div

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, Box, Typography, Chip, Button, Paper } from '@mui/material';
 import { Edit as EditIcon, Restore as RestoreIcon } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import 'github-markdown-css/github-markdown-light.css';
 
@@ -81,7 +82,7 @@ const PromptDetail = ({
           }}
         >
           <div className="markdown-body">
-            <ReactMarkdown>{promptContent}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{promptContent}</ReactMarkdown>
           </div>
         </Paper>
       </CardContent>

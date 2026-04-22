@@ -9,6 +9,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { detailStyles } from '../detailStyles';
 import { useTranslation } from 'react-i18next';
 import 'github-markdown-css/github-markdown-light.css';
@@ -221,7 +222,7 @@ export default function QuestionCard({ result, index, task }) {
         <Box ref={contentRef} sx={detailStyles.markdownContainer(isExpanded)}>
           {questionType === 'open_ended' || questionType === 'short_answer' ? (
             <div className="markdown-body">
-              <ReactMarkdown>{modelAnswer || ''}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{modelAnswer || ''}</ReactMarkdown>
             </div>
           ) : (
             <Typography
@@ -272,7 +273,7 @@ export default function QuestionCard({ result, index, task }) {
           <Box ref={correctContentRef} sx={detailStyles.markdownContainer(isCorrectExpanded)}>
             {questionType === 'open_ended' || questionType === 'short_answer' ? (
               <div className="markdown-body">
-                <ReactMarkdown>{correctAnswer || ''}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{correctAnswer || ''}</ReactMarkdown>
               </div>
             ) : (
               <Typography

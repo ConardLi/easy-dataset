@@ -87,6 +87,7 @@
     "react-i18next": "^15.4.1",
     "react-markdown": "^10.0.1",
     "recharts": "^3.6.0",
+    "remark-gfm": "^4.0.1",
     "sharp": "^0.33.1",
     "sonner": "^2.0.3",
     "turndown": "^7.2.0",

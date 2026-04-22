@@ -20,6 +20,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useTranslation } from 'react-i18next';
 import 'github-markdown-css/github-markdown-light.css';
 
@@ -392,7 +393,7 @@ export default function MarkdownViewDialog({ open, text, onClose, projectId, onS
             ) : (
               <Box>
                 <div className="markdown-body">
-                  <ReactMarkdown>{text.content}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{text.content}</ReactMarkdown>
                 </div>
               </Box>
             )}

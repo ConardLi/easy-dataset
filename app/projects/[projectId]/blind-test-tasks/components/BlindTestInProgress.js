@@ -28,6 +28,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import 'github-markdown-css/github-markdown-light.css';
 import { blindTestStyles } from '@/styles/blindTest';
 
@@ -162,7 +163,7 @@ function AnswerBox({ title, modelLabel, answer, streaming, showThinking, setShow
 
           {answer?.content ? (
             <div className="markdown-body" style={{ fontSize: '0.95rem', backgroundColor: 'transparent' }}>
-              <ReactMarkdown>{answer.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer.content}</ReactMarkdown>
             </div>
           ) : streaming ? (
             <Box

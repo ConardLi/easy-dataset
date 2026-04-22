@@ -15,6 +15,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material/styles';
 import 'github-markdown-css/github-markdown-light.css';
@@ -72,7 +73,7 @@ function getValue(value, answerType, useMarkdown, t, onOptimize) {
     }
     return useMarkdown ? (
       <div className="markdown-body">
-        <ReactMarkdown>{value}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
       </div>
     ) : (
       <Typography variant="body1">{value}</Typography>
