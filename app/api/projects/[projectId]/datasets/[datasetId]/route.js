@@ -17,7 +17,22 @@ export async function GET(request, { params }) {
     const { searchParams } = new URL(request.url);
     const operateType = searchParams.get('operateType');
     if (operateType !== null) {
-      const data = await getNavigationItems(projectId, datasetId, operateType);
+      const status = searchParams.get('status');
+      let confirmed = undefined;
+      if (status === 'confirmed') confirmed = true;
+      if (status === 'unconfirmed') confirmed = false;
+      const filters = {
+        confirmed,
+        input: searchParams.get('input') || '',
+        field: searchParams.get('field') || 'question',
+        hasCot: searchParams.get('hasCot') || 'all',
+        isDistill: searchParams.get('isDistill') || 'all',
+        scoreRange: searchParams.get('scoreRange') || '',
+        customTag: searchParams.get('customTag') || '',
+        noteKeyword: searchParams.get('noteKeyword') || '',
+        chunkName: searchParams.get('chunkName') || ''
+      };
+      const data = await getNavigationItems(projectId, datasetId, operateType, filters);
       return NextResponse.json(data);
     }
     const datasets = await getDatasetsById(datasetId);

@@ -180,7 +180,45 @@ export default function useDatasetDetails(projectId, datasetId) {
 
   // 导航到其他数据集
   const handleNavigate = async direction => {
-    const response = await axios.get(`/api/projects/${projectId}/datasets/${datasetId}?operateType=${direction}`);
+    const params = new URLSearchParams({ operateType: direction });
+
+    // Apply active list filters so navigation stays within the filtered set
+    try {
+      const savedFilters = localStorage.getItem(`datasets-filters-${projectId}`);
+      if (savedFilters) {
+        const {
+          filterConfirmed,
+          filterChunkName,
+          filterHasCot,
+          filterIsDistill,
+          filterScoreRange,
+          filterCustomTag,
+          filterNoteKeyword,
+          searchQuery,
+          searchField
+        } = JSON.parse(savedFilters);
+
+        if (filterConfirmed === 'confirmed') params.set('status', 'confirmed');
+        else if (filterConfirmed === 'unconfirmed') params.set('status', 'unconfirmed');
+
+        if (filterChunkName) params.set('chunkName', filterChunkName);
+        if (filterHasCot && filterHasCot !== 'all') params.set('hasCot', filterHasCot);
+        if (filterIsDistill && filterIsDistill !== 'all') params.set('isDistill', filterIsDistill);
+        if (filterScoreRange && (filterScoreRange[0] > 0 || filterScoreRange[1] < 5)) {
+          params.set('scoreRange', `${filterScoreRange[0]}-${filterScoreRange[1]}`);
+        }
+        if (filterCustomTag) params.set('customTag', filterCustomTag);
+        if (filterNoteKeyword) params.set('noteKeyword', filterNoteKeyword);
+        if (searchQuery) {
+          params.set('input', searchQuery);
+          params.set('field', searchField || 'question');
+        }
+      }
+    } catch (e) {
+      console.error('Failed to read filter conditions for navigation:', e);
+    }
+
+    const response = await axios.get(`/api/projects/${projectId}/datasets/${datasetId}?${params}`);
     if (response.data) {
       router.push(`/projects/${projectId}/datasets/${response.data.id}`);
     } else {
