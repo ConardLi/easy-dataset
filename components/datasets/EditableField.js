@@ -75,7 +75,9 @@ function getValue(value, answerType, useMarkdown, t, onOptimize) {
         <ReactMarkdown>{value}</ReactMarkdown>
       </div>
     ) : (
-      <Typography variant="body1">{value}</Typography>
+      <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+        {value}
+      </Typography>
     );
   } else {
     return (
