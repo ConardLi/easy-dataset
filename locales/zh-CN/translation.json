@@ -123,7 +123,19 @@
       "saveFailed": "提示词保存失败",
       "saveError": "保存提示词出错:",
       "createCustomPrompt": "创建自定义提示词",
-      "fetchContentError": "获取最新提示词内容失败:"
+      "fetchContentError": "获取最新提示词内容失败:",
+      "exportAll": "导出全部",
+      "importAll": "导入",
+      "exportSuccess": "全部提示词导出成功",
+      "exportFailed": "导出提示词失败",
+      "importPreviewTitle": "导入提示词预览",
+      "importPreviewInfo": "找到 {{total}} 个提示词条目（{{customized}} 个已自定义），将导入以下自定义提示词：",
+      "importMoreItems": "...以及另外 {{count}} 个",
+      "importConfirm": "确认导入",
+      "importInvalidFormat": "文件格式无效，请选择有效的 JSON 文件",
+      "importSuccess": "导入完成：已导入 {{imported}} 个，跳过 {{skipped}} 个",
+      "importFailed": "导入提示词失败",
+      "selectPrompt": "选择提示词"
     }
   },
   "questions": {

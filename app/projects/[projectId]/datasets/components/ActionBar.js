@@ -20,10 +20,10 @@ const ActionBar = ({ onBatchEvaluate, onImport, onExport, batchEvaluating = fals
       >
         {batchEvaluating ? t('datasets.evaluating', '评估中...') : t('datasets.batchEvaluate', '批量评估')}
       </Button>
-      <Button variant="outlined" startIcon={<FileUploadIcon />} sx={{ borderRadius: 2 }} onClick={onImport}>
+      <Button variant="outlined" startIcon={<FileDownloadIcon />} sx={{ borderRadius: 2 }} onClick={onImport}>
         {t('import.title', '导入')}
       </Button>
-      <Button variant="outlined" startIcon={<FileDownloadIcon />} sx={{ borderRadius: 2 }} onClick={onExport}>
+      <Button variant="outlined" startIcon={<FileUploadIcon />} sx={{ borderRadius: 2 }} onClick={onExport}>
         {t('export.title')}
       </Button>
     </Box>

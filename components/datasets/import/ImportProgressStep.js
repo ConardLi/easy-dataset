@@ -27,6 +27,8 @@ export default function ImportProgressStep({ projectId, rawData, fieldMapping, s
     total: 0,
     processed: 0,
     success: 0,
+    created: 0,
+    updated: 0,
     failed: 0,
     skipped: 0,
     errors: []
@@ -58,6 +60,8 @@ export default function ImportProgressStep({ projectId, rawData, fieldMapping, s
           : item[qFields] || '';
 
         const converted = {
+          id: item.id || item._easyDatasetId || item.datasetId || '',
+          questionId: item.questionId || item._easyDatasetQuestionId || item.question_id || '',
           question,
           answer: item[fieldMapping.answer] || '',
           cot: fieldMapping.cot ? item[fieldMapping.cot] || '' : '',
@@ -83,6 +87,8 @@ export default function ImportProgressStep({ projectId, rawData, fieldMapping, s
       const batchSize = 500;
       let processed = 0;
       let success = 0;
+      let created = 0;
+      let updated = 0;
       let failed = 0;
       let skipped = 0;
       const errors = [];
@@ -108,6 +114,8 @@ export default function ImportProgressStep({ projectId, rawData, fieldMapping, s
 
           const result = await response.json();
           success += result.success || 0;
+          created += result.created || 0;
+          updated += result.updated || 0;
           failed += typeof result.failed === 'number' ? result.failed : result.errors?.length || 0;
           skipped += result.skipped || 0;
           processed += batch.length;
@@ -128,6 +136,8 @@ export default function ImportProgressStep({ projectId, rawData, fieldMapping, s
           total: convertedData.length,
           processed,
           success,
+          created,
+          updated,
           failed,
           skipped,
           errors
@@ -231,6 +241,22 @@ export default function ImportProgressStep({ projectId, rawData, fieldMapping, s
             color="success"
             variant="outlined"
           />
+          {importStats.updated > 0 && (
+            <Chip
+              icon={<CheckIcon />}
+              label={t('import.updated', '更新: {{count}}', { count: importStats.updated })}
+              color="info"
+              variant="outlined"
+            />
+          )}
+          {importStats.created > 0 && (
+            <Chip
+              icon={<CheckIcon />}
+              label={t('import.created', '新增: {{count}}', { count: importStats.created })}
+              color="success"
+              variant="outlined"
+            />
+          )}
           {importStats.skipped > 0 && (
             <Chip
               icon={<InfoIcon />}

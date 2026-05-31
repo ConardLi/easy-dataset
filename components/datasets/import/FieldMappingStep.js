@@ -62,6 +62,7 @@ export default function FieldMappingStep({ previewData, onMappingComplete, onErr
       mapping.answer = fields[outputIdx];
     }
 
+    const metadataFields = new Set(['_easydatasetid', '_easydatasetquestionid']);
     const questionKeywords = ['question', 'input', 'query', 'prompt', 'instruction', '问题', '输入', '指令'];
     const answerKeywords = ['answer', 'output', 'response', 'completion', 'target', '答案', '输出', '回答'];
     const cotKeywords = ['cot', 'reasoning', 'explanation', 'thinking', 'rationale', '思维链', '推理', '解释'];
@@ -69,6 +70,7 @@ export default function FieldMappingStep({ previewData, onMappingComplete, onErr
 
     fields.forEach(field => {
       const fieldLower = field.toLowerCase();
+      if (metadataFields.has(fieldLower)) return;
 
       if (!mapping.question || (typeof mapping.question === 'string' && !mapping.question)) {
         if (questionKeywords.some(keyword => fieldLower.includes(keyword))) {
