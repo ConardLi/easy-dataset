@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { Box, Grid, Card, CardContent } from '@mui/material';
+import { Box, Grid, Card, CardContent, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Alert } from '@mui/material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { fetchWithRetry } from '@/lib/util/request';
 import { useSnackbar } from '@/hooks/useSnackbar';
 
@@ -19,6 +21,10 @@ export default function PromptSettings() {
   const { projectId } = useParams();
   const { i18n, t } = useTranslation();
   const { showSuccess, showErrorMessage, SnackbarComponent } = useSnackbar();
+  const fileInputRef = useRef(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importData, setImportData] = useState(null);
+  const [importing, setImporting] = useState(false);
 
   // 基础状态
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
@@ -341,6 +347,89 @@ export default function PromptSettings() {
     setEditDialog({ ...editDialog, content: newContent });
   };
 
+  // ======= 导入导出功能 =======
+
+  // 导出全部提示词
+  const handleExportPrompts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchWithRetry(`/api/projects/${projectId}/prompts/export`);
+      const data = await response.json();
+
+      if (data.success) {
+        const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `prompts-${projectId}-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showSuccess(t('settings.prompts.exportSuccess'));
+      } else {
+        showErrorMessage(t('settings.prompts.exportFailed'));
+      }
+    } catch (error) {
+      console.error('Export prompts failed:', error);
+      showErrorMessage(t('settings.prompts.exportFailed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 选择导入文件
+  const handleImportFileSelect = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        setImportData(parsed);
+        setImportDialogOpen(true);
+      } catch {
+        showErrorMessage(t('settings.prompts.importInvalidFormat'));
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
+
+  // 执行导入
+  const handleImportConfirm = async () => {
+    try {
+      setImporting(true);
+      const response = await fetchWithRetry(`/api/projects/${projectId}/prompts/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompts: importData.prompts, mode: 'merge' })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        showSuccess(t('settings.prompts.importSuccess', { imported: data.imported, skipped: data.skipped }));
+        setImportDialogOpen(false);
+        setImportData(null);
+        await loadPromptData();
+        await loadPromptContent(true);
+      } else {
+        showErrorMessage(data.error || t('settings.prompts.importFailed'));
+      }
+    } catch (error) {
+      console.error('Import prompts failed:', error);
+      showErrorMessage(t('settings.prompts.importFailed'));
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+    setImportData(null);
+  };
+
   return (
     <Box>
       <SnackbarComponent />
@@ -352,6 +441,33 @@ export default function PromptSettings() {
         currentLanguage={currentLanguage}
         onCategoryChange={handleCategoryChange}
       />
+
+      {/* 导入导出操作栏 */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 3 }}>
+        <Button
+          variant="outlined"
+          startIcon={<FileUploadIcon />}
+          onClick={handleExportPrompts}
+          disabled={loading}
+        >
+          {t('settings.prompts.exportAll')}
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<FileDownloadIcon />}
+          onClick={() => fileInputRef.current?.click()}
+          disabled={loading}
+        >
+          {t('settings.prompts.importAll')}
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          style={{ display: 'none' }}
+          onChange={handleImportFileSelect}
+        />
+      </Box>
 
       {/* 左右布局：左侧垂直提示词选择，右侧内容展示 */}
       <Grid container spacing={3}>
@@ -383,6 +499,41 @@ export default function PromptSettings() {
           />
         </Grid>
       </Grid>
+
+      {/* 导入预览对话框 */}
+      <Dialog open={importDialogOpen} onClose={handleImportClose} maxWidth="md" fullWidth>
+        <DialogTitle>{t('settings.prompts.importPreviewTitle')}</DialogTitle>
+        <DialogContent>
+          {importData && (
+            <>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                {t('settings.prompts.importPreviewInfo', {
+                  total: importData.prompts?.length || 0,
+                  customized: importData.prompts?.filter(p => p.isCustomized).length || 0
+                })}
+              </Alert>
+              {importData.prompts?.filter(p => p.isCustomized).slice(0, 20).map((p, i) => (
+                <Typography key={i} variant="body2" sx={{ py: 0.5 }}>
+                  [{p.language}] {p.name} ({p.promptKey})
+                </Typography>
+              ))}
+              {importData.prompts?.filter(p => p.isCustomized).length > 20 && (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  {t('settings.prompts.importMoreItems', {
+                    count: importData.prompts.filter(p => p.isCustomized).length - 20
+                  })}
+                </Typography>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleImportClose}>{t('common.cancel')}</Button>
+          <Button onClick={handleImportConfirm} variant="contained" disabled={importing}>
+            {importing ? t('common.saving') : t('settings.prompts.importConfirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* 编辑提示词对话框 */}
       <PromptEditDialog

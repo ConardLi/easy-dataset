@@ -1,6 +1,43 @@
 import { NextResponse } from 'next/server';
-import { createDataset } from '@/lib/db/datasets';
+import { createDataset, updateDataset } from '@/lib/db/datasets';
+import { db } from '@/lib/db/index';
 import { nanoid } from 'nanoid';
+
+function parseOther(other) {
+  if (!other) return {};
+  if (typeof other === 'object') return other;
+  if (typeof other !== 'string') return {};
+  try {
+    return JSON.parse(other);
+  } catch {
+    return {};
+  }
+}
+
+async function findExistingDataset(projectId, dataset) {
+  const other = parseOther(dataset.other);
+  const id = dataset.id || dataset._easyDatasetId || other.id || other._easyDatasetId || other.datasetId;
+  const questionId =
+    dataset.questionId || dataset._easyDatasetQuestionId || other.questionId || other._easyDatasetQuestionId;
+
+  if (id) {
+    const existing = await db.datasets.findFirst({ where: { id, projectId } });
+    if (existing) return existing;
+  }
+
+  if (questionId) {
+    const existing = await db.datasets.findFirst({
+      where: { questionId, projectId },
+      orderBy: { updateAt: 'desc' }
+    });
+    if (existing) return existing;
+  }
+
+  return await db.datasets.findFirst({
+    where: { projectId, question: dataset.question },
+    orderBy: { updateAt: 'desc' }
+  });
+}
 
 export async function POST(request, { params }) {
   try {
@@ -14,6 +51,8 @@ export async function POST(request, { params }) {
     const results = [];
     const errors = [];
     let successCount = 0;
+    let createdCount = 0;
+    let updatedCount = 0;
     let skippedCount = 0;
 
     for (let i = 0; i < datasets.length; i++) {
@@ -69,10 +108,22 @@ export async function POST(request, { params }) {
         }
         const note = typeof dataset?.note === 'string' ? dataset.note : '';
 
-        // 创建数据集记录
-        const newDataset = await createDataset({
+        const otherData = parseOther(other);
+        const existingDataset = await findExistingDataset(projectId, {
+          ...dataset,
+          question: q,
+          other
+        });
+
+        const datasetData = {
           projectId,
-          questionId: nanoid(), // 生成唯一的问题ID
+          questionId:
+            existingDataset?.questionId ||
+            dataset?.questionId ||
+            dataset?._easyDatasetQuestionId ||
+            otherData.questionId ||
+            otherData._easyDatasetQuestionId ||
+            nanoid(),
           question: q,
           answer: a,
           chunkName,
@@ -85,10 +136,22 @@ export async function POST(request, { params }) {
           tags,
           note,
           other
-        });
+        };
 
-        results.push(newDataset);
+        const savedDataset = existingDataset
+          ? await updateDataset({
+              ...datasetData,
+              id: existingDataset.id
+            })
+          : await createDataset(datasetData);
+
+        results.push(savedDataset);
         successCount++;
+        if (existingDataset) {
+          updatedCount++;
+        } else {
+          createdCount++;
+        }
       } catch (error) {
         errors.push(`第 ${i + 1} 条记录: ${error.message}`);
       }
@@ -96,6 +159,8 @@ export async function POST(request, { params }) {
 
     return NextResponse.json({
       success: successCount,
+      created: createdCount,
+      updated: updatedCount,
       total: datasets.length,
       failed: errors.length,
       skipped: skippedCount,

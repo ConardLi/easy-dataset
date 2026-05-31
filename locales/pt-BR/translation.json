@@ -123,7 +123,19 @@
       "saveFailed": "Falha ao salvar prompt",
       "saveError": "Erro ao salvar prompt:",
       "createCustomPrompt": "Criar Prompt Personalizado",
-      "fetchContentError": "Falha ao obter o conteúdo mais recente do prompt:"
+      "fetchContentError": "Falha ao obter o conteúdo mais recente do prompt:",
+      "exportAll": "Exportar Todos",
+      "importAll": "Importar",
+      "exportSuccess": "Todos os prompts exportados com sucesso",
+      "exportFailed": "Falha ao exportar prompts",
+      "importPreviewTitle": "Visualização de Importação de Prompts",
+      "importPreviewInfo": "Encontrados {{total}} prompts ({{customized}} personalizados). Os seguintes prompts personalizados serão importados:",
+      "importMoreItems": "...e mais {{count}} itens",
+      "importConfirm": "Importar",
+      "importInvalidFormat": "Formato de arquivo inválido. Selecione um arquivo JSON válido.",
+      "importSuccess": "Importação concluída: {{imported}} importados, {{skipped}} ignorados",
+      "importFailed": "Falha ao importar prompts",
+      "selectPrompt": "Selecionar Prompt"
     }
   },
   "questions": {

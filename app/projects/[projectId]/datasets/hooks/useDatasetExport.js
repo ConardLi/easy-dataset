@@ -258,7 +258,7 @@ const useDatasetExport = projectId => {
     } else if (formatType === 'custom') {
       const { questionField, answerField, cotField, includeLabels, includeChunk, questionOnly } =
         exportOptions.customFields;
-      const headers = [questionField];
+      const headers = ['_easyDatasetId', '_easyDatasetQuestionId', questionField];
       if (!questionOnly) {
         headers.push(answerField);
         if (exportOptions.includeCOT && cotField) {
@@ -336,8 +336,12 @@ const useDatasetExport = projectId => {
     } else if (formatType === 'custom') {
       const { questionField, answerField, cotField, includeLabels, includeChunk, questionOnly } =
         exportOptions.customFields;
-      return dataBatch.map(({ question, answer, cot, questionLabel: labels, chunkContent }) => {
-        const item = { [questionField]: question };
+      return dataBatch.map(({ id, questionId, question, answer, cot, questionLabel: labels, chunkContent }) => {
+        const item = {
+          _easyDatasetId: id,
+          _easyDatasetQuestionId: questionId,
+          [questionField]: question
+        };
         if (!questionOnly) {
           item[answerField] = answer;
           if (cot && exportOptions.includeCOT && cotField) {
