@@ -1,0 +1,120 @@
+name: Build Desktop Artifacts
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            build_command: pnpm run electron-build-win-ci
+            artifact_name: easy-dataset-windows
+            artifact_path: dist/*.exe
+          - name: macOS
+            os: macos-latest
+            build_command: pnpm run electron-build-mac-ci
+          - name: Linux
+            os: ubuntu-latest
+            build_command: pnpm run electron-build-linux-ci
+            artifact_name: easy-dataset-linux
+            artifact_path: dist/*.AppImage
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # pnpm 的版本已经在package.json中标记了
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('package.json', 'next.config.js', 'next.config.mjs', 'app/**/*.[jt]s', 'app/**/*.[jt]sx', 'components/**/*.[jt]s', 'components/**/*.[jt]sx', 'lib/**/*.[jt]s', 'lib/**/*.[jt]sx', 'electron/**/*.[jt]s', 'electron/**/*.[jt]sx', 'prisma/schema.prisma', 'public/**/*', 'locales/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          if apt-cache show libasound2t64 >/dev/null 2>&1; then
+            ASOUND_PACKAGE=libasound2t64
+          else
+            ASOUND_PACKAGE=libasound2
+          fi
+          sudo apt-get install -y --no-install-recommends \
+            libarchive-tools \
+            "$ASOUND_PACKAGE" \
+            libatk-bridge2.0-0 \
+            libdrm2 \
+            libgbm1 \
+            libgtk-3-0 \
+            libnotify4 \
+            libnss3 \
+            libsecret-1-0 \
+            libxkbcommon0 \
+            libxss1 \
+            rpm \
+            xdg-utils
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build desktop app
+        run: ${{ matrix.build_command }}
+
+      - name: Separate macOS DMGs
+        if: runner.os == 'macOS'
+        run: |
+          for f in dist/*.dmg; do
+            if [[ "$f" == *"-arm64.dmg" ]]; then
+              cp "$f" dist/easy-dataset-macos-arm64.dmg
+            else
+              cp "$f" dist/easy-dataset-macos-x64.dmg
+            fi
+          done
+
+      - name: Upload macOS (arm64)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: easy-dataset-macos-arm64
+          path: dist/easy-dataset-macos-arm64.dmg
+          if-no-files-found: error
+
+      - name: Upload macOS (x64)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: easy-dataset-macos-x64
+          path: dist/easy-dataset-macos-x64.dmg
+          if-no-files-found: error
+
+      - name: Upload dist artifact (Windows & Linux)
+        if: runner.os != 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error

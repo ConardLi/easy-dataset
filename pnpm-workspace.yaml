@@ -1,0 +1,9 @@
+nodeLinker: hoisted
+
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  canvas: true
+  electron: true
+  prisma: true
+  sharp: true

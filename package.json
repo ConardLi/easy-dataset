@@ -23,8 +23,11 @@
     "clean-dist": "rm -rf dist",
     "electron-build": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder -mwl",
     "electron-build-mac": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --mac",
+    "electron-build-mac-ci": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --mac --publish never",
     "electron-build-win": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --win",
+    "electron-build-win-ci": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --win --publish never",
     "electron-build-linux": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --linux",
+    "electron-build-linux-ci": "pnpm clean-dist && pnpm db:template && prisma db push && next build && electron-builder --linux --publish never",
     "docker": "docker build -t easy-dataset .",
     "prettier": "npx prettier --write ."
   },
@@ -142,6 +145,7 @@
       "buildResources": "public",
       "output": "dist"
     },
+    "npmRebuild": false,
     "asar": true,
     "asarUnpack": [
       "**/node_modules/sharp/**/*",
@@ -181,5 +185,6 @@
       "allowToChangeInstallationDirectory": true,
       "perMachine": false
     }
-  }
+  },
+  "packageManager": "pnpm@11.5.2+sha512.71c631e382066efc25625d5cf029075de07b61b37f6e27350fbd84b1bda5864c8c1967adc280776b45c30a715c0359a3be08fef42d5bb09e2b99029979692916"
 }
