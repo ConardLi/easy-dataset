@@ -64,6 +64,7 @@ COPY package.json .env ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # 从构建阶段复制构建产物
+COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/electron ./electron
