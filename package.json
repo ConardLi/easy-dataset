@@ -107,6 +107,7 @@
     "lint-staged": "15.5.2",
     "pkg": "^5.8.1",
     "prisma": "^6.6.0",
+    "vitest": "^4.1.9",
     "wait-on": "^7.2.0"
   },
   "lint-staged": {
