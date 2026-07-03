@@ -96,7 +96,7 @@
     "zhipu-ai-provider": "^0.1.1",
     "zod": "^3.25.76"
   },
-  "license": "AGPL 3.0",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
