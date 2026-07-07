@@ -24,6 +24,8 @@ import { useTranslation } from 'react-i18next';
 
 import SaveIcon from '@mui/icons-material/Save';
 import useTaskSettings from '@/hooks/useTaskSettings';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 export default function TaskSettings({ projectId }) {
   const { t } = useTranslation();
@@ -174,6 +176,14 @@ export default function TaskSettings({ projectId }) {
                         </Typography>
                       </Box>
                     </MenuItem>
+                    <MenuItem value="advanced-markdown">
+                      <Box>
+                        <Typography variant="subtitle2">{t('settings.splitTypeAdvancedMarkdown')}</Typography>
+                        <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                          {t('settings.splitTypeAdvancedMarkdownDesc')}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
                   </Select>
                 </FormControl>
 
@@ -210,8 +220,58 @@ export default function TaskSettings({ projectId }) {
                   </>
                 )}
 
+                {/* 高级 Markdown 分块模式设置 */}
+                {taskSettings.splitType === 'advanced-markdown' && (
+                  <>
+                    <Typography id="adv-min-length-slider" gutterBottom>
+                      {t('settings.minLength')}: {taskSettings.advancedTextSplitMinLength}
+                    </Typography>
+                    <Slider
+                      value={taskSettings.advancedTextSplitMinLength || 800}
+                      onChange={handleSliderChange('advancedTextSplitMinLength')}
+                      aria-labelledby="adv-min-length-slider"
+                      valueLabelDisplay="auto"
+                      step={100}
+                      marks
+                      min={200}
+                      max={2500}
+                    />
+
+                    <Typography id="adv-max-length-slider" gutterBottom sx={{ mt: 3 }}>
+                      {t('settings.maxLength')}: {taskSettings.advancedTextSplitMaxLength}
+                    </Typography>
+                    <Slider
+                      value={taskSettings.advancedTextSplitMaxLength || 2000}
+                      onChange={handleSliderChange('advancedTextSplitMaxLength')}
+                      aria-labelledby="adv-max-length-slider"
+                      valueLabelDisplay="auto"
+                      step={100}
+                      marks
+                      min={500}
+                      max={5000}
+                    />
+
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={taskSettings.advancedPreserveHeadings !== false}
+                          onChange={(e) => {
+                            setTaskSettings(prev => ({
+                              ...prev,
+                              advancedPreserveHeadings: e.target.checked
+                            }));
+                          }}
+                        />
+                      }
+                      label={t('settings.advancedPreserveHeadings')}
+                      sx={{ mt: 2 }}
+                    />
+                    <FormHelperText>{t('settings.advancedPreserveHeadingsDesc')}</FormHelperText>
+                  </>
+                )}
+
                 {/* 通用 LangChain 参数设置 */}
-                {taskSettings.splitType && taskSettings.splitType !== 'markdown' && (
+                {taskSettings.splitType && taskSettings.splitType !== 'markdown' && taskSettings.splitType !== 'advanced-markdown' && (
                   <>
                     <Typography id="chunk-size-slider" gutterBottom>
                       {t('settings.chunkSize')}: {taskSettings.chunkSize || 3000}

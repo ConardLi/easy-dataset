@@ -36,11 +36,13 @@ import {
   Search as SearchIcon,
   Clear as ClearIcon
 } from '@mui/icons-material';
+import TuneIcon from '@mui/icons-material/Tune';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/lib/store';
 import MarkdownViewDialog from '../MarkdownViewDialog';
+import AdvancedChunkDialog from '../advanced/AdvancedChunkDialog';
 import GaPairsIndicator from '../../mga/GaPairsIndicator';
 import DomainTreeActionDialog from './DomainTreeActionDialog';
 import i18n from '@/lib/i18n';
@@ -90,6 +92,10 @@ export default function FileList({
   // 搜索相关状态
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+
+  // 高级分块对话框状态
+  const [advancedDialogOpen, setAdvancedDialogOpen] = useState(false);
+  const [advancedDialogFile, setAdvancedDialogFile] = useState({ fileId: null, fileName: '' });
 
   // 获取当前选中的模型信息
   const selectedModelInfo = useAtomValue(selectedModelInfoAtom);
@@ -828,6 +834,17 @@ export default function FileList({
                       onChange={e => handleCheckboxChange(file.id, e.target.checked)}
                     />
                     <GaPairsIndicator projectId={projectId} fileId={file.id} fileName={file.fileName} />
+                    <Tooltip title={t('textSplit.advancedSplit')}>
+                      <IconButton
+                        color="secondary"
+                        onClick={() => {
+                          setAdvancedDialogFile({ fileId: file.id, fileName: file.fileName });
+                          setAdvancedDialogOpen(true);
+                        }}
+                      >
+                        <TuneIcon />
+                      </IconButton>
+                    </Tooltip>
                     <Tooltip title={t('textSplit.download')}>
                       <IconButton color="primary" onClick={() => handleDownload(file.id, file.fileName)}>
                         <Download />
@@ -867,6 +884,16 @@ export default function FileList({
         text={viewContent}
         onClose={handleCloseViewDialog}
         projectId={projectId}
+        onSaveSuccess={refreshTextChunks}
+      />
+
+      {/* 高级 Markdown 分块对话框 */}
+      <AdvancedChunkDialog
+        open={advancedDialogOpen}
+        onClose={() => setAdvancedDialogOpen(false)}
+        projectId={projectId}
+        fileId={advancedDialogFile.fileId}
+        fileName={advancedDialogFile.fileName}
         onSaveSuccess={refreshTextChunks}
       />
 

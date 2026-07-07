@@ -13,6 +13,10 @@ export const DEFAULT_SETTINGS = {
   multiTurnRounds: 3,
   multiTurnRoleA: '',
   multiTurnRoleB: '',
+  // 高级 Markdown 分块配置
+  advancedPreserveHeadings: true,
+  advancedTextSplitMinLength: 800,
+  advancedTextSplitMaxLength: 2000,
   // 测试集生成配置
   evalQuestionTypeRatios: {
     true_false: 1,

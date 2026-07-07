@@ -39,7 +39,7 @@ Easy Dataset is an application specifically designed for building large language
 ### 📄 Document Processing & Data Generation
 
 - **Intelligent Document Processing**: Supports PDF, Markdown, DOCX, TXT, EPUB and more formats with intelligent recognition
-- **Intelligent Text Splitting**: Multiple splitting algorithms (Markdown structure, recursive separators, fixed length, code-aware chunking), with customizable visual segmentation
+- **Intelligent Text Splitting**: Multiple splitting algorithms (Markdown structure, recursive separators, fixed length, code-aware chunking, advanced outline-aware splitting with atomic block protection and semantic affinity merging), with customizable visual segmentation
 - **Intelligent Question Generation**: Auto-extract relevant questions from text segments, with question templates and batch generation
 - **Domain Label Tree**: Intelligently builds global domain label trees based on document structure, with auto-tagging capabilities
 - **Answer Generation**: Uses LLM API to generate comprehensive answers and Chain of Thought (COT), with AI optimization

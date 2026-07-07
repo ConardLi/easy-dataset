@@ -62,6 +62,7 @@ model Chunks {
   content      String
   summary      String
   size         Int
+  headingPath  String         @default("")
   createAt     DateTime       @default(now())
   updateAt     DateTime       @updatedAt
   Questions    Questions[]
