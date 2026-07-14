@@ -49,7 +49,7 @@ export const MODEL_PROVIDERS = [
   {
     id: 'groq',
     name: 'Groq',
-    defaultEndpoint: 'https://api.groq.com/openai',
+    defaultEndpoint: 'https://api.groq.com/openai/v1',
     defaultModels: ['Gemma 7B', 'LLaMA3 8B', 'LLaMA3 70B']
   },
   {
