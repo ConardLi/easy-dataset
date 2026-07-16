@@ -69,6 +69,12 @@ export const MODEL_PROVIDERS = [
     ]
   },
   {
+    id: 'requesty',
+    name: 'Requesty',
+    defaultEndpoint: 'https://router.requesty.ai/v1',
+    defaultModels: ['openai/gpt-4o-mini', 'openai/gpt-4o', 'anthropic/claude-sonnet-4-5', 'google/gemini-2.5-flash']
+  },
+  {
     id: 'alibailian',
     name: '阿里云百炼',
     defaultEndpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
