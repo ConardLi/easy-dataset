@@ -79,6 +79,18 @@ export const MODEL_PROVIDERS = [
     name: 'MiniMax',
     defaultEndpoint: 'https://api.minimax.io/v1',
     defaultModels: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5', 'MiniMax-M2.5-highspeed']
+  },
+  {
+    id: 'atlascloud',
+    name: 'Atlas Cloud',
+    defaultEndpoint: 'https://api.atlascloud.ai/v1',
+    defaultModels: [
+      'deepseek-ai/deepseek-v4-pro',
+      'deepseek-ai/DeepSeek-V3.1',
+      'zai-org/glm-5',
+      'moonshotai/kimi-k2.6',
+      'qwen/qwen3.5-plus'
+    ]
   }
 ];
 
