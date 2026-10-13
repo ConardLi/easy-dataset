@@ -77,7 +77,7 @@ Easy Dataset is an application specifically designed for building large language
 ### 🤖 Model Support
 
 - **Wide Model Compatibility**: Compatible with all LLM APIs that follow the OpenAI format
-- **Multi-Provider Support**: OpenAI, MiniMax, Ollama (local models), Zhipu AI, Alibaba Bailian, OpenRouter, and more
+- **Multi-Provider Support**: OpenAI, MiniMax, Ollama (local models), Zhipu AI, Alibaba Bailian, OpenRouter, Cheaper Inference, and more
 - **Vision Models**: Support Gemini, Claude, etc. for PDF parsing and image QA
 
 ### 🌐 User Experience

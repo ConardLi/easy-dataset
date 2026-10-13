@@ -79,6 +79,12 @@ export const MODEL_PROVIDERS = [
     name: 'MiniMax',
     defaultEndpoint: 'https://api.minimax.io/v1',
     defaultModels: ['MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5', 'MiniMax-M2.5-highspeed']
+  },
+  {
+    id: 'cheaperinference',
+    name: 'Cheaper Inference',
+    defaultEndpoint: 'https://api.cheaperinference.com/v1',
+    defaultModels: ['gpt-5.4-mini', 'gpt-5.4', 'claude-sonnet-5', 'gemini-3.1-pro', 'deepseek-v4-flash', 'glm-5.3']
   }
 ];
 

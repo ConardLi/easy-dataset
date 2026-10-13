@@ -77,7 +77,7 @@ Easy Dataset 是一个专为创建大型语言模型数据集而设计的应用�
 ### 🤖 模型支持
 
 - **广泛的模型兼容**：兼容所有遵循 OpenAI 格式的 LLM API
-- **多提供商支持**：OpenAI、MiniMax、Ollama（本地模型）、智谱 AI、阿里百炼、OpenRouter 等
+- **多提供商支持**：OpenAI、MiniMax、Ollama（本地模型）、智谱 AI、阿里百炼、OpenRouter、Cheaper Inference 等
 - **视觉模型**：支持 Gemini、Claude 等视觉模型用于 PDF 解析和图片问答
 
 ### 🌐 用户体验
