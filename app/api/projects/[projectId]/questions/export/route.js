@@ -25,7 +25,7 @@ export async function POST(request, { params }) {
     const filteredQuestions = questions.map(q => ({
       question: q.question,
       chunkName: q.chunk?.name || q.chunkName || '',
-      questionLabel: q.questionLabel || ''
+      questionLabel: q.label || ''
     }));
 
     return NextResponse.json(filteredQuestions);
@@ -45,7 +45,7 @@ async function getAllQuestions(projectId, searchTerm = '', chunkName = '', sourc
 
   // 搜索条件
   if (searchTerm) {
-    whereClause.OR = [{ question: { contains: searchTerm } }, { questionLabel: { contains: searchTerm } }];
+    whereClause.OR = [{ question: { contains: searchTerm } }, { label: { contains: searchTerm } }];
   }
 
   // 文本块名称筛选

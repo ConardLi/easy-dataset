@@ -15,6 +15,7 @@
     "dev": "prisma db push && next dev -p 1717",
     "build": "prisma db push && next build",
     "start": "next start -p 1717",
+    "test:questions-export": "node --test tests/integration/questions-export.test.mjs",
     "lint": "next lint",
     "electron": "electron .",
     "electron-dev": "concurrently \"pnpm dev\" \"wait-on http://localhost:1717 && electron .\"",
