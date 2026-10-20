@@ -14,6 +14,7 @@
     "db:template": "node prisma/generate-template.js",
     "dev": "prisma db push && next dev -p 1717",
     "build": "prisma db push && next build",
+    "test": "node --experimental-vm-modules --test tests/lib/llm/prompts/multiTurnConversation.test.mjs",
     "start": "next start -p 1717",
     "lint": "next lint",
     "electron": "electron .",
