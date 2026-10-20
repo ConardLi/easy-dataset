@@ -13,35 +13,60 @@ import {
   FormControlLabel,
   Checkbox
 } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  createDefaultChunkFilters,
+  getChunkFilterSliderMax,
+  toAppliedChunkFilters,
+  toChunkFilterDialogState
+} from './chunkFilters.mjs';
 
-export default function ChunkFilterDialog({ open, onClose, onApply, initialFilters = {} }) {
+export default function ChunkFilterDialog({ open, onClose, onApply, initialFilters = {}, maxChunkSize = 0 }) {
   const { t } = useTranslation();
-  const [contentKeyword, setContentKeyword] = useState(initialFilters.contentKeyword || '');
-  const [sizeRange, setSizeRange] = useState(initialFilters.sizeRange || [0, 10000]);
-  const [hasQuestions, setHasQuestions] = useState(initialFilters.hasQuestions || null);
+  const nextSliderMax = getChunkFilterSliderMax(maxChunkSize, initialFilters);
+  const [sliderMax, setSliderMax] = useState(nextSliderMax);
+  const initialDialogState = toChunkFilterDialogState(initialFilters, sliderMax);
+  const [contentKeyword, setContentKeyword] = useState(initialDialogState.contentKeyword);
+  const [sizeRange, setSizeRange] = useState(initialDialogState.sizeRange);
+  const [hasQuestions, setHasQuestions] = useState(initialDialogState.hasQuestions);
+  const [maxSizeUnbounded, setMaxSizeUnbounded] = useState(initialFilters.sizeRange?.[1] == null);
+  const wasOpen = useRef(false);
+
+  useEffect(() => {
+    if (open && !wasOpen.current) {
+      const dialogState = toChunkFilterDialogState(initialFilters, nextSliderMax);
+      setSliderMax(nextSliderMax);
+      setContentKeyword(dialogState.contentKeyword);
+      setSizeRange(dialogState.sizeRange);
+      setHasQuestions(dialogState.hasQuestions);
+      setMaxSizeUnbounded(initialFilters.sizeRange?.[1] == null);
+    }
+
+    wasOpen.current = open;
+  }, [open, initialFilters, nextSliderMax]);
 
   // 重置筛选条件
   const handleReset = () => {
-    setContentKeyword('');
-    setSizeRange([0, 10000]);
-    setHasQuestions(null);
+    const resetState = toChunkFilterDialogState(createDefaultChunkFilters(), sliderMax);
+    setContentKeyword(resetState.contentKeyword);
+    setSizeRange(resetState.sizeRange);
+    setHasQuestions(resetState.hasQuestions);
+    setMaxSizeUnbounded(true);
   };
 
   // 应用筛选
   const handleApply = () => {
-    onApply({
-      contentKeyword,
-      sizeRange,
-      hasQuestions
-    });
+    onApply(toAppliedChunkFilters({ contentKeyword, sizeRange, hasQuestions }, sliderMax, maxSizeUnbounded));
     onClose();
   };
 
   // 处理大小范围变化
-  const handleSizeRangeChange = (event, newValue) => {
+  const handleSizeRangeChange = (event, newValue, activeThumb) => {
     setSizeRange(newValue);
+    if (activeThumb === 1) {
+      setMaxSizeUnbounded(newValue[1] >= sliderMax);
+    }
   };
 
   return (
@@ -78,11 +103,11 @@ export default function ChunkFilterDialog({ open, onClose, onApply, initialFilte
             onChange={handleSizeRangeChange}
             valueLabelDisplay="auto"
             min={0}
-            max={10000}
-            step={100}
+            max={sliderMax}
+            step={sliderMax > 100 ? 100 : 1}
             marks={[
               { value: 0, label: '0' },
-              { value: 10000, label: '10000' }
+              { value: sliderMax, label: String(sliderMax) }
             ]}
           />
         </Box>

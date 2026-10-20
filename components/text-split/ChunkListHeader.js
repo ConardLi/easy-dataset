@@ -30,7 +30,9 @@ export default function ChunkListHeader({
   chunks = [], // 添加chunks参数，用于导出文本块
   selectedModel = {},
   onFilterChange = null,
-  activeFilterCount = 0
+  activeFilterCount = 0,
+  filters,
+  maxChunkSize = 0
 }) {
   const { t, i18n } = useTranslation();
 
@@ -394,7 +396,13 @@ export default function ChunkListHeader({
       </Box>
 
       {/* 筛选对话框 */}
-      <ChunkFilterDialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)} onApply={onFilterChange} />
+      <ChunkFilterDialog
+        open={filterDialogOpen}
+        onClose={() => setFilterDialogOpen(false)}
+        onApply={onFilterChange}
+        initialFilters={filters}
+        maxChunkSize={maxChunkSize}
+      />
     </Box>
   );
 }

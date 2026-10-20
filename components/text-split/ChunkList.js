@@ -10,6 +10,12 @@ import BatchEditChunksDialog from './BatchEditChunkDialog';
 import ChunkBatchDeleteDialog from './ChunkBatchDeleteDialog';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
+import {
+  countActiveChunkFilters,
+  createDefaultChunkFilters,
+  filterChunks,
+  getMaxChunkSize
+} from './chunkFilters.mjs';
 
 /**
  * Chunk list component
@@ -51,20 +57,11 @@ export default function ChunkList({
   const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
 
   // 娣诲姞楂樼骇绛涢€夌姸鎬?
-  const [advancedFilters, setAdvancedFilters] = useState({
-    contentKeyword: '',
-    sizeRange: [0, 10000],
-    hasQuestions: null
-  });
+  const [advancedFilters, setAdvancedFilters] = useState(createDefaultChunkFilters);
 
   // 璁＄畻娲昏穬绛涢€夋潯浠舵暟
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (advancedFilters.contentKeyword) count++;
-    if (advancedFilters.sizeRange[0] > 0 || advancedFilters.sizeRange[1] < 10000) count++;
-    if (advancedFilters.hasQuestions !== null) count++;
-    return count;
-  }, [advancedFilters]);
+  const activeFilterCount = useMemo(() => countActiveChunkFilters(advancedFilters), [advancedFilters]);
+  const maxChunkSize = useMemo(() => getMaxChunkSize(chunks), [chunks]);
 
   const sortedChunks = useMemo(
     () =>
@@ -86,30 +83,7 @@ export default function ChunkList({
     [chunks]
   );
 
-  const filteredChunks = useMemo(() => {
-    return sortedChunks.filter(chunk => {
-      if (advancedFilters.contentKeyword) {
-        const keyword = advancedFilters.contentKeyword.toLowerCase();
-        if (!chunk.content?.toLowerCase().includes(keyword)) {
-          return false;
-        }
-      }
-
-      const size = chunk.size || 0;
-      if (size < advancedFilters.sizeRange[0] || size > advancedFilters.sizeRange[1]) {
-        return false;
-      }
-
-      if (advancedFilters.hasQuestions !== null) {
-        const hasQuestions = chunk.Questions && chunk.Questions.length > 0;
-        if (advancedFilters.hasQuestions !== hasQuestions) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [sortedChunks, advancedFilters]);
+  const filteredChunks = useMemo(() => filterChunks(sortedChunks, advancedFilters), [sortedChunks, advancedFilters]);
 
   // 褰撶瓫閫夋潯浠跺彉鍖栨椂锛屾竻闄や笉鍦ㄧ瓫閫夌粨鏋滀腑鐨勯€変腑椤?
   useEffect(() => {
@@ -341,6 +315,8 @@ export default function ChunkList({
         selectedModel={selectedModel}
         onFilterChange={handleFilterChange}
         activeFilterCount={activeFilterCount}
+        filters={advancedFilters}
+        maxChunkSize={maxChunkSize}
       />
 
       <Grid container spacing={2}>
