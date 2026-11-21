@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { recoverPendingTasks } from '@/lib/services/tasks/recovery';
 import { publicTask } from '@/lib/services/tasks/evaluation-journal';
 import { PrismaClient } from '@prisma/client';
 
@@ -7,6 +8,7 @@ const prisma = new PrismaClient();
 // 获取项目的所有任务列表
 export async function GET(request, { params }) {
   try {
+    await recoverPendingTasks();
     const { projectId } = params;
     const { searchParams } = new URL(request.url);
 

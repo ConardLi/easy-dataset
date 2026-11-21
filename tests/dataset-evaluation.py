@@ -44,23 +44,27 @@ class Model(BaseHTTPRequestHandler):
             failure_counts[text] += 1
             if failure_counts[text] == 1:
                 status = 429 if 'a0000' in text else 408
-        if state == 'HOLD':
+        if state == 'HOLD' or (state == 'RESTART' and 'Question a0000|' not in text):
             request_started.set()
             allow_response.wait(10)
         response = {'id': 'test', 'model': body['model'], 'object': 'chat.completion', 'created': 1,
                     'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': content}, 'finish_reason': 'stop'}]}
         data = json.dumps(response if status == 200 else {'error': {'message': 'test failure'}}).encode()
-        self.send_response(status)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
+        try:
+            self.send_response(status)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+        except (BrokenPipeError, ConnectionResetError):
+            if state != 'RESTART':
+                raise
 
 def check(condition, label):
     assert condition, label
     print('PASS', label, flush=True)
 
-def run(db, port, mock):
+def run(db, port, mock, restart):
     db.row_factory = sqlite3.Row
     model = {'modelId': 'synthetic-v3', 'modelName': 'synthetic', 'providerId': 'openai',
              'endpoint': f'http://127.0.0.1:{mock.server_port}/v1', 'apiKey': 'synthetic-key',
@@ -202,6 +206,52 @@ def run(db, port, mock):
     allow_response.set()
     log = finish(held,[ids[0]],final=3,require_note=True)
     check(grades()==old and log['results'][0]['status']=='cancelled', 'cancel during API call leaves previous score')
+    recovered_cancel = None
+    for cancel in (True, False):
+        targets = ids[:7]
+        change_prompt('RESTART')
+        request_started.clear()
+        allow_response.clear()
+        before_job_calls = len(requests)
+        job_id = start('selected', len(targets), datasetIds=targets)
+        assert request_started.wait(10)
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            if (db.execute('select completedCount from Task where id=?', (job_id,)).fetchone()[0] == 1
+                    and len(requests) >= before_job_calls + 6):
+                break
+            time.sleep(0.05)
+        else:
+            raise AssertionError('The first score was not committed before interruption')
+        if cancel:
+            request(task_api+job_id, {'status': 3}, method='PATCH')
+        old = grades()
+        calls = len(requests)
+        restart()
+        allow_response.set()
+        # A task-list visit is enough to run recovery after a fresh server start.
+        request(task_api+'list')
+        if recovered_cancel:
+            cancel_id, cancel_detail = recovered_cancel
+            assert request(task_api+cancel_id)['data'] == cancel_detail
+        recovered = request(task_api+job_id)['data']
+        if cancel:
+            recovered_cancel = (job_id, recovered)
+        finished = finish(job_id, targets, final=3 if cancel else 2, require_note=True)
+        remaining = {row['datasetId'] for row in finished['results'] if row['status'] == 'unexecuted'}
+        assert remaining == set(targets[1:]) and recovered['canRetryEvaluation']
+        assert recovered['completedCount'] == 1 and grades() == old and len(requests) == calls
+        check(True, 'restart fills audit without writes or API calls (cancelled)' if cancel
+              else 'restart fills audit without writes or API calls (interrupted)')
+        body = {'model': model, 'mode': 'failed', 'retryTaskId': job_id, 'preview': True}
+        assert request(api+'/batch-evaluate', body)['count'] == len(remaining)
+        assert len(requests) == calls
+        if not cancel:
+            change_prompt('V1')
+            finish(start('failed', len(remaining), retryTaskId=job_id), remaining)
+            assert len(requests) == calls + len(remaining)
+            assert all(grades()[i] == old[i] for i in set(old) - remaining)
+            check(True, 'confirmed retry processes only unfinished targets')
     check(originals()==original, 'original IDs, question, answer, tags and notes retained')
     assert 'synthetic-key' not in db.execute('select modelInfo from Task where id=?',(partial,)).fetchone()[0]
     detail = request(task_api+partial)['data']
@@ -228,17 +278,37 @@ if __name__ == '__main__':
             sock.bind(('127.0.0.1', 0))
             port = sock.getsockname()[1]
         with open(Path(folder)/'next.log','w+',encoding='utf8') as log:
-            app = subprocess.Popen(['node','node_modules/next/dist/bin/next',os.environ.get('EVALUATION_TEST_NEXT','start'),
-                                    '-H','127.0.0.1','-p',str(port)], cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT)
+            def launch():
+                child = subprocess.Popen(
+                    ['node', 'node_modules/next/dist/bin/next', os.environ.get('EVALUATION_TEST_NEXT', 'start'),
+                     '-H', '127.0.0.1', '-p', str(port)],
+                    cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT
+                )
+                try:
+                    for _ in range(100):
+                        try:
+                            with socket.create_connection(('127.0.0.1', port), .2):
+                                return child
+                        except OSError:
+                            if child.poll() is not None:
+                                raise RuntimeError('Next.js exited')
+                            time.sleep(.2)
+                    raise RuntimeError('Next.js did not open its port')
+                except BaseException:
+                    child.kill()
+                    child.wait(timeout=20)
+                    raise
+
+            def restart():
+                global app
+                app.kill()
+                app.wait(timeout=20)
+                app = launch()
+
+            app = launch()
             try:
-                for _ in range(100):
-                    try:
-                        with socket.create_connection(('127.0.0.1', port), .2): break
-                    except OSError:
-                        if app.poll() is not None: raise RuntimeError('Next.js exited')
-                        time.sleep(.2)
                 with closing(sqlite3.connect(database, timeout=20)) as db:
-                    run(db, port, mock)
+                    run(db, port, mock, restart)
             except BaseException:
                 log.seek(0)
                 print(log.read()[-4000:])

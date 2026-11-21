@@ -282,7 +282,7 @@ export default function TasksTable({
                       )}
                       {task.canRetryEvaluation && (
                         <Button size="small" onClick={() => onRetryEvaluation(task.id)}>
-                          {t('tasks.retryEvaluation', '仅重评失败样本')}
+                          {t('tasks.retryIncompleteEvaluation', '重评失败及未执行样本')}
                         </Button>
                       )}
                       <TaskActions task={task} onAbort={handleAbortTask} onDelete={handleDeleteTask} />

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { publicTask, readEvaluationJournal } from '@/lib/services/tasks/evaluation-journal';
+import { recoverPendingTasks } from '@/lib/services/tasks/recovery';
+import { EVALUATION_CANCELLING_NOTE, publicTask, readEvaluationJournal } from '@/lib/services/tasks/evaluation-journal';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -7,6 +8,7 @@ const prisma = new PrismaClient();
 // 获取任务详情
 export async function GET(request, { params }) {
   try {
+    await recoverPendingTasks();
     const { projectId, taskId } = params;
 
     // 验证必填参数
@@ -79,7 +81,7 @@ export async function PATCH(request, { params }) {
       if (data.status !== 3) return NextResponse.json({ code: 400, error: '评估任务只支持取消' }, { status: 400 });
       const result = await prisma.task.updateMany({
         where: { id: taskId, projectId, status: 0 },
-        data: { status: 3, note: '正在取消评估', endTime: new Date() }
+        data: { status: 3, note: EVALUATION_CANCELLING_NOTE, endTime: new Date() }
       });
       return NextResponse.json({ code: result.count ? 0 : 409 }, { status: result.count ? 200 : 409 });
     }

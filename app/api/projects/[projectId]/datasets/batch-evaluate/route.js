@@ -4,7 +4,8 @@ import { db } from '@/lib/db';
 import LLMClient from '@/lib/llm/core/index';
 import { getDatasetEvaluationTemplate } from '@/lib/llm/prompts/datasetEvaluation';
 import { processTask } from '@/lib/services/tasks';
-import { JOURNAL_VERSION, readEvaluationJournal } from '@/lib/services/tasks/evaluation-journal';
+import { recoverPendingTasks } from '@/lib/services/tasks/recovery';
+import { JOURNAL_VERSION, isRetryableEvaluationResult, readEvaluationJournal } from '@/lib/services/tasks/evaluation-journal';
 
 const reject = (message, status = 400) => NextResponse.json({ success: false, message }, { status });
 
@@ -16,6 +17,8 @@ export async function POST(request, { params }) {
     if (!projectId || typeof model?.modelId !== 'string' || !model.modelId.trim()) return reject('请选择评估模型');
     if (!['unscored', 'selected', 'all', 'failed'].includes(mode)) return reject('评估范围无效');
     if (mode !== 'selected' && datasetIds !== undefined) return reject('不适用的数据 ID 参数');
+
+    await recoverPendingTasks();
 
     const where = { projectId };
     let selected;
@@ -30,7 +33,7 @@ export async function POST(request, { params }) {
       const task = await db.task.findFirst({ where: { projectId, id: retryTaskId, status: { in: [2, 3] } } });
       const journal = task && readEvaluationJournal(task);
       if (!journal || journal.results.length !== journal.targetCount) return reject('原任务无完整执行记录');
-      selected = new Set(journal.results.filter(result => result.status === 'failed').map(result => result.datasetId));
+      selected = new Set(journal.results.filter(isRetryableEvaluationResult).map(result => result.datasetId));
     }
     if (mode === 'unscored') where.aiEvaluation = '';
     const rows = await db.datasets.findMany({ where, select: { id: true, updateAt: true }, orderBy: { id: 'asc' } });
