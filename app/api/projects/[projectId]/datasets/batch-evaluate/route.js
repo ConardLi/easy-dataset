@@ -33,8 +33,9 @@ export async function POST(request, { params }) {
       selected = new Set(journal.results.filter(result => result.status === 'failed').map(result => result.datasetId));
     }
     if (mode === 'unscored') where.aiEvaluation = '';
-    const rows = await db.datasets.findMany({ where, select: { id: true }, orderBy: { id: 'asc' } });
-    const ids = rows.map(row => row.id).filter(id => !selected || selected.has(id));
+    const rows = await db.datasets.findMany({ where, select: { id: true, updateAt: true }, orderBy: { id: 'asc' } });
+    const targets = rows.filter(row => !selected || selected.has(row.id));
+    const ids = targets.map(row => row.id);
     if (mode === 'selected' && selected.size !== ids.length) return reject('选中数据已删除或不属于当前项目');
     if (preview === true) return NextResponse.json({ success: true, count: ids.length });
     if ((mode !== 'unscored' || confirmedCount !== undefined) && confirmedCount !== ids.length) {
@@ -56,7 +57,7 @@ export async function POST(request, { params }) {
         note: '等待评估'
       }
     });
-    processTask(task.id, { model, template }).catch(() => console.error('Dataset evaluation dispatch failed', task.id));
+    processTask(task.id, { model, template, revisions: new Map(targets.map(row => [row.id, row.updateAt])) }).catch(() => console.error('Dataset evaluation dispatch failed', task.id));
     return NextResponse.json({ success: true, data: { taskId: task.id } });
   } catch {
     return reject('无法创建批量评估任务', 500);
