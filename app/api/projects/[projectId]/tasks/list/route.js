@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { publicTask } from '@/lib/services/tasks/evaluation-journal';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -43,7 +44,7 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({
       code: 0,
-      data: tasks,
+      data: tasks.map(publicTask),
       total,
       page,
       limit,

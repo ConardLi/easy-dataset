@@ -1,55 +1,64 @@
-/**
- * 批量数据集评估任务API
- * 创建批量评估数据集质量的异步任务
- */
-
+import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db/index';
-import { processTask } from '@/lib/services/tasks/index';
+import { db } from '@/lib/db';
+import LLMClient from '@/lib/llm/core/index';
+import { getDatasetEvaluationTemplate } from '@/lib/llm/prompts/datasetEvaluation';
+import { processTask } from '@/lib/services/tasks';
+import { JOURNAL_VERSION, readEvaluationJournal } from '@/lib/services/tasks/evaluation-journal';
 
-/**
- * 创建批量数据集评估任务
- */
+const reject = (message, status = 400) => NextResponse.json({ success: false, message }, { status });
+
 export async function POST(request, { params }) {
   try {
     const { projectId } = params;
-    const { model, language = 'zh-CN' } = await request.json();
+    const { model, language = 'zh-CN', mode = 'unscored', datasetIds, retryTaskId, preview = false, confirmedCount } =
+      await request.json();
+    if (!projectId || typeof model?.modelId !== 'string' || !model.modelId.trim()) return reject('请选择评估模型');
+    if (!['unscored', 'selected', 'all', 'failed'].includes(mode)) return reject('评估范围无效');
+    if (mode !== 'selected' && datasetIds !== undefined) return reject('不适用的数据 ID 参数');
 
-    if (!projectId) {
-      return NextResponse.json({ success: false, message: '项目ID不能为空' }, { status: 400 });
+    const where = { projectId };
+    let selected;
+    if (mode === 'selected') {
+      if (!Array.isArray(datasetIds) || !datasetIds.length || datasetIds.some(id => typeof id !== 'string' || !id.trim())) {
+        return reject('请勾选需要重新评估的数据');
+      }
+      selected = new Set(datasetIds);
+    }
+    if (mode === 'failed') {
+      if (typeof retryTaskId !== 'string') return reject('缺少原评估任务');
+      const task = await db.task.findFirst({ where: { projectId, id: retryTaskId, status: { in: [2, 3] } } });
+      const journal = task && readEvaluationJournal(task);
+      if (!journal || journal.results.length !== journal.targetCount) return reject('原任务无完整执行记录');
+      selected = new Set(journal.results.filter(result => result.status === 'failed').map(result => result.datasetId));
+    }
+    if (mode === 'unscored') where.aiEvaluation = '';
+    const rows = await db.datasets.findMany({ where, select: { id: true }, orderBy: { id: 'asc' } });
+    const ids = rows.map(row => row.id).filter(id => !selected || selected.has(id));
+    if (mode === 'selected' && selected.size !== ids.length) return reject('选中数据已删除或不属于当前项目');
+    if (preview === true) return NextResponse.json({ success: true, count: ids.length });
+    if ((mode !== 'unscored' || confirmedCount !== undefined) && confirmedCount !== ids.length) {
+      return reject('预计评估数量已变化，请重新确认', 409);
     }
 
-    if (!model || !model.modelId) {
-      return NextResponse.json({ success: false, message: '模型配置不能为空' }, { status: 400 });
-    }
-
-    // 创建批量评估任务
-    const newTask = await db.task.create({
+    const template = await getDatasetEvaluationTemplate(language, projectId);
+    const { provider, model: modelId, temperature, topP, topK, maxTokens } = new LLMClient(model).config;
+    const journal = {
+      version: JOURNAL_VERSION, mode, targetCount: ids.length, claimed: false,
+      promptHash: createHash('sha256').update(template).digest('hex'),
+      model: { provider, modelId, temperature, topP, topK, maxTokens },
+      results: []
+    };
+    const task = await db.task.create({
       data: {
-        projectId,
-        taskType: 'dataset-evaluation',
-        status: 0, // 初始状态: 处理中
-        modelInfo: JSON.stringify(model),
-        language: language || 'zh-CN',
-        detail: '',
-        totalCount: 0,
-        note: '准备开始批量评估数据集质量...',
-        completedCount: 0
+        projectId, language, taskType: 'dataset-evaluation', status: 0,
+        modelInfo: JSON.stringify({ model: { modelId, modelName: model.modelName }, ids }), detail: JSON.stringify(journal), totalCount: ids.length,
+        note: '等待评估'
       }
     });
-
-    // 异步处理任务
-    processTask(newTask.id).catch(err => {
-      console.error(`批量评估任务启动失败: ${newTask.id}`, String(err));
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: '批量评估任务已创建',
-      data: { taskId: newTask.id }
-    });
-  } catch (error) {
-    console.error('创建批量评估任务失败:', error);
-    return NextResponse.json({ success: false, message: `创建任务失败: ${error.message}` }, { status: 500 });
+    processTask(task.id, { model, template }).catch(() => console.error('Dataset evaluation dispatch failed', task.id));
+    return NextResponse.json({ success: true, data: { taskId: task.id } });
+  } catch {
+    return reject('无法创建批量评估任务', 500);
   }
 }
