@@ -212,7 +212,7 @@ def run(db, port, mock):
 if __name__ == '__main__':
     with tempfile.TemporaryDirectory(prefix='evaluation-test-', dir=root / 'prisma') as folder:
         database = Path(folder) / 'test.sqlite'
-        env = dict(os.environ, DATABASE_URL='file:./'+database.relative_to(root/'prisma').as_posix(), NEXT_TELEMETRY_DISABLED='1',
+        env = dict(os.environ, DATABASE_URL='file:'+database.as_posix(), NEXT_TELEMETRY_DISABLED='1',
                    RAYON_NUM_THREADS='2')
         if len(sys.argv) != 2:
             raise SystemExit('Pass the path to an empty SQLite database created by prisma db push')
