@@ -87,7 +87,7 @@ const useDatasetEvaluation = (projectId, onEvaluationComplete) => {
   /**
    * 处理批量评估
    */
-  const handleBatchEvaluate = async () => {
+  const handleBatchEvaluate = async (mode = 'unscored', datasetIds = [], retryTaskId) => {
     // 检查模型配置
     if (!checkModelConfiguration()) {
       return;
@@ -96,22 +96,30 @@ const useDatasetEvaluation = (projectId, onEvaluationComplete) => {
     try {
       setBatchEvaluating(true);
 
-      // 调用批量评估接口
-      const response = await fetch(`/api/projects/${projectId}/datasets/batch-evaluate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          language: 'zh-CN'
-        })
-      });
-
-      const result = await response.json();
+      const scope = mode === 'selected' ? { datasetIds } : mode === 'failed' ? { retryTaskId } : {};
+      const send = async options => {
+        const response = await fetch(`/api/projects/${projectId}/datasets/batch-evaluate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, language: 'zh-CN', mode, ...scope, ...options })
+        });
+        const body = await response.json();
+        if (!response.ok || !body.success) throw new Error(body.message);
+        return body;
+      };
+      const { count } = await send({ preview: true });
+      if (!count) {
+        toast.info(t('datasets.noEvaluationTargets', '没有符合条件的数据'));
+        return;
+      }
+      if (!window.confirm(t('datasets.confirmEvaluation', '使用 {{model}} 评估 {{count}} 条数据，可能产生 API 费用。继续？', { model: model.modelName, count }))) return;
+      const result = await send({ confirmedCount: count });
 
       if (result.success) {
         toast.success(t('datasets.batchEvaluateStarted', '批量评估任务已启动，将在后台进行处理'));
         // 跳转到任务页面查看进度
-        router.push(`/projects/${projectId}/tasks`);
+        if (mode === 'failed') await onEvaluationComplete?.();
+        else router.push(`/projects/${projectId}/tasks`);
       } else {
         toast.error(result.message || t('datasets.batchEvaluateStartFailed', '启动批量评估失败'));
       }

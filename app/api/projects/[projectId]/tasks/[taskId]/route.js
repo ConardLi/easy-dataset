@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { recoverPendingTasks } from '@/lib/services/tasks/recovery';
+import { EVALUATION_CANCELLING_NOTE, publicTask, readEvaluationJournal } from '@/lib/services/tasks/evaluation-journal';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -6,6 +8,7 @@ const prisma = new PrismaClient();
 // 获取任务详情
 export async function GET(request, { params }) {
   try {
+    await recoverPendingTasks();
     const { projectId, taskId } = params;
 
     // 验证必填参数
@@ -39,7 +42,7 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({
       code: 0,
-      data: task,
+      data: publicTask(task),
       message: '获取任务详情成功'
     });
   } catch (error) {
@@ -70,6 +73,17 @@ export async function PATCH(request, { params }) {
         },
         { status: 400 }
       );
+    }
+
+    const existing = await prisma.task.findUnique({ where: { id: taskId, projectId } });
+    if (!existing) return NextResponse.json({ code: 404, error: '任务不存在' }, { status: 404 });
+    if (readEvaluationJournal(existing)) {
+      if (data.status !== 3) return NextResponse.json({ code: 400, error: '评估任务只支持取消' }, { status: 400 });
+      const result = await prisma.task.updateMany({
+        where: { id: taskId, projectId, status: 0 },
+        data: { status: 3, note: EVALUATION_CANCELLING_NOTE, endTime: new Date() }
+      });
+      return NextResponse.json({ code: result.count ? 0 : 409 }, { status: result.count ? 200 : 409 });
     }
 
     // 获取要更新的字段
@@ -106,14 +120,15 @@ export async function PATCH(request, { params }) {
     // 更新任务
     const updatedTask = await prisma.task.update({
       where: {
-        id: taskId
+        id: taskId,
+        projectId
       },
       data: updateData
     });
 
     return NextResponse.json({
       code: 0,
-      data: updatedTask,
+      data: publicTask(updatedTask),
       message: '更新任务状态成功'
     });
   } catch (error) {

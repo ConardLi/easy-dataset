@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import {
@@ -13,7 +13,8 @@ import {
   CircularProgress,
   Box,
   TablePagination,
-  Tooltip
+  Tooltip,
+  Button
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
@@ -28,6 +29,7 @@ export default function TasksTable({
   loading,
   handleAbortTask,
   handleDeleteTask,
+  onRetryEvaluation,
   page,
   rowsPerPage,
   handleChangePage,
@@ -226,6 +228,14 @@ export default function TasksTable({
             ) : (
               tasks.map(task => {
                 const noteText = formatTaskNote(task);
+                let incomplete = [];
+                if (task.taskType === 'dataset-evaluation' && task.status !== 0) {
+                  try {
+                    incomplete = (JSON.parse(task.detail).results ?? []).filter(result => result.status !== 'succeeded');
+                  } catch {
+                    // Earlier evaluation tasks have plain-text details.
+                  }
+                }
                 return (
                   <TableRow key={task.id}>
                     <TableCell>{getLocalizedTaskType(task.taskType)}</TableCell>
@@ -257,6 +267,24 @@ export default function TasksTable({
                       )}
                     </TableCell>
                     <TableCell align="right">
+                      {incomplete.length > 0 && (
+                        <details>
+                          <summary>{t('tasks.evaluationIncomplete', '查看未更新评分的样本')}</summary>
+                          <Box component="ul" sx={{ maxHeight: 160, overflow: 'auto', textAlign: 'left' }}>
+                            {incomplete.map(row => (
+                              <li key={row.datasetId}>
+                                {row.datasetId} · {row.status} {row.error && `(${row.error})`}
+                                {row.oldScore != null && ` · ${t('tasks.previousScore', '原评分')} ${row.oldScore}`}
+                              </li>
+                            ))}
+                          </Box>
+                        </details>
+                      )}
+                      {task.canRetryEvaluation && (
+                        <Button size="small" onClick={() => onRetryEvaluation(task.id)}>
+                          {t('tasks.retryIncompleteEvaluation', '重评失败及未执行样本')}
+                        </Button>
+                      )}
                       <TaskActions task={task} onAbort={handleAbortTask} onDelete={handleDeleteTask} />
                     </TableCell>
                   </TableRow>

@@ -13,7 +13,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ success: false, message: '项目ID和数据集ID不能为空' }, { status: 400 });
     }
 
-    if (!model) {
+    if (typeof model?.modelId !== 'string' || !model.modelId.trim()) {
       return NextResponse.json({ success: false, message: '模型配置不能为空' }, { status: 400 });
     }
 

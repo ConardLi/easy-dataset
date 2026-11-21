@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 
 import TaskFilters from '@/components/tasks/TaskFilters';
 import TasksTable from '@/components/tasks/TasksTable';
+import useDatasetEvaluation from '../datasets/hooks/useDatasetEvaluation';
 
 export default function TasksPage({ params }) {
   const { projectId } = params;
@@ -74,6 +75,8 @@ export default function TasksPage({ params }) {
 
     return () => clearInterval(intervalId);
   }, [projectId, statusFilter, typeFilter, page, rowsPerPage]);
+
+  const { handleBatchEvaluate } = useDatasetEvaluation(projectId, fetchTasks);
 
   const handleDeleteTask = async taskId => {
     if (!confirm(t('tasks.confirmDelete'))) return;
@@ -164,6 +167,7 @@ export default function TasksPage({ params }) {
         loading={loading}
         handleAbortTask={handleAbortTask}
         handleDeleteTask={handleDeleteTask}
+        onRetryEvaluation={taskId => handleBatchEvaluate('failed', [], taskId)}
         page={page}
         rowsPerPage={rowsPerPage}
         handleChangePage={handleChangePage}

@@ -490,7 +490,7 @@ export default function DatasetsPage({ params }) {
           />
           <ActionBar
             batchEvaluating={batchEvaluating}
-            onBatchEvaluate={handleBatchEvaluate}
+            onBatchEvaluate={mode => handleBatchEvaluate(mode, selectedIds)}
             onImport={handleOpenImportDialog}
             onExport={handleOpenExportDialog}
           />
