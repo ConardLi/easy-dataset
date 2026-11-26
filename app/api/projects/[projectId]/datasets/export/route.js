@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/db/index';
 import {
   getDatasets,
   getBalancedDatasetsByTags,
@@ -8,6 +9,32 @@ import {
   getDatasetsByIds,
   getDatasetsByIdsBatch
 } from '@/lib/db/datasets';
+
+async function includeLinkedChunks(projectId, datasets) {
+  const questionIds = [...new Set(datasets.map(row => row.questionId).filter(Boolean))];
+  const contentByQuestion = new Map();
+
+  // Keep SQLite query parameters bounded for large export batches.
+  const chunkSize = 500;
+  for (let offset = 0; offset < questionIds.length; offset += chunkSize) {
+    const questions = await db.questions.findMany({
+      where: {
+        projectId,
+        id: { in: questionIds.slice(offset, offset + chunkSize) },
+        chunk: { projectId }
+      },
+      select: { id: true, chunk: { select: { content: true } } }
+    });
+    for (const question of questions) {
+      contentByQuestion.set(question.id, question.chunk.content);
+    }
+  }
+
+  return datasets.map(row => ({
+    ...row,
+    chunkContent: contentByQuestion.get(row.questionId) ?? row.chunkContent
+  }));
+}
 
 /**
  * 获取导出数据集
@@ -68,6 +95,8 @@ export async function POST(request, { params }) {
 
     // 检查是否有选中的数据集 ID
     const selectedIds = Array.isArray(body.selectedIds) ? body.selectedIds : null;
+    const includeChunk = body.includeChunk === true;
+    const withChunks = data => (includeChunk ? includeLinkedChunks(projectId, data) : data);
 
     if (batchMode === 'true') {
       // 分批导出模式
@@ -76,25 +105,32 @@ export async function POST(request, { params }) {
         const datasets = await getDatasetsByIdsBatch(projectId, selectedIds, offset, batchSize);
         const hasMore = datasets.length === batchSize;
         return NextResponse.json({
-          data: datasets,
+          data: await withChunks(datasets),
           hasMore,
           offset: offset + datasets.length
         });
       } else if (balanceMode === 'true' && balanceConfig) {
         // 平衡分批导出
         const parsedConfig = typeof balanceConfig === 'string' ? JSON.parse(balanceConfig) : balanceConfig;
-        const result = await getBalancedDatasetsByTagsBatch(projectId, parsedConfig, confirmed, offset, batchSize);
+        const result = await getBalancedDatasetsByTagsBatch(
+          projectId,
+          parsedConfig,
+          confirmed,
+          offset,
+          batchSize,
+          includeChunk
+        );
         return NextResponse.json({
-          data: result.data,
+          data: await withChunks(result.data),
           hasMore: result.hasMore,
           offset: offset + result.data.length
         });
       } else {
         // 常规分批导出
-        const datasets = await getDatasetsBatch(projectId, confirmed, offset, batchSize);
+        const datasets = await getDatasetsBatch(projectId, confirmed, offset, batchSize, includeChunk);
         const hasMore = datasets.length === batchSize;
         return NextResponse.json({
-          data: datasets,
+          data: await withChunks(datasets),
           hasMore,
           offset: offset + datasets.length
         });
