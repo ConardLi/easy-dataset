@@ -138,7 +138,7 @@ const useDatasetExport = projectId => {
         const formattedBatch = formatDataBatch(batchResult.data, exportOptions);
 
         // 写入当前批次
-        if (fileFormat === 'json') {
+        if (fileFormat === 'json' && formattedBatch.length > 0) {
           // 保持与原逻辑一致：JSON 导出为“格式化后的 JSON 数组”（2空格缩进）
           // 每条记录单独 stringify + 缩进，并在数组级别拼接，避免一次性 stringify 全量数据导致内存暴涨
           const batchContent = formattedBatch
@@ -157,6 +157,7 @@ const useDatasetExport = projectId => {
             chunks.push(content);
             chunkCount++;
           }
+          isFirstBatch = false;
         } else if (fileFormat === 'jsonl') {
           const batchContent = formattedBatch.map(item => JSON.stringify(item)).join('\n') + '\n';
 
@@ -186,7 +187,6 @@ const useDatasetExport = projectId => {
         hasMore = batchResult.hasMore;
         offset = batchResult.offset;
         totalProcessed += batchResult.data.length;
-        isFirstBatch = false;
 
         // 通知进度更新
         if (onProgress) {
