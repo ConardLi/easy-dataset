@@ -109,30 +109,12 @@ const useDatasetExport = projectId => {
           requestBody.balanceConfig = exportOptions.balanceConfig;
         }
 
+        if (formatType === 'custom' && exportOptions.customFields?.includeChunk) {
+          requestBody.includeChunk = true;
+        }
+
         const response = await axios.post(apiUrl, requestBody);
         const batchResult = response.data;
-
-        // 如果需要包含文本块内容，批量查询并填充
-        if (exportOptions.customFields?.includeChunk && batchResult.data.length > 0) {
-          const chunkNames = batchResult.data.map(item => item.chunkName).filter(name => name);
-
-          if (chunkNames.length > 0) {
-            try {
-              const chunkResponse = await axios.post(`/api/projects/${projectId}/chunks/batch-content`, {
-                chunkNames
-              });
-              const chunkContentMap = chunkResponse.data;
-
-              batchResult.data.forEach(item => {
-                if (item.chunkName && chunkContentMap[item.chunkName]) {
-                  item.chunkContent = chunkContentMap[item.chunkName];
-                }
-              });
-            } catch (chunkError) {
-              console.error('获取文本块内容失败:', chunkError);
-            }
-          }
-        }
 
         // 转换当前批次数据
         const formattedBatch = formatDataBatch(batchResult.data, exportOptions);
